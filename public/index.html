@@ -28,10 +28,10 @@
     <div class="role-picker">
       <span>Роль:</span>
       <select id="demoRoleSelect">
-        <option value="director">Директор ОО (Иванова А. А.)</option>
-        <option value="deputy">Заместитель по УВР (Смирнов М. В.)</option>
-        <option value="reserve">Кадровый резерв (Кузнецова Е. П.)</option>
-        <option value="expert">Эксперт Лиги (Вербицкая И. В.)</option>
+        <option value="director">Директор ОО</option>
+        <option value="deputy">Заместитель по УВР</option>
+        <option value="reserve">Кадровый резерв</option>
+        <option value="expert">Эксперт Лиги</option>
       </select>
     </div>
 
@@ -43,9 +43,9 @@
       <a href="#/diag">Диагностика</a>
       <a href="#/traj">Траектория</a>
       <a href="#/dialog">Диалог</a>
-      <a href="#/future">Кузбасс.Будущее</a>
-      <a href="#/help">Руководителю</a>
-      <a href="#/login" class="btn-login" id="navLoginBtn">Личный кабинет</a>
+      <a href="#/future">Резерв</a>
+      <a href="#/help">Библиотека</a>
+      <a href="#/login" class="btn-login" id="navLoginBtn">Кабинет</a>
       <div id="userHeaderBadge" class="user-badge-header" style="display:none" onclick="location.hash='#/login'"></div>
     </nav>
   </div>
@@ -367,9 +367,18 @@
     <div class="tabpane dt-pane" id="dt-test">
       <div class="card">
         <h3>Стандартизированный комплексный тест (20 заданий)</h3>
-        <p style="margin-bottom:16px">
+        <p style="margin-bottom:12px">
           Тест охватывает стратегию, финансово-хозяйственную деятельность, кадры, качество образования и коммуникации. После ответа вы получите детальное обоснование со ссылками на федеральное законодательство (актуальность: 2026 г.).
         </p>
+
+        <!-- Live Progress Counter for Test -->
+        <div id="testProgressBar" style="display:flex;justify-content:space-between;align-items:center;background:var(--surface-subtle);padding:8px 14px;border-radius:var(--radius-sm);margin-bottom:16px;border:1px solid var(--border)">
+          <span style="font-size:12.5px;font-weight:700;color:var(--ink)">Прогресс прохождения: <span id="testAnsweredCount">0</span> из 20 заданий</span>
+          <div style="width:180px;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+            <div id="testProgressFill" style="width:0%;height:6px;background:var(--accent-blue);border-radius:3px;transition:width 0.2s"></div>
+          </div>
+        </div>
+
         <div id="testList"></div>
 
         <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
@@ -383,6 +392,19 @@
 
     <!-- Tab 3: Банк кейсов -->
     <div class="tabpane dt-pane" id="dt-case">
+      <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn sm primary case-filter-btn on" data-cat="all">Все (200+)</button>
+          <button class="btn sm outline case-filter-btn" data-cat="ФХД">ФХД и закупки</button>
+          <button class="btn sm outline case-filter-btn" data-cat="персонал">Кадры и команда</button>
+          <button class="btn sm outline case-filter-btn" data-cat="качество">Качество и ВСОКО</button>
+          <button class="btn sm outline case-filter-btn" data-cat="стратегия">Стратегия развития</button>
+          <button class="btn sm outline case-filter-btn" data-cat="коммуникации">Коммуникации</button>
+        </div>
+        <div style="min-width:240px">
+          <input type="text" class="inp" id="caseSearchInput" placeholder="Поиск по банку кейсов..." style="padding:6px 10px;font-size:12.5px">
+        </div>
+      </div>
       <div class="grid g3" id="casesContainer"></div>
     </div>
 
@@ -639,6 +661,18 @@
         <h3 id="cabWho">Участник проекта</h3>
         <div class="user-info-line">Данные синхронизированы с региональной базой ФИП РАО</div>
 
+        <!-- Readiness Widget for Director / Candidate -->
+        <div id="cabReadinessWidget" style="margin-top:14px;background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-muted)">Готовность к региональной аттестации (модель 2027–2029)</div>
+            <div style="font-size:14px;font-weight:700;color:var(--ink);margin-top:2px" id="cabReadinessText">85% · Высокая степень готовности</div>
+            <div style="font-size:12px;color:var(--ink-secondary)" id="cabReadinessDetails">Диагностика пройдена, 2 из 3 модулей ИПР освоены, портфолио сформировано</div>
+          </div>
+          <div style="width:160px;height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+            <div id="cabReadinessFill" style="width:85%;height:8px;background:var(--accent-blue);border-radius:4px;transition:width 0.3s"></div>
+          </div>
+        </div>
+
         <div class="tabs" id="ctabs" style="margin-top:16px">
           <button class="on" data-t="ank">Анкета</button>
           <button data-t="rep">Прогресс во времени</button>
@@ -719,9 +753,12 @@
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
             <div>
               <h3 style="margin:0">Индивидуальная программа развития (ИПР)</h3>
-              <p style="margin:4px 0 0;font-size:13px;color:var(--ink-muted)">Сформирована автоматически на основе выявленных дефицитов</p>
+              <p style="margin:4px 0 0;font-size:13px;color:var(--ink-muted)">Сформирована автоматически на основе выявленных дефицитов по профстандарту</p>
             </div>
-            <button class="btn sm outline" onclick="location.hash='#/diag'">Пройти замер заново</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn sm outline" onclick="window.print()">Распечатать ИПР (PDF)</button>
+              <button class="btn sm outline" onclick="location.hash='#/diag'">Пройти замер заново</button>
+            </div>
           </div>
           <div id="cabIprList"></div>
         </div>

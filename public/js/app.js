@@ -61,15 +61,15 @@ async function initAuth() {
       state.currentUser = res.user;
       localStorage.setItem('kuzbass_user', JSON.stringify(res.user));
     } catch (_) {
-      await loginAs('director', 'demo123');
+      await loginAs('director', 'demo123', true);
     }
   } else {
-    await loginAs('director', 'demo123');
+    await loginAs('director', 'demo123', true);
   }
   updateAuthUI();
 }
 
-async function loginAs(login, password) {
+async function loginAs(login, password, silent = false) {
   try {
     const data = await api('/api/auth/login', {
       method: 'POST',
@@ -79,10 +79,10 @@ async function loginAs(login, password) {
     localStorage.setItem('kuzbass_user', JSON.stringify(data.user));
     updateAuthUI();
     loadCabinetData();
-    showToast(`Вход выполнен: ${data.user.fio}`);
+    if (!silent) showToast(`Вход выполнен: ${data.user.fio}`);
     return data.user;
   } catch (err) {
-    showToast(err.message, true);
+    if (!silent) showToast(err.message, true);
   }
 }
 
@@ -306,6 +306,14 @@ async function submitSelfAssessment() {
   resBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+function updateTestProgress() {
+  const answeredCount = Object.keys(state.testAnswers).length;
+  const countEl = document.getElementById('testAnsweredCount');
+  const fillEl = document.getElementById('testProgressFill');
+  if (countEl) countEl.textContent = answeredCount;
+  if (fillEl) fillEl.style.width = `${Math.min(100, Math.round((answeredCount / TEST_QUESTIONS.length) * 100))}%`;
+}
+
 // ── Comprehensive Test ──
 function renderTest() {
   const box = document.getElementById('testList');
@@ -343,8 +351,10 @@ function renderTest() {
     radio.onchange = (e) => {
       const qIndex = +e.target.name.replace('test_q_', '');
       state.testAnswers[qIndex] = +e.target.value;
+      updateTestProgress();
     };
   });
+  updateTestProgress();
 }
 
 async function submitTest() {
@@ -443,19 +453,49 @@ async function submitTest() {
 }
 
 // ── Cases & Simulations ──
+let currentCaseFilter = 'all';
+let currentCaseSearch = '';
+
 function renderCasesAndSimulations() {
   const caseBox = document.getElementById('casesContainer');
   if (caseBox) {
-    caseBox.innerHTML = CASES_CATALOG.map(c => `
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span class="badge b-i">${c.badge}</span>
-          <span class="badge b-a">${c.level}</span>
+    let filtered = CASES_CATALOG;
+    if (currentCaseFilter && currentCaseFilter !== 'all') {
+      const q = currentCaseFilter.toLowerCase();
+      filtered = filtered.filter(c =>
+        (c.dir && c.dir.toLowerCase().includes(q)) ||
+        (c.badge && c.badge.toLowerCase().includes(q)) ||
+        (c.title && c.title.toLowerCase().includes(q))
+      );
+    }
+    if (currentCaseSearch) {
+      const sq = currentCaseSearch.toLowerCase().trim();
+      filtered = filtered.filter(c =>
+        c.title.toLowerCase().includes(sq) ||
+        c.desc.toLowerCase().includes(sq) ||
+        (c.dir && c.dir.toLowerCase().includes(sq)) ||
+        (c.badge && c.badge.toLowerCase().includes(sq))
+      );
+    }
+
+    if (!filtered.length) {
+      caseBox.innerHTML = `
+        <div style="grid-column:1/-1;background:var(--surface-subtle);padding:24px;border-radius:var(--radius-sm);text-align:center;color:var(--ink-muted);font-size:13.5px">
+          По заданным критериям кейсов не найдено. Попробуйте выбрать другую категорию или очистить поисковый запрос.
         </div>
-        <h3>${c.title}</h3>
-        <p>${c.desc}</p>
-      </div>
-    `).join('');
+      `;
+    } else {
+      caseBox.innerHTML = filtered.map(c => `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span class="badge b-i">${c.badge}</span>
+            <span class="badge b-a">${c.level}</span>
+          </div>
+          <h3>${c.title}</h3>
+          <p>${c.desc}</p>
+        </div>
+      `).join('');
+    }
   }
 
   const simBox = document.getElementById('simContainer');
@@ -700,8 +740,43 @@ async function loadCabinetData() {
     const portRes = await api('/api/user/portfolio');
     state.portfolioItems = portRes.items;
     renderCabinetPortfolio(portRes.items);
+
+    updateCabinetReadiness();
   } catch (err) {
     console.error('Failed loading cabinet data:', err);
+  }
+}
+
+function updateCabinetReadiness() {
+  const diagCount = state.diagHistory ? state.diagHistory.length : 0;
+  const iprTotal = state.iprItems ? state.iprItems.length : 0;
+  const iprDone = state.iprItems ? state.iprItems.filter(i => i.status === 'completed').length : 0;
+  const portTotal = state.portfolioItems ? state.portfolioItems.length : 0;
+
+  let score = 20; // базовый профиль
+  if (diagCount > 0) score += 30;
+  if (iprTotal > 0) {
+    score += Math.round((iprDone / iprTotal) * 30);
+  }
+  if (portTotal > 0) score += Math.min(20, portTotal * 5);
+
+  score = Math.min(100, Math.max(15, score));
+
+  const textEl = document.getElementById('cabReadinessText');
+  const detEl = document.getElementById('cabReadinessDetails');
+  const fillEl = document.getElementById('cabReadinessFill');
+
+  if (textEl && fillEl) {
+    fillEl.style.width = `${score}%`;
+    let statusLabel = 'Базовый уровень';
+    if (score >= 80) statusLabel = 'Высокая степень готовности';
+    else if (score >= 60) statusLabel = 'Достаточная степень готовности';
+    else if (score >= 40) statusLabel = 'Формирующийся уровень';
+
+    textEl.textContent = `${score}% · ${statusLabel}`;
+    if (detEl) {
+      detEl.textContent = `Диагностика: ${diagCount > 0 ? 'пройдена (' + diagCount + ' замера)' : 'не пройдена'}, ИПР: ${iprDone} из ${iprTotal} освоено, портфолио: ${portTotal} документов`;
+    }
   }
 }
 
@@ -1043,8 +1118,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     testResetBtn.onclick = () => {
       state.testAnswers = {};
       renderTest();
+      updateTestProgress();
       const r = document.getElementById('testRes');
       if (r) r.className = 'diag-result-card';
+    };
+  }
+
+  // Case filter buttons
+  document.querySelectorAll('.case-filter-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.case-filter-btn').forEach(b => {
+        b.classList.remove('primary', 'on');
+        b.classList.add('outline');
+      });
+      btn.classList.remove('outline');
+      btn.classList.add('primary', 'on');
+      currentCaseFilter = btn.dataset.cat;
+      renderCasesAndSimulations();
+    };
+  });
+
+  // Case search input
+  const caseSearch = document.getElementById('caseSearchInput');
+  if (caseSearch) {
+    caseSearch.oninput = (e) => {
+      currentCaseSearch = e.target.value;
+      renderCasesAndSimulations();
     };
   }
 
