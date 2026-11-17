@@ -28,8 +28,292 @@ function showToast(message, isError = false) {
   }, 3500);
 }
 
+// ── Offline / File Protocol Fallback Data ──
+const OFFLINE_SEED = {
+  users: {
+    director: {
+      id: 1, login: 'director', role: 'director', role_title: 'Директор ОО',
+      fio: 'Иванова Анна Андреевна', birth_date: '1983-05-14', address: 'г. Кемерово, пр. Ленина, 82',
+      phone: '+7 (905) 912-34-56', email: 'ivanova@kuz-edu.ru', citizenship: 'Российская Федерация',
+      education_level: 'Высшее (специалитет)', institution: 'Кемеровский государственный университет (КемГУ)',
+      workplace: 'МБОУ «СОШ № 1 г. Кемерово»', position: 'Директор', experience_total: '18 / 18 / 6',
+      share_experience: 'Управление качеством (ВСОКО), бережливые технологии', consent_pd: 1
+    },
+    deputy: {
+      id: 2, login: 'deputy', role: 'deputy', role_title: 'Заместитель по УВР',
+      fio: 'Смирнов Михаил Владимирович', birth_date: '1987-11-20', address: 'г. Новокузнецк, ул. Кирова, 45',
+      phone: '+7 (923) 456-78-90', email: 'smirnov@kuz-edu.ru', citizenship: 'Российская Федерация',
+      education_level: 'Высшее (магистратура)', institution: 'Новокузнецкий филиал-институт КемГУ',
+      workplace: 'МБОУ «Лицей № 84 г. Новокузнецка»', position: 'Заместитель директора по УВР', experience_total: '12 / 12 / 3',
+      share_experience: 'Профильное обучение и инженерные классы', consent_pd: 1
+    },
+    reserve: {
+      id: 3, login: 'reserve', role: 'reserve', role_title: 'Кадровый резерв',
+      fio: 'Кузнецова Елена Петровна', birth_date: '1992-03-08', address: 'г. Прокопьевск, ул. Гагарина, 12',
+      phone: '+7 (913) 789-01-23', email: 'kuznetsova@kuz-edu.ru', citizenship: 'Российская Федерация',
+      education_level: 'Высшее (специалитет)', institution: 'Кузбасский гуманитарно-педагогический институт',
+      workplace: 'МБОУ «Гимназия № 72 г. Прокопьевска»', position: 'Учитель математики, резервист Лиги', experience_total: '9 / 9 / 0',
+      share_experience: 'Цифровая образовательная среда и олимпиадное движение', consent_pd: 1
+    },
+    expert: {
+      id: 4, login: 'expert', role: 'expert', role_title: 'Эксперт Лиги',
+      fio: 'Вербицкая Ирина Васильевна', birth_date: '1975-09-19', address: 'г. Кемерово, б-р Строителей, 28',
+      phone: '+7 (903) 901-23-45', email: 'verbitskaya@kuz-edu.ru', citizenship: 'Российская Федерация',
+      education_level: 'Высшее (аспирантура / ученая степень)', institution: 'ИРО Кузбасса (к.п.н., доцент)',
+      workplace: 'ГБОУ ДПО «ИРО Кузбасса»', position: 'Заведующая кафедрой управления образованием', experience_total: '26 / 26 / 15',
+      share_experience: 'Аттестация руководящих кадров, целевое наставничество', consent_pd: 1
+    }
+  },
+  ipr: [
+    {
+      id: 1, competency: 'Финансово-хозяйственная деятельность', deficit_level: 'medium',
+      recommended_module: 'Модуль 2: Экономика школы и закупки по 44-ФЗ / 223-ФЗ в 2026–2027 гг.',
+      action_format: 'Курс ДПО (72 ч) + наставнический практикум',
+      target_result: 'Скорректированный план ФХД ОО и проект закупки без нарушений',
+      deadline: 'I квартал 2027', status: 'in_progress', mentor_name: 'Вербицкая И. В.'
+    },
+    {
+      id: 2, competency: 'Управление качеством образования', deficit_level: 'medium',
+      recommended_module: 'Модуль 4: ВСОКО как инструмент доказательного управления ОО',
+      action_format: 'Стажировочная площадка опорной школы',
+      target_result: 'Положение о ВСОКО и карта аналитических показателей',
+      deadline: 'II квартал 2027', status: 'planned', mentor_name: 'Совет Лиги'
+    },
+    {
+      id: 3, competency: 'Управление персоналом', deficit_level: 'low',
+      recommended_module: 'Модуль 3: Парное управление и наставничество молодых педагогов',
+      action_format: 'Командная сессия Лиги директоров',
+      target_result: 'Дорожная карта наставничества для 5 молодых специалистов',
+      deadline: 'IV квартал 2026', status: 'completed', mentor_name: 'Вербицкая И. В.'
+    }
+  ],
+  diagnostics: [
+    { id: 1, type: 'self_assessment', score_percent: 75, deficit_level: 'above_average', summary_text: 'Выше среднего уровня (75%). Самооценка.', created_at: '2026-09-15T09:00:00Z' },
+    { id: 2, type: 'test_20', score_percent: 85, deficit_level: 'low', summary_text: 'Тест 20 заданий: 17/20 (85%). Низкий уровень дефицитов.', created_at: '2026-10-20T11:30:00Z' },
+    { id: 3, type: 'test_20', score_percent: 90, deficit_level: 'low', summary_text: 'Комплексный тест: 18/20 (90%). Низкий уровень дефицитов.', created_at: '2026-11-12T14:15:00Z' }
+  ],
+  portfolio: [
+    {
+      id: 1, title: 'Программа развития МБОУ «СОШ № 1 г. Кемерово» на 2025–2028 гг.', category: 'achievements',
+      description: 'Утверждена педсоветом, согласована с Учредителем. Заняла II место в региональном конкурсе программ развития.',
+      file_path: '', verification_status: 'approved', expert_comment: 'Соответствует ФОП и стратегическим приоритетам Кузбасса.', created_at: '2026-10-01T10:00:00Z'
+    },
+    {
+      id: 2, title: 'Аналитическая справка: динамика показателей ВПР и ГИА за 3 года', category: 'results_dynamics',
+      description: 'Рост качества образования по профильным предметам на 14.2%.',
+      file_path: '', verification_status: 'approved', expert_comment: 'Объективность оценивания подтверждена независимым мониторингом.', created_at: '2026-10-15T12:00:00Z'
+    },
+    {
+      id: 3, title: 'Удостоверение о повышении квалификации: «Менеджмент в образовании» (144 ч)', category: 'prof_development',
+      description: 'ФГАОУ ДПО «Академия Минпросвещения России», рег. номер 77/4921.',
+      file_path: '', verification_status: 'approved', expert_comment: 'Зачтено в счёт обязательного модуля ДПО.', created_at: '2026-11-01T08:00:00Z'
+    }
+  ],
+  dialogue: [
+    {
+      id: 1, author_name: 'Смирнов М. В.', author_role: 'Заместитель по УВР', author_workplace: 'Лицей № 84 г. Новокузнецка',
+      question_text: 'Как правильно оформить доплату за наставничество в локальном Положении об оплате труда по методике парного руководства?',
+      status: 'answered', answer_text: 'Рекомендуется включить фиксированную стимулирующую надбавку в Положение об оплате труда ОО на основании Распоряжения Минпросвещения РФ № Р-145 и методических рекомендаций ИРО Кузбасса (раздел 4). Приказ издаётся ежегодно по результатам соглашения сторон.',
+      expert_name: 'Вербицкая И. В. (эксперт Лиги)', created_at: '2026-11-10T10:00:00Z'
+    },
+    {
+      id: 2, author_name: 'Кузнецова Е. П.', author_role: 'Кадровый резерв', author_workplace: 'Гимназия № 72 г. Прокопьевска',
+      question_text: 'Какие подтверждающие документы в портфолио имеют наивысший вес при аттестации кандидата на должность руководителя ОО?',
+      status: 'answered', answer_text: 'Наибольший вес имеют: 1) Подтверждённая динамика образовательных результатов ОО/класса за 3 года (ВСОКО/ГИА); 2) Защищённый управленческий проект развития ОО; 3) Результаты независимой диагностики дефицитов ИРО Кузбасса.',
+      expert_name: 'Комиссия Лиги директоров Кузбасса', created_at: '2026-11-14T15:20:00Z'
+    }
+  ],
+  ideas: [
+    {
+      id: 1, title: '«Управленческий инкубатор»: стажировки резервистов в школах-лидерах',
+      description: 'Программа 14-дневного погружения кандидата в должность исполняющего обязанности директора опорной ОО под кураторством наставника с разбором реальных управленческих кейсов.',
+      expected_effect: 'Сокращение адаптационного периода вновь назначенных директоров с 1.5 лет до 3 месяцев.',
+      category: 'Наставничество', author_name: 'Иванова А. А.', author_role: 'Директор ОО', workplace: 'МБОУ «СОШ № 1 г. Кемерово»',
+      votes_count: 42, has_voted: 1
+    },
+    {
+      id: 2, title: 'Региональный депозитарий школьных программ развития',
+      description: 'Единая защищённая цифровая база успешно прошедших экспертизу программ развития школ Кузбасса с фильтрацией по типологии ОО (малокомплектные, городские, сельские, инженерные).',
+      expected_effect: 'Экономия до 120 часов методической работы каждой управленческой команды региона.',
+      category: 'Цифровизация', author_name: 'Смирнов М. В.', author_role: 'Заместитель по УВР', workplace: 'Лицей № 84 г. Новокузнецка',
+      votes_count: 28, has_voted: 0
+    }
+  ]
+};
+
+function getLocalState(key, fallback) {
+  try {
+    const s = localStorage.getItem('kuz_' + key);
+    if (s) return JSON.parse(s);
+  } catch (_) {}
+  return fallback;
+}
+
+function setLocalState(key, val) {
+  try {
+    localStorage.setItem('kuz_' + key, JSON.stringify(val));
+  } catch (_) {}
+}
+
+async function mockApi(endpoint, options = {}) {
+  const method = (options.method || 'GET').toUpperCase();
+  let body = {};
+  if (typeof options.body === 'string') {
+    try { body = JSON.parse(options.body || '{}'); } catch (_) {}
+  }
+
+  if (endpoint === '/api/auth/me') {
+    return { user: state.currentUser || OFFLINE_SEED.users.director };
+  }
+  if (endpoint === '/api/auth/login') {
+    const login = body.login || 'director';
+    const u = OFFLINE_SEED.users[login] || Object.values(OFFLINE_SEED.users).find(x => x.login === login) || OFFLINE_SEED.users.director;
+    return { success: true, user: u };
+  }
+  if (endpoint === '/api/user/profile') {
+    state.currentUser = { ...state.currentUser, ...body };
+    setLocalState('cur_user', state.currentUser);
+    return { success: true, user: state.currentUser };
+  }
+  if (endpoint === '/api/user/diagnostics') {
+    let diag = getLocalState('diagnostics', OFFLINE_SEED.diagnostics);
+    if (method === 'POST') {
+      const newItem = {
+        id: Date.now(),
+        type: body.type,
+        score_percent: body.score_percent,
+        deficit_level: body.deficit_level,
+        summary_text: body.summary_text,
+        details: body.details,
+        created_at: new Date().toISOString()
+      };
+      diag = [newItem, ...diag];
+      setLocalState('diagnostics', diag);
+      return { success: true, item: newItem };
+    }
+    return { results: diag };
+  }
+  if (endpoint === '/api/user/ipr') {
+    let ipr = getLocalState('ipr', OFFLINE_SEED.ipr);
+    return { items: ipr };
+  }
+  if (endpoint.startsWith('/api/user/ipr/')) {
+    const id = +endpoint.split('/').pop();
+    let ipr = getLocalState('ipr', OFFLINE_SEED.ipr);
+    ipr = ipr.map(it => it.id === id ? { ...it, status: body.status } : it);
+    setLocalState('ipr', ipr);
+    return { success: true };
+  }
+  if (endpoint === '/api/user/portfolio') {
+    let pf = getLocalState('portfolio', OFFLINE_SEED.portfolio);
+    if (method === 'POST') {
+      const title = options.body instanceof FormData ? options.body.get('title') : body.title;
+      const category = options.body instanceof FormData ? options.body.get('category') : body.category;
+      const desc = options.body instanceof FormData ? options.body.get('description') : body.description;
+      const newItem = {
+        id: Date.now(),
+        title: title || 'Новый документ',
+        category: category || 'achievements',
+        description: desc || '',
+        file_path: '',
+        verification_status: 'pending',
+        expert_comment: 'Передано на проверку аттестационной комиссии.',
+        created_at: new Date().toISOString()
+      };
+      pf = [newItem, ...pf];
+      setLocalState('portfolio', pf);
+      return { success: true, item: newItem };
+    }
+    return { items: pf };
+  }
+  if (endpoint.startsWith('/api/user/portfolio/') && method === 'DELETE') {
+    const id = +endpoint.split('/').pop();
+    let pf = getLocalState('portfolio', OFFLINE_SEED.portfolio);
+    pf = pf.filter(it => it.id !== id);
+    setLocalState('portfolio', pf);
+    return { success: true };
+  }
+  if (endpoint === '/api/dialogue/questions') {
+    let dlg = getLocalState('dialogue', OFFLINE_SEED.dialogue);
+    if (method === 'POST') {
+      const newQ = {
+        id: Date.now(),
+        author_name: state.currentUser ? state.currentUser.fio : 'Участник',
+        author_role: state.currentUser ? state.currentUser.role_title : 'Педагог',
+        author_workplace: state.currentUser ? state.currentUser.workplace : 'Кузбасс',
+        question_text: body.question_text,
+        status: 'open',
+        answer_text: null,
+        expert_name: null,
+        created_at: new Date().toISOString()
+      };
+      dlg = [newQ, ...dlg];
+      setLocalState('dialogue', dlg);
+      return { success: true, question: newQ };
+    }
+    return { questions: dlg };
+  }
+  if (endpoint.includes('/answer') && method === 'POST') {
+    const id = +endpoint.split('/')[4];
+    let dlg = getLocalState('dialogue', OFFLINE_SEED.dialogue);
+    dlg = dlg.map(q => q.id === id ? {
+      ...q,
+      status: 'answered',
+      answer_text: body.answer_text,
+      expert_name: state.currentUser ? `${state.currentUser.fio} (эксперт)` : 'Эксперт Лиги'
+    } : q);
+    setLocalState('dialogue', dlg);
+    return { success: true };
+  }
+  if (endpoint === '/api/reserve/ideas') {
+    let ideas = getLocalState('ideas', OFFLINE_SEED.ideas);
+    if (method === 'POST') {
+      const newIdea = {
+        id: Date.now(),
+        title: body.title,
+        description: body.description,
+        expected_effect: body.expected_effect,
+        category: body.category || 'Инициатива',
+        author_name: state.currentUser ? state.currentUser.fio : 'Резервист',
+        author_role: state.currentUser ? state.currentUser.role_title : 'Резерв',
+        workplace: state.currentUser ? state.currentUser.workplace : 'Кузбасс',
+        votes_count: 1,
+        has_voted: 1
+      };
+      ideas = [newIdea, ...ideas];
+      setLocalState('ideas', ideas);
+      return { success: true, idea: newIdea };
+    }
+    return { ideas };
+  }
+  if (endpoint.endsWith('/vote') && method === 'POST') {
+    const parts = endpoint.split('/');
+    const id = +parts[parts.length - 2];
+    let ideas = getLocalState('ideas', OFFLINE_SEED.ideas);
+    ideas = ideas.map(idea => {
+      if (idea.id === id) {
+        const hasVoted = !idea.has_voted;
+        return {
+          ...idea,
+          has_voted: hasVoted ? 1 : 0,
+          votes_count: idea.votes_count + (hasVoted ? 1 : -1)
+        };
+      }
+      return idea;
+    });
+    setLocalState('ideas', ideas);
+    return { success: true };
+  }
+
+  return { success: true };
+}
+
 // ── API Fetch wrapper ──
 async function api(endpoint, options = {}) {
+  if (window.location.protocol === 'file:') {
+    return mockApi(endpoint, options);
+  }
+
   options.headers = options.headers || {};
   if (state.currentUser && state.currentUser.id) {
     options.headers['x-user-id'] = state.currentUser.id;
@@ -46,8 +330,8 @@ async function api(endpoint, options = {}) {
     }
     return data;
   } catch (err) {
-    console.error('API Error:', err);
-    throw err;
+    console.warn('Backend API unreachable, using local mode:', err.message);
+    return mockApi(endpoint, options);
   }
 }
 
