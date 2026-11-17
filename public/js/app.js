@@ -1,4 +1,4 @@
-// Логика клиентской платформы «Управленческие кадры Кузбасса»
+// Клиентская логика платформы «Управленческие кадры Кузбасса»
 
 const state = {
   currentUser: null,
@@ -21,7 +21,7 @@ function showToast(message, isError = false) {
     document.body.appendChild(toast);
   }
   toast.textContent = message;
-  toast.style.background = isError ? '#b91c1c' : '#0f172a';
+  toast.style.background = isError ? 'var(--danger)' : 'var(--ink)';
   toast.className = 'on';
   setTimeout(() => {
     toast.className = '';
@@ -57,16 +57,13 @@ async function initAuth() {
   if (savedUser) {
     try {
       state.currentUser = JSON.parse(savedUser);
-      // Validate with server
       const res = await api('/api/auth/me');
       state.currentUser = res.user;
       localStorage.setItem('kuzbass_user', JSON.stringify(res.user));
     } catch (_) {
-      // Auto login as default director
       await loginAs('director', 'demo123');
     }
   } else {
-    // Default demo login for instant preview
     await loginAs('director', 'demo123');
   }
   updateAuthUI();
@@ -101,12 +98,12 @@ function updateAuthUI() {
     if (headerBtn) headerBtn.style.display = 'none';
     if (userBadge) {
       userBadge.style.display = 'flex';
-      userBadge.innerHTML = `👤 <span>${state.currentUser.fio.split(' ')[0] || state.currentUser.login}</span> <small style="color:var(--ind);font-size:11px">(${getRoleTitle(state.currentUser.role)})</small>`;
+      userBadge.innerHTML = `<span>${state.currentUser.fio.split(' ')[0] || state.currentUser.login}</span> <span class="badge b-i">${getRoleTitle(state.currentUser.role)}</span>`;
     }
     if (loginWrap) loginWrap.style.display = 'none';
     if (cabWrap) cabWrap.style.display = 'block';
     if (cabWho) {
-      cabWho.innerHTML = `<b>${state.currentUser.fio}</b> &nbsp;·&nbsp; ${state.currentUser.position || 'Руководитель'}, ${state.currentUser.workplace || 'ОО Кузбасса'} &nbsp;·&nbsp; <span class="badge b-g">${getRoleTitle(state.currentUser.role)}</span>`;
+      cabWho.innerHTML = `${state.currentUser.fio} · <span style="font-weight:400;color:var(--ink-muted)">${state.currentUser.position || 'Руководитель'}, ${state.currentUser.workplace || 'ОО Кузбасса'}</span> · <span class="badge b-g">${getRoleTitle(state.currentUser.role)}</span>`;
     }
     if (demoRoleSelect) {
       demoRoleSelect.value = state.currentUser.login;
@@ -153,7 +150,6 @@ function route() {
 
   window.scrollTo(0, 0);
 
-  // Trigger page-specific loads
   if (state.activeRoute === 'dialog') loadDialogueFeed();
   if (state.activeRoute === 'future') loadReserveIdeas();
   if (state.activeRoute === 'login' && state.currentUser) loadCabinetData();
@@ -177,6 +173,28 @@ function initTabs(barId, panePrefix) {
   });
 }
 
+// ── Render Competencies Page ──
+function renderCompetencies() {
+  const box = document.getElementById('compContainer');
+  if (!box) return;
+
+  box.innerHTML = COMPETENCIES.map(c => `
+    <div class="card">
+      <div class="card-icon">${c.icon}</div>
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">${c.code} · ${c.subtitle}</div>
+      <h3>${c.title}</h3>
+      <p>${c.desc}</p>
+      <div style="margin:12px 0;background:var(--surface-subtle);border-left:3px solid var(--accent);padding:10px 12px;font-size:12.5px;color:var(--ink-secondary);font-style:italic">
+        ${c.selfQuote}
+      </div>
+      <div style="margin-top:10px">
+        <span class="chip">${c.module}</span>
+        <span class="chip">${c.lab}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
 // ── Self Assessment ──
 function renderSelfAssessment() {
   const box = document.getElementById('saList');
@@ -185,22 +203,22 @@ function renderSelfAssessment() {
 
   SA_QUESTIONS.forEach((q, i) => {
     const row = document.createElement('div');
-    row.className = 'sa-q';
+    row.className = 'sa-row';
     const buttons = [0, 1, 2, 3, 4].map(v => 
       `<button data-i="${i}" data-v="${v}" class="${state.saScores[i] === v ? 'sel' : ''}">${v}</button>`
     ).join('');
 
     row.innerHTML = `
-      <div class="qt">
-        ${q.icon} <b>${q.title}</b>
-        <small>${q.text}</small>
+      <div class="sa-info">
+        <span class="sa-title">${q.code}. ${q.title}</span>
+        <span class="sa-desc">${q.text}</span>
       </div>
-      <div class="lik">${buttons}</div>
+      <div class="likert-group">${buttons}</div>
     `;
     box.appendChild(row);
   });
 
-  box.querySelectorAll('.lik button').forEach(btn => {
+  box.querySelectorAll('.likert-group button').forEach(btn => {
     btn.onclick = () => {
       state.saScores[+btn.dataset.i] = +btn.dataset.v;
       renderSelfAssessment();
@@ -209,10 +227,10 @@ function renderSelfAssessment() {
 }
 
 function calculateDeficitLevel(pct) {
-  if (pct >= 81) return { level: 'low', name: 'Низкий уровень дефицитов', desc: 'Высокая сформированность. Вы готовы транслировать опыт и выступать наставником.', color: 'linear-gradient(135deg,#15803d,#22c55e)' };
-  if (pct >= 70) return { level: 'above_average', name: 'Выше среднего уровня дефицитов', desc: 'Продвинутый уровень. Выполняются задания базового и частично продвинутого уровня.', color: 'linear-gradient(135deg,#0f766e,#14b8a6)' };
-  if (pct >= 50) return { level: 'medium', name: 'Средний уровень дефицитов', desc: 'Базовый уровень. Требуется включение в индивидуальную программу развития (ИПР).', color: 'linear-gradient(135deg,#b45309,#f59e0b)' };
-  return { level: 'high', name: 'Высокий уровень дефицитов', desc: 'Требуется интенсивное развитие. Первоочередное включение в ИПР и наставническое сопровождение.', color: 'linear-gradient(135deg,#b91c1c,#ef4444)' };
+  if (pct >= 81) return { level: 'low', name: 'Низкий уровень дефицитов', desc: 'Высокая сформированность. Вы готовы транслировать опыт и выступать наставником Лиги.', color: 'var(--success)' };
+  if (pct >= 70) return { level: 'above_average', name: 'Выше среднего уровня', desc: 'Продвинутый уровень. Выполняются задания базового и частично повышенного уровней.', color: '#0d9488' };
+  if (pct >= 50) return { level: 'medium', name: 'Средний уровень дефицитов', desc: 'Базовый уровень. Требуется включение в индивидуальную программу развития (ИПР).', color: 'var(--warning)' };
+  return { level: 'high', name: 'Высокий уровень дефицитов', desc: 'Требуется интенсивное развитие. Первоочередное включение в ИПР и наставническое сопровождение.', color: 'var(--danger)' };
 }
 
 async function submitSelfAssessment() {
@@ -226,33 +244,46 @@ async function submitSelfAssessment() {
   const def = calculateDeficitLevel(pct);
 
   const resBox = document.getElementById('saRes');
-  resBox.className = 'sa-res on';
-  resBox.style.background = def.color;
+  resBox.className = 'diag-result-card on';
+  resBox.style.borderLeft = `4px solid ${def.color}`;
 
   let detailsHtml = `
-    <span class="pct">${pct} %</span>
-    <p class="lvl">${def.name}</p>
-    <p>${def.desc}</p>
-    <p style="margin-top:14px;font-weight:700">Аналитический срез по направлениям:</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em">Итоговый показатель сформированности</div>
+        <div class="score-num" style="color:${def.color}">${pct}%</div>
+        <h3 style="margin:4px 0 2px;font-size:16px">${def.name}</h3>
+        <p style="margin:0;font-size:13.5px;color:var(--ink-secondary)">${def.desc}</p>
+      </div>
+      <div>
+        <button class="btn sm outline" onclick="location.hash='#/login'">Перейти в личный кабинет →</button>
+      </div>
+    </div>
+    
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
+      <b style="font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-muted)">Срез по направлениям компетенций:</b>
   `;
 
   SA_QUESTIONS.forEach((q, i) => {
     const score = state.saScores[i];
     const comp = COMPETENCIES[i];
     detailsHtml += `
-      <div style="margin-top:8px;background:rgba(255,255,255,.16);border-radius:10px;padding:10px 14px;font-size:13px">
-        <b>${q.icon} ${q.title}</b>: ${score}/4 баллов
-        <div style="height:6px;background:rgba(255,255,255,.3);border-radius:4px;margin:6px 0">
-          <div style="height:6px;width:${score * 25}%;background:#fff;border-radius:4px"></div>
+      <div style="margin-top:10px;background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;font-weight:700">
+          <span>${q.title}</span>
+          <span style="font-variant-numeric:tabular-nums">${score} / 4 баллов</span>
         </div>
-        <div>➤ Рекомендация для ИПР: ${comp.module} (${comp.lab})</div>
+        <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0">
+          <div style="height:5px;width:${score * 25}%;background:var(--ink);border-radius:3px"></div>
+        </div>
+        <div style="font-size:12px;color:var(--ink-muted)">Рекомендация для ИПР: <b>${comp.module}</b> (${comp.lab})</div>
       </div>
     `;
   });
 
+  detailsHtml += `</div>`;
   resBox.innerHTML = detailsHtml;
 
-  // Persist to backend
   if (state.currentUser) {
     try {
       await api('/api/user/diagnostics', {
@@ -261,13 +292,11 @@ async function submitSelfAssessment() {
           type: 'self_assessment',
           score_percent: pct,
           deficit_level: def.level,
-          summary_text: `${def.name} (${pct}%). Самооценка по 5 направлениям.`,
-          details: {
-            competencyScores: state.saScores
-          }
+          summary_text: `${def.name} (${pct}%). Самооценка.`,
+          details: { competencyScores: state.saScores }
         })
       });
-      showToast('Результаты самооценки сохранены в личном кабинете ✓');
+      showToast('Результаты сохранены в личном кабинете ✓');
       loadCabinetData();
     } catch (err) {
       showToast(err.message, true);
@@ -286,24 +315,24 @@ function renderTest() {
   TEST_QUESTIONS.forEach((t, i) => {
     if (i === 0 || TEST_QUESTIONS[i - 1].d !== t.d) {
       html += `
-        <h4 style="margin:22px 0 10px;font-size:14px;color:var(--ind);letter-spacing:0.04em;text-transform:uppercase;font-weight:800">
+        <h4 style="margin:24px 0 10px;font-size:13px;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;font-weight:800">
           Направление ${t.d + 1}: ${t.dir}
         </h4>
       `;
     }
 
     const options = t.o.map((opt, optIndex) => `
-      <label style="display:flex;gap:10px;align-items:flex-start;font-size:13.4px;margin:8px 0;cursor:pointer">
-        <input type="radio" name="test_q_${i}" value="${optIndex}" style="margin-top:3px" ${state.testAnswers[i] === optIndex ? 'checked' : ''}>
+      <label class="test-option">
+        <input type="radio" name="test_q_${i}" value="${optIndex}" ${state.testAnswers[i] === optIndex ? 'checked' : ''}>
         <span>${opt}</span>
       </label>
     `).join('');
 
     html += `
-      <div class="sa-q" style="display:block">
-        <div class="qt"><b>Вопрос ${i + 1}.</b> ${t.q}</div>
-        <div style="margin-top:10px">${options}</div>
-        <div id="test_exp_${i}" style="display:none;margin-top:12px"></div>
+      <div class="test-q-card">
+        <div class="q-title"><b>${i + 1}.</b> ${t.q}</div>
+        <div>${options}</div>
+        <div id="test_exp_${i}" class="test-explanation" style="display:none"></div>
       </div>
     `;
   });
@@ -321,7 +350,7 @@ function renderTest() {
 async function submitTest() {
   const answeredCount = Object.keys(state.testAnswers).length;
   if (answeredCount < TEST_QUESTIONS.length) {
-    showToast(`Ответьте на все 20 заданий (осталось без ответа: ${TEST_QUESTIONS.length - answeredCount})`, true);
+    showToast(`Ответьте на все 20 заданий (осталось: ${TEST_QUESTIONS.length - answeredCount})`, true);
     return;
   }
 
@@ -339,15 +368,12 @@ async function submitTest() {
     const expBox = document.getElementById(`test_exp_${i}`);
     if (expBox) {
       expBox.style.display = 'block';
-      expBox.style.cssText = `
-        display:block;margin-top:10px;border-radius:10px;padding:12px 14px;font-size:12.8px;line-height:1.55;
-        background:${isCorrect ? '#ecfdf5' : '#fef2f2'};
-        border:1px solid ${isCorrect ? '#a7f3d0' : '#fecaca'};
-        color:${isCorrect ? '#14532d' : '#7f1d1d'};
-      `;
+      expBox.style.background = isCorrect ? 'var(--success-tint)' : 'var(--danger-tint)';
+      expBox.style.border = `1px solid ${isCorrect ? '#a7f3d0' : '#fecaca'}`;
+      expBox.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
       expBox.innerHTML = `
-        ${isCorrect ? '<b>✔ Верно!</b> ' : `<b>✘ Неверно.</b> Правильный ответ: <b>«${t.o[t.c]}»</b>. `}
-        <br><span style="margin-top:4px;display:inline-block"><b>Обоснование:</b> ${t.e}</span>
+        <b>${isCorrect ? '✔ Верный ответ.' : `✘ Неверно. Правильно: «${t.o[t.c]}».`}</b>
+        <div style="margin-top:6px;color:var(--ink-secondary);font-size:12.5px">${t.e}</div>
       `;
     }
   });
@@ -355,32 +381,45 @@ async function submitTest() {
   const pct = Math.round((correctCount / TEST_QUESTIONS.length) * 100);
   const def = calculateDeficitLevel(pct);
   const resBox = document.getElementById('testRes');
-  resBox.className = 'sa-res on';
-  resBox.style.background = def.color;
+  resBox.className = 'diag-result-card on';
+  resBox.style.borderLeft = `4px solid ${def.color}`;
 
   let summaryHtml = `
-    <span class="pct">${pct} %</span>
-    <p class="lvl">${def.name} · ${correctCount} из ${TEST_QUESTIONS.length} верно</p>
-    <p>${def.desc}</p>
-    <p style="margin-top:14px;font-weight:700">Результаты по 5 направлениям тестирования:</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em">Результат комплексного теста</div>
+        <div class="score-num" style="color:${def.color}">${pct}%</div>
+        <h3 style="margin:4px 0 2px;font-size:16px">${def.name} · ${correctCount} из ${TEST_QUESTIONS.length} верно</h3>
+        <p style="margin:0;font-size:13.5px;color:var(--ink-secondary)">${def.desc}</p>
+      </div>
+      <div>
+        <button class="btn sm outline" onclick="location.hash='#/login'">Смотреть профиль в кабинете →</button>
+      </div>
+    </div>
+    
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
+      <b style="font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-muted)">Результаты по 5 направлениям стандарта:</b>
   `;
 
   COMPETENCIES.forEach((comp, idx) => {
     const sc = dirScores[idx];
     summaryHtml += `
-      <div style="margin-top:8px;background:rgba(255,255,255,.16);border-radius:10px;padding:10px 14px;font-size:13px">
-        <b>${comp.icon} ${comp.title}</b>: ${sc}/4 заданий выполнено правильно
-        <div style="height:6px;background:rgba(255,255,255,.3);border-radius:4px;margin:6px 0">
-          <div style="height:6px;width:${sc * 25}%;background:#fff;border-radius:4px"></div>
+      <div style="margin-top:10px;background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;font-weight:700">
+          <span>${comp.title}</span>
+          <span style="font-variant-numeric:tabular-nums">${sc} / 4 заданий верно</span>
         </div>
-        <div>➤ Программа развития: ${comp.module}</div>
+        <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0">
+          <div style="height:5px;width:${sc * 25}%;background:var(--ink);border-radius:3px"></div>
+        </div>
+        <div style="font-size:12px;color:var(--ink-muted)">Рекомендуемый трек: <b>${comp.module}</b></div>
       </div>
     `;
   });
 
+  summaryHtml += `</div>`;
   resBox.innerHTML = summaryHtml;
 
-  // Save to database
   if (state.currentUser) {
     try {
       await api('/api/user/diagnostics', {
@@ -389,13 +428,11 @@ async function submitTest() {
           type: 'test_20',
           score_percent: pct,
           deficit_level: def.level,
-          summary_text: `Комплексный тест (20 заданий): ${correctCount}/20 (${pct}%). ${def.name}.`,
-          details: {
-            competencyScores: dirScores
-          }
+          summary_text: `Тест 20 заданий: ${correctCount}/20 (${pct}%). ${def.name}.`,
+          details: { competencyScores: dirScores }
         })
       });
-      showToast('Результаты тестирования сохранены в базу данных ✓');
+      showToast('Результаты тестирования сохранены ✓');
       loadCabinetData();
     } catch (err) {
       showToast(err.message, true);
@@ -405,19 +442,18 @@ async function submitTest() {
   resBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// ── Cases & Simulations Render ──
+// ── Cases & Simulations ──
 function renderCasesAndSimulations() {
   const caseBox = document.getElementById('casesContainer');
   if (caseBox) {
     caseBox.innerHTML = CASES_CATALOG.map(c => `
-      <div class="card" style="border-top:4px solid var(--ind)">
-        <span class="ico">📁</span>
-        <h3>${c.title}</h3>
-        <p>${c.desc}</p>
-        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
-          <span class="badge b-t">${c.badge}</span>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span class="badge b-i">${c.badge}</span>
           <span class="badge b-a">${c.level}</span>
         </div>
+        <h3>${c.title}</h3>
+        <p>${c.desc}</p>
       </div>
     `).join('');
   }
@@ -425,37 +461,41 @@ function renderCasesAndSimulations() {
   const simBox = document.getElementById('simContainer');
   if (simBox) {
     simBox.innerHTML = SIMULATIONS_CATALOG.map(s => `
-      <div class="card" style="border-top:4px solid var(--vio)">
-        <span class="ico">🎮</span>
+      <div class="card">
+        <div style="margin-bottom:8px">
+          <span class="badge b-t">${s.type}</span>
+          <span class="badge b-i">${s.dir}</span>
+        </div>
         <h3>${s.title}</h3>
-        <p><b>Формат:</b> ${s.type} · ${s.dir}</p>
-        <p style="margin-top:6px">${s.desc}</p>
-        <div style="margin-top:12px">
-          <span class="badge b-g">${s.result}</span>
+        <p>${s.desc}</p>
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;font-size:12px;color:var(--ink-muted)">
+          Целевой результат: <b>${s.result}</b>
         </div>
       </div>
     `).join('');
   }
 }
 
-// ── Normative Library Render ──
+// ── Normative Library ──
 function renderNormativeLibrary() {
   const box = document.getElementById('normLib');
   if (!box) return;
   let html = '';
 
   NORMATIVE_DOCS.forEach(group => {
-    html += `<h3 style="margin:24px 0 12px;font-size:16px">${group.group}</h3>`;
+    html += `<h3 style="margin:26px 0 12px;font-size:15px;color:var(--ink)">${group.group}</h3>`;
     group.items.forEach(doc => {
       html += `
-        <div class="doc">
-          <span class="di">§</span>
-          <div>
-            <b>${doc.name}</b>
-            <span>${doc.note}</span>
+        <div class="doc-row">
+          <div class="doc-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div class="doc-content">
+            <span class="doc-title">${doc.name}</span>
+            <span class="doc-desc">${doc.note}</span>
             <div style="margin-top:6px">
               <span class="badge b-g">${doc.status}</span>
-              ${doc.url ? `<a href="${doc.url}" target="_blank" rel="noopener" style="margin-left:8px;font-size:12.5px;font-weight:700">открыть документ ↗</a>` : ''}
+              ${doc.url ? `<a href="${doc.url}" target="_blank" rel="noopener" style="margin-left:10px;font-size:12px;font-weight:600">Открыть первоисточник ↗</a>` : ''}
             </div>
           </div>
         </div>
@@ -466,7 +506,7 @@ function renderNormativeLibrary() {
   box.innerHTML = html;
 }
 
-// ── Dialogue Q&A Feed ──
+// ── Dialogue Q&A ──
 async function loadDialogueFeed() {
   const box = document.getElementById('qList');
   if (!box) return;
@@ -476,7 +516,7 @@ async function loadDialogueFeed() {
     state.dialogueQuestions = res.questions;
 
     if (!res.questions.length) {
-      box.innerHTML = '<p style="color:var(--mut)">Пока нет вопросов. Задайте первый вопрос экспертам!</p>';
+      box.innerHTML = '<p style="color:var(--ink-muted);font-size:13.5px">Вопросов пока нет. Задайте вопрос экспертам Лиги.</p>';
       return;
     }
 
@@ -485,25 +525,25 @@ async function loadDialogueFeed() {
       const canAnswer = state.currentUser && (state.currentUser.role === 'expert' || state.currentUser.role === 'admin');
 
       return `
-        <div class="q-item">
-          <b style="font-size:14.5px;color:var(--ink)">${escapeHtml(q.question_text)}</b>
-          <div class="meta">
+        <div class="card" style="margin-bottom:12px">
+          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px">${escapeHtml(q.question_text)}</div>
+          <div style="font-size:12px;color:var(--ink-muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px">
             <span class="badge b-i">${q.category}</span>
-            <span>👤 ${escapeHtml(q.author_name)} (${escapeHtml(q.author_role || 'Руководитель')})</span>
-            <span class="badge ${isAnswered ? 'b-g' : 'b-a'}">${isAnswered ? 'Ответ эксперта дан' : 'В работе у эксперта Лиги'}</span>
+            <span>${escapeHtml(q.author_name)} (${escapeHtml(q.author_role || 'Руководитель')})</span>
+            <span class="badge ${isAnswered ? 'b-g' : 'b-a'}">${isAnswered ? 'Ответ дан' : 'В работе'}</span>
           </div>
 
           ${isAnswered ? `
-            <div style="margin-top:10px;background:#f8fafc;border-left:4px solid var(--grn);padding:10px 14px;border-radius:0 10px 10px 0;font-size:13.2px">
-              <b>Ответ эксперта (${escapeHtml(q.expert_name || 'Лига экспертов ИРО Кузбасса')}):</b>
-              <p style="margin-top:4px;color:#334155">${escapeHtml(q.answer_text)}</p>
+            <div style="margin-top:12px;background:var(--surface-subtle);border-left:3px solid var(--success);padding:10px 14px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:13px">
+              <b style="color:var(--ink)">Ответ эксперта (${escapeHtml(q.expert_name || 'Лига экспертов ИРО Кузбасса')}):</b>
+              <p style="margin:4px 0 0;color:var(--ink-secondary)">${escapeHtml(q.answer_text)}</p>
             </div>
           ` : ''}
 
           ${canAnswer && !isAnswered ? `
-            <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)">
-              <textarea class="inp" id="ans_${q.id}" placeholder="Текст официального ответа эксперта..." style="min-height:60px"></textarea>
-              <button class="btn sm teal" style="margin-top:6px" onclick="submitAnswer(${q.id})">Ответить на вопрос</button>
+            <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)">
+              <textarea class="inp" id="ans_${q.id}" placeholder="Текст официального ответа эксперта..." style="min-height:64px"></textarea>
+              <button class="btn sm primary" style="margin-top:6px" onclick="submitAnswer(${q.id})">Опубликовать ответ</button>
             </div>
           ` : ''}
         </div>
@@ -536,7 +576,7 @@ async function sendDialogueQuestion() {
     });
     textEl.value = '';
     if (whoEl) whoEl.value = '';
-    showToast('Вопрос успешно передан экспертам Лиги ✓');
+    showToast('Вопрос передан экспертам Лиги ✓');
     loadDialogueFeed();
   } catch (err) {
     showToast(err.message, true);
@@ -558,7 +598,7 @@ async function submitAnswer(questionId) {
         expert_name: state.currentUser.fio
       })
     });
-    showToast('Ответ опубликован в ленте ✓');
+    showToast('Ответ опубликован ✓');
     loadDialogueFeed();
   } catch (err) {
     showToast(err.message, true);
@@ -575,21 +615,21 @@ async function loadReserveIdeas() {
     state.reserveIdeas = res.ideas;
 
     box.innerHTML = res.ideas.map(idea => `
-      <div class="card" style="border-top:4px solid var(--ind);margin-bottom:14px">
+      <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
           <div>
             <h3 style="margin-bottom:4px">${escapeHtml(idea.title)}</h3>
             <span class="badge b-i">${escapeHtml(idea.category)}</span>
-            <span style="font-size:12px;color:var(--mut);margin-left:8px">Автор: ${escapeHtml(idea.author_name)} (${escapeHtml(idea.workplace || 'Кузбасс')})</span>
+            <span style="font-size:12px;color:var(--ink-muted);margin-left:8px">${escapeHtml(idea.author_name)} · ${escapeHtml(idea.workplace || 'Кузбасс')}</span>
           </div>
-          <button class="btn sm ${idea.has_voted ? 'teal' : 'ghost'}" onclick="voteIdea(${idea.id})">
-            👍 ${idea.votes_count} ${idea.has_voted ? 'Поддержано' : 'Поддержать'}
+          <button class="btn sm ${idea.has_voted ? 'primary' : 'outline'}" onclick="voteIdea(${idea.id})">
+            ▲ ${idea.votes_count} ${idea.has_voted ? 'Поддержано' : 'Поддержать'}
           </button>
         </div>
-        <p style="margin-top:10px;font-size:13.8px">${escapeHtml(idea.description)}</p>
+        <p style="margin-top:10px;font-size:13.5px">${escapeHtml(idea.description)}</p>
         ${idea.expected_effect ? `
-          <div style="margin-top:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:8px 12px;font-size:12.8px;color:#166534">
-            <b>Ожидаемый региональный эффект:</b> ${escapeHtml(idea.expected_effect)}
+          <div style="margin-top:10px;background:var(--surface-subtle);border-radius:var(--radius-sm);padding:8px 12px;font-size:12.5px;color:var(--ink-secondary)">
+            <b>Региональный эффект:</b> ${escapeHtml(idea.expected_effect)}
           </div>
         ` : ''}
       </div>
@@ -606,7 +646,7 @@ async function submitReserveIdea() {
   const cat = document.getElementById('ideaCat').value;
 
   if (!title || !desc) {
-    showToast('Укажите название и суть проекта', true);
+    showToast('Заполните название и описание идеи', true);
     return;
   }
 
@@ -623,7 +663,7 @@ async function submitReserveIdea() {
     document.getElementById('ideaTitle').value = '';
     document.getElementById('ideaDesc').value = '';
     document.getElementById('ideaEffect').value = '';
-    showToast('Проектная идея добавлена в региональный банк ✓');
+    showToast('Проектная инициатива опубликована ✓');
     loadReserveIdeas();
   } catch (err) {
     showToast(err.message, true);
@@ -643,27 +683,23 @@ async function voteIdea(ideaId) {
   }
 }
 
-// ── Cabinet Data & Charts ──
+// ── Cabinet Data & Dynamic SVG Chart ──
 async function loadCabinetData() {
   if (!state.currentUser) return;
 
   try {
-    // 1. Diagnostics History
     const diagRes = await api('/api/user/diagnostics');
     state.diagHistory = diagRes.results;
     renderCabinetDiagnostics(diagRes.results);
     renderProgressChart(diagRes.results);
 
-    // 2. IPR Items
     const iprRes = await api('/api/user/ipr');
     state.iprItems = iprRes.items;
     renderCabinetIpr(iprRes.items);
 
-    // 3. Portfolio Items
     const portRes = await api('/api/user/portfolio');
     state.portfolioItems = portRes.items;
     renderCabinetPortfolio(portRes.items);
-
   } catch (err) {
     console.error('Failed loading cabinet data:', err);
   }
@@ -674,7 +710,7 @@ function renderCabinetDiagnostics(history) {
   if (!table) return;
 
   if (!history.length) {
-    table.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--mut)">Вы ещё не проходили диагностику. Перейдите в раздел «Диагностика» для старта.</td></tr>`;
+    table.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--ink-muted);padding:18px">Диагностика ещё не пройдена.</td></tr>`;
     return;
   }
 
@@ -690,13 +726,13 @@ function renderCabinetDiagnostics(history) {
       const dateStr = `${('0' + d.getDate()).slice(-2)}.${('0' + (d.getMonth() + 1)).slice(-2)}.${d.getFullYear()}`;
       const typeLabel = item.type === 'self_assessment' ? 'Лист самооценки' : (item.type === 'test_20' ? 'Комплексный тест (20)' : 'Кейс / Симуляция');
       const badgeClass = item.deficit_level === 'low' ? 'b-g' : (item.deficit_level === 'above_average' ? 'b-t' : (item.deficit_level === 'medium' ? 'b-a' : 'b-r'));
-      const lvlLabel = item.deficit_level === 'low' ? 'низкий дефицит' : (item.deficit_level === 'above_average' ? 'выше среднего' : (item.deficit_level === 'medium' ? 'средний дефицит' : 'высокий дефицит'));
+      const lvlLabel = item.deficit_level === 'low' ? 'Низкий' : (item.deficit_level === 'above_average' ? 'Выше среднего' : (item.deficit_level === 'medium' ? 'Средний' : 'Высокий'));
 
       return `
         <tr>
           <td>${dateStr}</td>
           <td><b>${typeLabel}</b></td>
-          <td><b style="color:var(--ind)">${item.score_percent} %</b></td>
+          <td><b style="color:var(--ink);font-variant-numeric:tabular-nums">${item.score_percent} %</b></td>
           <td><span class="badge ${badgeClass}">${lvlLabel}</span></td>
         </tr>
       `;
@@ -710,19 +746,19 @@ function renderProgressChart(history) {
 
   if (!history || history.length < 2) {
     chartBox.innerHTML = `
-      <div style="background:#f8fafc;padding:26px;border-radius:12px;text-align:center;color:var(--soft);font-size:13.5px">
-        Для построения динамического графика пройдите хотя бы две процедуры диагностики (самооценку и тест).
+      <div style="background:var(--surface-subtle);padding:22px;border-radius:var(--radius-sm);text-align:center;color:var(--ink-muted);font-size:13px">
+        Для построения динамического графика пройдите хотя бы две процедуры диагностики.
       </div>
     `;
     return;
   }
 
   const W = 360;
-  const H = 160;
-  const padLeft = 45;
-  const padRight = 35;
-  const padTop = 25;
-  const padBottom = 35;
+  const H = 150;
+  const padLeft = 40;
+  const padRight = 30;
+  const padTop = 20;
+  const padBottom = 30;
 
   const innerW = W - padLeft - padRight;
   const innerH = H - padTop - padBottom;
@@ -739,31 +775,27 @@ function renderProgressChart(history) {
 
   chartBox.innerHTML = `
     <svg viewBox="0 0 ${W} ${H}" width="100%" height="auto">
-      <!-- Grid lines -->
-      <g stroke="#e2e8f0" stroke-width="1">
-        <line x1="${padLeft}" y1="${padTop}" x2="${W - padRight + 15}" y2="${padTop}"/>
-        <line x1="${padLeft}" y1="${padTop + innerH * 0.33}" x2="${W - padRight + 15}" y2="${padTop + innerH * 0.33}"/>
-        <line x1="${padLeft}" y1="${padTop + innerH * 0.66}" x2="${W - padRight + 15}" y2="${padTop + innerH * 0.66}"/>
-        <line x1="${padLeft}" y1="${padTop + innerH}" x2="${W - padRight + 15}" y2="${padTop + innerH}"/>
+      <g stroke="var(--border)" stroke-width="1">
+        <line x1="${padLeft}" y1="${padTop}" x2="${W - padRight + 10}" y2="${padTop}"/>
+        <line x1="${padLeft}" y1="${padTop + innerH * 0.33}" x2="${W - padRight + 10}" y2="${padTop + innerH * 0.33}"/>
+        <line x1="${padLeft}" y1="${padTop + innerH * 0.66}" x2="${W - padRight + 10}" y2="${padTop + innerH * 0.66}"/>
+        <line x1="${padLeft}" y1="${padTop + innerH}" x2="${W - padRight + 10}" y2="${padTop + innerH}"/>
       </g>
-      <!-- Y labels -->
-      <g font-size="9" fill="#94a3b8" text-anchor="end">
-        <text x="${padLeft - 8}" y="${padTop + 3}">100%</text>
-        <text x="${padLeft - 8}" y="${padTop + innerH * 0.33 + 3}">70%</text>
-        <text x="${padLeft - 8}" y="${padTop + innerH * 0.66 + 3}">50%</text>
-        <text x="${padLeft - 8}" y="${padTop + innerH + 3}">0%</text>
+      <g font-size="9" fill="var(--ink-muted)" text-anchor="end">
+        <text x="${padLeft - 6}" y="${padTop + 3}">100%</text>
+        <text x="${padLeft - 6}" y="${padTop + innerH * 0.33 + 3}">70%</text>
+        <text x="${padLeft - 6}" y="${padTop + innerH * 0.66 + 3}">50%</text>
+        <text x="${padLeft - 6}" y="${padTop + innerH + 3}">0%</text>
       </g>
-      <!-- Trend Line -->
-      <polyline points="${polylineStr}" fill="none" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <!-- Points -->
+      <polyline points="${polylineStr}" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       ${points.map(p => `
-        <circle cx="${p.x}" cy="${p.y}" r="5.5" fill="#4f46e5" stroke="#fff" stroke-width="2"/>
-        <text x="${p.x}" y="${p.y - 8}" font-size="10.5" font-weight="800" fill="#1e1b4b" text-anchor="middle">${p.score}%</text>
-        <text x="${p.x}" y="${H - 10}" font-size="9.5" fill="#64748b" text-anchor="middle">${p.dateStr}</text>
+        <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="var(--ink)" stroke="#fff" stroke-width="2"/>
+        <text x="${p.x}" y="${p.y - 7}" font-size="10" font-weight="700" fill="var(--ink)" text-anchor="middle">${p.score}%</text>
+        <text x="${p.x}" y="${H - 8}" font-size="9.5" fill="var(--ink-muted)" text-anchor="middle">${p.dateStr}</text>
       `).join('')}
     </svg>
-    <div style="font-size:13px;color:var(--soft);margin-top:10px;line-height:1.5">
-      <b>Динамика:</b> Рост управленческой компетентности от начального уровня к целевому профилю. Данные синхронизированы с региональной базой ФИП РАО.
+    <div style="font-size:12.5px;color:var(--ink-muted);margin-top:8px">
+      Данные сравнительного прогресса сохранены в SQLite базе проекта ФИП РАО.
     </div>
   `;
 }
@@ -774,29 +806,29 @@ function renderCabinetIpr(items) {
 
   if (!items.length) {
     box.innerHTML = `
-      <div style="background:#f8fafc;padding:22px;border-radius:12px;text-align:center;color:var(--soft)">
-        В вашей индивидуальной программе развития пока нет пунктов. Пройдите самооценку или тест, и система сформирует траекторию автоматически!
+      <div style="background:var(--surface-subtle);padding:20px;border-radius:var(--radius-sm);text-align:center;color:var(--ink-muted);font-size:13px">
+        В индивидуальной программе развития пока нет пунктов. Пройдите самооценку или тест для автогенерации маршрута.
       </div>
     `;
     return;
   }
 
   box.innerHTML = items.map(it => `
-    <div class="ipr-card ${it.status}">
+    <div class="ipr-item-card ${it.status}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
         <div>
-          <b style="font-size:15px;color:var(--ink)">${escapeHtml(it.competency)}</b>
-          <p style="margin:4px 0;font-size:13.5px;color:var(--soft)"><b>Модуль:</b> ${escapeHtml(it.recommended_module)}</p>
-          <p style="margin:2px 0;font-size:13px;color:var(--mut)">Формат: ${escapeHtml(it.action_format)} · Наставник: ${escapeHtml(it.mentor_name || 'Лига экспертов')}</p>
-          <p style="margin:4px 0;font-size:13px;color:#1e3a8a"><b>Целевой продукт:</b> ${escapeHtml(it.target_result)}</p>
+          <b style="font-size:14.5px;color:var(--ink)">${escapeHtml(it.competency)}</b>
+          <p style="margin:4px 0;font-size:13px;color:var(--ink-secondary)"><b>Курс:</b> ${escapeHtml(it.recommended_module)}</p>
+          <p style="margin:2px 0;font-size:12.5px;color:var(--ink-muted)">Формат: ${escapeHtml(it.action_format)} · Наставник: ${escapeHtml(it.mentor_name || 'Лига экспертов')}</p>
+          <p style="margin:4px 0;font-size:12.5px;color:var(--accent)">Целевой продукт: <b>${escapeHtml(it.target_result)}</b></p>
         </div>
         <div style="text-align:right">
-          <select class="inp" style="padding:4px 8px;font-size:12px;border-radius:8px;width:auto" onchange="updateIprStatus(${it.id}, this.value)">
+          <select class="inp" style="padding:4px 8px;font-size:12px;width:auto" onchange="updateIprStatus(${it.id}, this.value)">
             <option value="planned" ${it.status === 'planned' ? 'selected' : ''}>Запланировано</option>
             <option value="in_progress" ${it.status === 'in_progress' ? 'selected' : ''}>В процессе</option>
             <option value="completed" ${it.status === 'completed' ? 'selected' : ''}>Освоено ✓</option>
           </select>
-          <div style="font-size:11.5px;color:var(--mut);margin-top:6px">Срок: ${it.deadline || '2027 г.'}</div>
+          <div style="font-size:11.5px;color:var(--ink-muted);margin-top:6px">Срок: ${it.deadline || '2027 г.'}</div>
         </div>
       </div>
     </div>
@@ -821,38 +853,40 @@ function renderCabinetPortfolio(items) {
   if (!box) return;
 
   if (!items.length) {
-    box.innerHTML = `<p style="color:var(--mut);font-size:13.5px">В портфолио пока нет прикреплённых документов. Вы можете загрузить первый документ ниже.</p>`;
+    box.innerHTML = `<p style="color:var(--ink-muted);font-size:13px">В портфолио пока нет прикреплённых документов.</p>`;
     return;
   }
 
   const categoryNames = {
-    achievements: '🏫 Управленческие достижения',
-    cases_simulations: '🧩 Кейсы и симуляции',
-    results_dynamics: '📈 Динамика результатов',
-    prof_development: '🎓 Профессиональное развитие',
-    expert_mentoring: '🤝 Экспертная деятельность',
-    analytical_reports: '📄 Аналитические справки'
+    achievements: 'Управленческие достижения',
+    cases_simulations: 'Решённые кейсы и симуляции',
+    results_dynamics: 'Динамика результатов (ВСОКО/ГИА)',
+    prof_development: 'Профессиональное развитие и ДПО',
+    expert_mentoring: 'Экспертная и наставническая деятельность',
+    analytical_reports: 'Аналитические справки'
   };
 
   box.innerHTML = items.map(doc => `
-    <div class="doc" style="justify-content:space-between">
+    <div class="doc-row" style="justify-content:space-between">
       <div style="display:flex;gap:12px">
-        <span class="di">📄</span>
+        <div class="doc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
         <div>
-          <b>${escapeHtml(doc.title)}</b>
-          <span style="color:var(--ind);font-weight:600">${categoryNames[doc.category] || doc.category}</span>
-          ${doc.description ? `<p style="margin:4px 0 0;font-size:13px;color:var(--soft)">${escapeHtml(doc.description)}</p>` : ''}
-          ${doc.expert_comment ? `<p style="margin:4px 0 0;font-size:12.5px;color:#15803d"><b>Экспертное заключение:</b> ${escapeHtml(doc.expert_comment)}</p>` : ''}
+          <span class="doc-title">${escapeHtml(doc.title)}</span>
+          <span style="color:var(--accent);font-size:12px;font-weight:600">${categoryNames[doc.category] || doc.category}</span>
+          ${doc.description ? `<p style="margin:4px 0 0;font-size:12.5px;color:var(--ink-secondary)">${escapeHtml(doc.description)}</p>` : ''}
+          ${doc.expert_comment ? `<p style="margin:4px 0 0;font-size:12px;color:var(--success)"><b>Экспертное заключение:</b> ${escapeHtml(doc.expert_comment)}</p>` : ''}
           <div style="margin-top:6px">
             <span class="badge ${doc.verification_status === 'approved' ? 'b-g' : (doc.verification_status === 'revision' ? 'b-r' : 'b-a')}">
               ${doc.verification_status === 'approved' ? 'Одобрено аттестационной комиссией' : (doc.verification_status === 'revision' ? 'На доработке' : 'На проверке')}
             </span>
-            ${doc.file_path ? `<a href="${doc.file_path}" target="_blank" style="margin-left:10px;font-size:12px;font-weight:700">Скачать файл 📎</a>` : ''}
+            ${doc.file_path ? `<a href="${doc.file_path}" target="_blank" style="margin-left:10px;font-size:12px;font-weight:600">Скачать файл 📎</a>` : ''}
           </div>
         </div>
       </div>
       <div>
-        <button class="btn sm red" onclick="deletePortfolioDoc(${doc.id})">Удалить</button>
+        <button class="btn sm danger" onclick="deletePortfolioDoc(${doc.id})">Удалить</button>
       </div>
     </div>
   `).join('');
@@ -886,7 +920,7 @@ async function addPortfolioDocument(e) {
     document.getElementById('pfTitle').value = '';
     document.getElementById('pfDesc').value = '';
     fileInput.value = '';
-    showToast('Документ добавлен в аттестационное портфолио ✓');
+    showToast('Документ добавлен в портфолио ✓');
     loadCabinetData();
   } catch (err) {
     showToast(err.message, true);
@@ -925,7 +959,7 @@ async function saveProfileForm(e) {
   e.preventDefault();
   const consent = document.getElementById('a_consent_pd');
   if (consent && !consent.checked) {
-    showToast('Необходимо дать согласие на обработку персональных данных (ФЗ № 152-ФЗ)', true);
+    showToast('Необходимо согласие на обработку персональных данных (ФЗ № 152-ФЗ)', true);
     return;
   }
 
@@ -941,8 +975,6 @@ async function saveProfileForm(e) {
     workplace: document.getElementById('a_workplace').value.trim(),
     position: document.getElementById('a_position').value.trim(),
     experience_total: document.getElementById('a_experience_total').value.trim(),
-    experience_ped: document.getElementById('a_experience_ped').value.trim(),
-    experience_mgmt: document.getElementById('a_experience_mgmt').value.trim(),
     share_experience: document.getElementById('a_share_experience').value.trim(),
     consent_pd: 1
   };
@@ -955,13 +987,12 @@ async function saveProfileForm(e) {
     state.currentUser = res.user;
     localStorage.setItem('kuzbass_user', JSON.stringify(res.user));
     updateAuthUI();
-    showToast('Анкета участника успешно сохранена в базе данных ✓');
+    showToast('Анкета сохранена в базе данных ✓');
   } catch (err) {
     showToast(err.message, true);
   }
 }
 
-// ── Escape HTML helper ──
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>'"]/g, tag => ({
@@ -973,9 +1004,8 @@ function escapeHtml(str) {
   }[tag] || tag));
 }
 
-// ── Initialization ──
+// ── Startup ──
 document.addEventListener('DOMContentLoaded', async () => {
-  // Mobile burger toggle
   const burger = document.getElementById('burger');
   if (burger) {
     burger.onclick = () => {
@@ -983,17 +1013,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
-  // Initialize tabs
   initTabs('dtabs', 'dt');
   initTabs('ctabs', 'ct');
 
-  // Render components
+  renderCompetencies();
   renderSelfAssessment();
   renderTest();
   renderCasesAndSimulations();
   renderNormativeLibrary();
 
-  // Attach event handlers
   const saCalcBtn = document.getElementById('saCalc');
   if (saCalcBtn) saCalcBtn.onclick = submitSelfAssessment;
 
@@ -1003,7 +1031,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       state.saScores = [null, null, null, null, null];
       renderSelfAssessment();
       const r = document.getElementById('saRes');
-      if (r) r.className = 'sa-res';
+      if (r) r.className = 'diag-result-card';
     };
   }
 
@@ -1016,7 +1044,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       state.testAnswers = {};
       renderTest();
       const r = document.getElementById('testRes');
-      if (r) r.className = 'sa-res';
+      if (r) r.className = 'diag-result-card';
     };
   }
 
@@ -1032,7 +1060,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pfForm = document.getElementById('pfUploadForm');
   if (pfForm) pfForm.onsubmit = addPortfolioDocument;
 
-  // Login handler
   const liBtn = document.getElementById('liBtn');
   if (liBtn) {
     liBtn.onclick = async () => {
@@ -1042,7 +1069,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
-  // Quick demo role switcher
   const demoRoleSelect = document.getElementById('demoRoleSelect');
   if (demoRoleSelect) {
     demoRoleSelect.onchange = async (e) => {
@@ -1050,9 +1076,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
-  // Initialize Auth & Data
   await initAuth();
-
-  // Route initial page
   route();
 });
