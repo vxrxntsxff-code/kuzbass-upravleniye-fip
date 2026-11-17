@@ -1,0 +1,25 @@
+{
+  "name": "kuzbass-management-platform",
+  "version": "1.0.0",
+  "description": "Цифровая платформа региональной модели опережающей подготовки и непрерывного развития управленческих кадров системы образования Кузбасса (ФИП РАО)",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "keywords": [
+    "кузбасс",
+    "образование",
+    "иро-кузбасса",
+    "фип-рао",
+    "управленческие-кадры"
+  ],
+  "author": "ГБОУ ДПО «ИРО Кузбасса»",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "multer": "^2.5.0"
+  }
+}
