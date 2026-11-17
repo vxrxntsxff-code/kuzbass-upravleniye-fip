@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Региональная модель опережающей подготовки управленческих кадров Кузбасса — онлайн-ресурс проекта</title>
+<style>
+:root{
+  --ink:#0f172a; --soft:#475569; --mut:#94a3b8; --line:#e2e8f0;
+  --ind:#4f46e5; --ind-d:#3730a3; --vio:#7c3aed; --teal:#0d9488; --teal-d:#0f766e;
+  --amb:#d97706; --red:#dc2626; --grn:#16a34a;
+  --bg:#f4f6fb; --card:#ffffff;
+  --r:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Helvetica Neue","Noto Sans","DejaVu Sans",Arial,sans-serif;font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--ind)}
+img{max-width:100%}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+
+/* ── Header ── */
+header.top{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar{display:flex;align-items:center;gap:14px;height:64px}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink);flex:0 0 auto}
+.logo .lm{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1e3a8a,#7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(79,70,229,.3)}
+.logo .lm svg{width:22px;height:22px}
+.logo b{font-size:14.2px;line-height:1.2;display:block}
+.logo small{display:block;font-size:10.6px;color:var(--mut);font-weight:600;letter-spacing:.04em}
+nav.main{margin-left:auto;display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+nav.main a{text-decoration:none;color:#334155;font-size:13px;font-weight:700;padding:8px 11px;border-radius:10px;white-space:nowrap}
+nav.main a:hover{background:#eef2ff;color:var(--ind-d)}
+nav.main a.on{background:var(--ind);color:#fff}
+.btn-login{background:linear-gradient(135deg,var(--ind),var(--vio));color:#fff !important;padding:9px 16px !important;border-radius:11px !important;box-shadow:0 6px 16px rgba(79,70,229,.35);margin-left:6px}
+.burger{display:none;margin-left:auto;background:#eef2ff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:18px;cursor:pointer}
+@media(max-width:1080px){
+  nav.main{display:none;position:absolute;top:64px;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);padding:10px 16px;flex-direction:column;align-items:stretch}
+  nav.main.open{display:flex}
+  nav.main a{padding:11px 12px}
+  .burger{display:block}
+}
+
+/* ── Common blocks ── */
+.page{display:none;padding:34px 0 60px}
+.page.on{display:block}
+.kicker{font-size:11.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--ind);margin:0 0 8px}
+h1.pt{font-size:30px;line-height:1.2;margin:0 0 10px;font-weight:800;letter-spacing:-.3px}
+h1.pt span{color:var(--ind)}
+.lead{font-size:16.5px;color:var(--soft);max-width:900px;margin:0 0 26px}
+.sec{margin-top:38px}
+.sec h2{font-size:21px;margin:0 0 6px;font-weight:800}
+.sec .sub{color:var(--mut);font-size:13.5px;margin:0 0 16px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+@media(max-width:1000px){.g4,.g5{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g2,.g3,.g4,.g5{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:0 6px 18px rgba(15,23,42,.05)}
+.card h3{margin:0 0 8px;font-size:15.5px;font-weight:800}
+.card p{margin:0;font-size:13.6px;color:var(--soft)}
+.card .ico{font-size:24px;line-height:1;margin-bottom:10px;display:block}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;background:#eef2ff;color:var(--ind-d);border:1px solid #e0e7ff;margin:0 6px 6px 0}
+.chip.t{background:#ecfdf5;color:var(--teal-d);border-color:#a7f3d0}
+.chip.a{background:#fffbeb;color:#92400e;border-color:#fde68a}
+.chip.v{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe}
+.btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;text-decoration:none;font-weight:800;font-size:14px;padding:13px 22px;border-radius:13px;background:linear-gradient(135deg,var(--ind),var(--vio));color:#fff;box-shadow:0 10px 22px rgba(79,70,229,.32)}
+.btn.ghost{background:#fff;color:var(--ind-d);border:1.6px solid #c7d2fe;box-shadow:none}
+.btn.teal{background:linear-gradient(135deg,#0f766e,#14b8a6);box-shadow:0 10px 22px rgba(13,148,136,.3)}
+.btn.sm{padding:9px 15px;font-size:12.8px;border-radius:10px}
+.stat{background:linear-gradient(135deg,#1e3a8a,#4f46e5);color:#e0e7ff;border-radius:var(--r);padding:18px 20px;text-align:center}
+.stat b{display:block;font-size:27px;color:#fff;letter-spacing:-.5px}
+.stat span{font-size:11.8px;font-weight:600;line-height:1.35;display:block;margin-top:4px;color:#c7d2fe}
+.quote{border-left:5px solid var(--vio);background:#fff;border-radius:0 var(--r) var(--r) 0;padding:20px 24px;font-size:17px;font-style:italic;color:#334155}
+.quote b{display:block;margin-top:8px;font-style:normal;font-size:13px;color:var(--mut)}
+.note{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 16px;font-size:13px;color:#78350f}
+.pol{font-size:12px;color:var(--mut)}
+.pol a{color:var(--mut)}
+
+/* ── Hero ── */
+.hero{background:linear-gradient(120deg,#1e3a8a 0%,#4f46e5 55%,#7c3aed 100%);border-radius:26px;color:#eef2ff;padding:44px 44px 40px;position:relative;overflow:hidden;box-shadow:0 26px 60px rgba(37,40,110,.35)}
+.hero::after{content:"";position:absolute;right:-120px;top:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2),rgba(255,255,255,0) 70%)}
+.hero .kick{font-size:11.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#c7d2fe;margin:0 0 12px}
+.hero h1{font-size:27px;line-height:1.32;margin:0 0 14px;font-weight:800;max-width:900px;position:relative;z-index:1}
+.hero p.sub{font-size:15.5px;color:#dbeafe;max-width:820px;margin:0 0 22px;position:relative;z-index:1}
+.hero .acts{display:flex;gap:12px;flex-wrap:wrap;position:relative;z-index:1}
+.hero .btn{background:#fff;color:var(--ind-d);box-shadow:0 10px 24px rgba(0,0,0,.25)}
+.hero .btn.ghost{background:rgba(255,255,255,.12);color:#e0e7ff;border:1.5px solid rgba(255,255,255,.4)}
+.media{margin-top:26px;border-radius:18px;border:1.5px dashed rgba(255,255,255,.45);background:rgba(255,255,255,.08);padding:34px 20px;text-align:center;position:relative;z-index:1}
+.media .play{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px}
+.media .play svg{width:22px;height:22px;margin-left:3px}
+.media p{margin:0;font-size:12.8px;color:#dbeafe;font-weight:600}
+
+/* mission strip */
+.mission-strip{margin-top:26px;background:#fff;border-radius:22px;border:1px solid var(--line);padding:26px 30px;box-shadow:0 10px 26px rgba(15,23,42,.06)}
+.mission-strip .lbl{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:999px;padding:6px 14px;margin-bottom:12px}
+.mission-strip p{margin:0;font-size:16.5px;line-height:1.6;color:#0f172a}
+.mission-strip p b{color:#0369a1}
+.mission-strip .p2{margin-top:10px;font-size:14px;color:var(--soft)}
+
+/* steps / lifecycle */
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.flow .st{flex:1 1 150px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;text-align:center;position:relative}
+.flow .st b{display:block;font-size:13.2px;margin-bottom:4px}
+.flow .st span{font-size:11.6px;color:var(--mut)}
+.flow .st::after{content:"→";position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:var(--ind);font-weight:800;font-size:16px;z-index:2}
+.flow .st:last-child::after{content:""}
+@media(max-width:760px){.flow .st::after{content:""}}
+
+/* schema goal-tasks-mission */
+.schema{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px}
+.schema .box{border-radius:14px;padding:14px 18px;font-size:13.6px}
+.schema .goal{background:linear-gradient(120deg,#1e3a8a,#7c3aed);color:#eef2ff;font-weight:600}
+.schema .goal b{color:#fff}
+.schema .mis{background:linear-gradient(120deg,#0c4a6e,#0369a1);color:#e0f2fe;font-weight:600}
+.schema .arr{text-align:center;color:var(--ind);font-size:20px;font-weight:800;padding:6px 0}
+.schema .tasks{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+@media(max-width:900px){.schema .tasks{grid-template-columns:repeat(2,1fr)}}
+.schema .tk{background:#f0fdfa;border:1px solid #99f6e4;border-radius:11px;padding:9px 10px;font-size:11.6px;color:#134e4a;font-weight:600;line-height:1.4}
+.schema .tk b{display:inline-flex;width:19px;height:19px;border-radius:50%;background:var(--teal);color:#fff;align-items:center;justify-content:center;font-size:11px;margin-right:6px}
+
+/* competencies */
+.comp{border-top:4px solid var(--ind);position:relative}
+.comp .n{position:absolute;top:14px;right:16px;font-size:26px;font-weight:800;color:#e2e8f0}
+.comp .st3{font-size:11.4px;font-weight:700;color:var(--ind);letter-spacing:.04em;margin:0 0 8px}
+.comp .self{margin-top:10px;font-size:12.6px;font-style:italic;color:#334155;background:#f8fafc;border-radius:10px;padding:9px 11px;border:1px dashed #cbd5e1}
+
+/* diagnostics scale */
+.scale{border-radius:14px;padding:14px 18px;color:#fff;display:flex;gap:14px;align-items:flex-start}
+.scale b.pct{font-size:21px;min-width:96px}
+.scale p{margin:0;font-size:12.8px;line-height:1.45}
+.scale p b{font-size:13.4px;display:block;margin-bottom:2px}
+.sc1{background:linear-gradient(135deg,#15803d,#22c55e)}
+.sc2{background:linear-gradient(135deg,#0f766e,#14b8a6)}
+.sc3{background:linear-gradient(135deg,#b45309,#f59e0b)}
+.sc4{background:linear-gradient(135deg,#b91c1c,#ef4444)}
+
+/* self-assess */
+.sa-q{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.sa-q .qt{flex:1;font-size:13.6px;font-weight:600}
+.sa-q .qt small{display:block;font-weight:600;color:var(--mut);font-size:11.4px;margin-top:2px}
+.lik{display:flex;gap:5px;flex:0 0 auto}
+.lik button{width:36px;height:34px;border-radius:9px;border:1.5px solid #cbd5e1;background:#fff;color:#475569;font-weight:800;font-size:12.5px;cursor:pointer}
+.lik button.sel{background:var(--ind);border-color:var(--ind);color:#fff;box-shadow:0 4px 10px rgba(79,70,229,.35)}
+.sa-res{border-radius:16px;padding:20px 22px;color:#fff;display:none}
+.sa-res.on{display:block}
+.sa-res .lvl{font-size:19px;font-weight:800;margin:0 0 6px}
+.sa-res p{margin:0;font-size:13.4px}
+.sa-res .pct{font-size:34px;font-weight:800;letter-spacing:-1px}
+
+/* tabs */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tabs button{border:1.5px solid #c7d2fe;background:#fff;color:var(--ind-d);font-weight:800;font-size:13px;padding:10px 16px;border-radius:11px;cursor:pointer}
+.tabs button.on{background:var(--ind);border-color:var(--ind);color:#fff;box-shadow:0 6px 14px rgba(79,70,229,.3)}
+.tabpane{display:none}
+.tabpane.on{display:block}
+
+/* forms */
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.f-row{grid-template-columns:1fr}}
+label.fl{display:block;font-size:12px;font-weight:700;color:#334155;margin:0 0 5px}
+.inp{width:100%;border:1.5px solid #cbd5e1;border-radius:11px;padding:11px 13px;font-size:13.6px;font-family:inherit;background:#fff;color:var(--ink)}
+.inp:focus{outline:none;border-color:var(--ind);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+textarea.inp{min-height:96px;resize:vertical}
+.f-grp{margin-bottom:13px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:12.6px;color:var(--soft);margin:6px 0 14px}
+.check input{margin-top:2px;width:16px;height:16px}
+
+/* cabinet */
+.cab{background:linear-gradient(120deg,#0c4a6e,#0369a1 60%,#312e81);border-radius:22px;padding:24px 26px;color:#e0f2fe;box-shadow:0 20px 44px rgba(12,74,110,.3)}
+.cab h3{margin:0 0 4px;font-size:19px;color:#fff}
+.cab .who{font-size:13px;color:#bae6fd}
+.cab .tabs button{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#e0f2fe}
+.cab .tabs button.on{background:#fff;color:#0c4a6e;border-color:#fff}
+.cab .card{box-shadow:none}
+table.hist{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:12px;overflow:hidden}
+table.hist th{background:#f1f5f9;text-align:left;padding:10px 12px;font-size:11.6px;letter-spacing:.05em;text-transform:uppercase;color:#475569}
+table.hist td{padding:10px 12px;border-top:1px solid var(--line)}
+.badge{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px}
+.b-g{background:#dcfce7;color:#15803d}.b-a{background:#fef3c7;color:#92400e}.b-r{background:#fee2e2;color:#b91c1c}.b-t{background:#ccfbf1;color:#0f766e}.b-i{background:#e0e7ff;color:#3730a3}
+
+/* contacts / footer */
+footer.ft{background:#0f172a;color:#cbd5e1;margin-top:70px;padding:40px 0 30px}
+footer.ft h4{color:#fff;font-size:14px;margin:0 0 12px}
+footer.ft a{color:#a5b4fc;text-decoration:none}
+footer.ft .cols{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:26px}
+@media(max-width:900px){footer.ft .cols{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){footer.ft .cols{grid-template-columns:1fr}}
+footer.ft p,footer.ft li{font-size:12.8px;line-height:1.6;margin:0 0 6px}
+footer.ft ul{margin:0;padding-left:16px}
+.ft-bottom{border-top:1px solid #1e293b;margin-top:26px;padding-top:16px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:11.8px;color:#64748b}
+.map-box{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(135deg,#e0f2fe,#eef2ff);position:relative;height:210px}
+.map-box .pin{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%)}
+.map-box .lbl{position:absolute;left:12px;bottom:12px;background:#fff;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;box-shadow:0 6px 16px rgba(15,23,42,.12)}
+.q-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.q-item .meta{font-size:11.6px;color:var(--mut);margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.doc{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px 15px;margin-bottom:9px}
+.doc .di{flex:0 0 auto;width:36px;height:36px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:17px}
+.doc b{font-size:13.4px;display:block}
+.doc span{font-size:12px;color:var(--mut)}
+.timeline{position:relative;padding-left:26px}
+.timeline::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:3px;border-radius:3px;background:linear-gradient(#4f46e5,#0d9488)}
+.tl-i{position:relative;margin-bottom:16px}
+.tl-i::before{content:"";position:absolute;left:-24px;top:6px;width:13px;height:13px;border-radius:50%;background:#fff;border:3.5px solid var(--ind)}
+.tl-i:nth-child(2)::before{border-color:#6d28d9}.tl-i:nth-child(3)::before{border-color:#0d9488}.tl-i:nth-child(4)::before{border-color:#d97706}.tl-i:nth-child(5)::before{border-color:#0369a1}
+.tl-i .yr{font-size:11.6px;font-weight:800;letter-spacing:.08em;color:var(--ind);text-transform:uppercase}
+.tl-i b.tt{font-size:14.6px;display:block;margin:2px 0 4px}
+.tl-i p{margin:0;font-size:12.8px;color:var(--soft)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap topbar">
+    <a class="logo" href="#/home">
+      <span class="lm"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 6v6c0 5 3.8 8.6 9 10 5.2-1.4 9-5 9-10V6l-9-4Z"/><path d="m8.5 12 2.4 2.4 4.6-4.8"/></svg></span>
+      <span><b>Управленческие кадры Кузбасса</b><small>ИРО Кузбасса · ФИП РАО · 2027–2029</small></span>
+    </a>
+    <button class="burger" id="burger" aria-label="меню">☰</button>
+    <nav class="main" id="nav">
+      <a href="#/about">О проекте</a>
+      <a href="#/comp">Ключевые компетенции</a>
+      <a href="#/diag">Диагностика</a>
+      <a href="#/traj">Образовательная траектория</a>
+      <a href="#/dialog">Эффективный диалог (вопрос-ответ)</a>
+      <a href="#/future">Кузбасс.Будущее РФ</a>
+      <a href="#/help">В помощь руководителю</a>
+      <a href="#/login" class="btn-login">Войти</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════ ГЛАВНАЯ ═══════════ -->
+<section class="page" id="p-home">
+  <div class="wrap">
+    <div class="hero">
+      <p class="kick">ГБОУ ДПО «Институт развития образования Кузбасса» · федеральная инновационная площадка РАО</p>
+      <h1>Добро пожаловать на проект «Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования в условиях демографических и социокультурных вызовов (на примере Кемеровской области — Кузбасса)»</h1>
+      <p class="sub">Региональный проект, объединяющий руководителей и заместителей образовательных организаций, участников кадрового резерва для развития системы образования Кузбасса и реализации государственной политики</p>
+      <div class="acts">
+        <a class="btn" href="#/about">Узнать подробнее о проекте</a>
+        <a class="btn ghost" href="#/login">Войти в личный кабинет</a>
+      </div>
+      <div class="media">
+        <span class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>
+        <p>ФОТО ИЛИ ВИДЕО о проекте — презентационный ролик модели опережающей подготовки управленческих кадров</p>
+      </div>
+    </div>
+
+    <div class="mission-strip">
+      <span class="lbl">♥ Наша миссия</span>
+      <p>Наша миссия — создать условия для <b>осознанного профессионального роста руководителей</b>, формирования <b>сильного кадрового резерва</b> и <b>совместного поиска инновационных решений</b>, направленных на повышение качества, эффективности и конкурентоспособности образования Кузбасса.</p>
+      <p class="p2">Проект помогает каждому руководителю не просто закрывать кадровые дефициты, а выстраивать свою уникальную «карту развития» и становиться архитектором образовательного будущего своего региона.</p>
+    </div>
+
+    <div class="sec">
+      <h2>Благодаря участию в проекте вы сможете</h2>
+      <p class="sub">Пять возможностей, которые открывает проект каждому участнику</p>
+      <div class="grid g5">
+        <div class="card"><span class="ico">💪</span><h3>Прокачать качества</h3><p>Прокачать свои профессиональные и лидерские качества</p></div>
+        <div class="card"><span class="ico">🎯</span><h3>Персональные рекомендации</h3><p>Получить персонифицированные рекомендации по профессиональному развитию, сформированные под ваши профессиональные задачи</p></div>
+        <div class="card"><span class="ico">🤝</span><h3>Поделиться опытом</h3><p>Поделиться успешным опытом с коллегами</p></div>
+        <div class="card"><span class="ico">🧑‍🏫</span><h3>Экспертная поддержка</h3><p>Получить экспертную поддержку и консультацию у ведущих управленцев и экспертов региона</p></div>
+        <div class="card"><span class="ico">🌐</span><h3>Сообщество</h3><p>Принимать участие в образовательных мероприятиях и совместно формировать векторы развития образования Кузбасса</p></div>
+      </div>
+      <p style="margin-top:14px"><a class="btn ghost sm" href="#/about">Подробнее о проекте →</a></p>
+    </div>
+
+    <div class="sec">
+      <div class="quote">«Жизнь — это бесконечный труд, который служит твоему успеху, а вкус успеха дороже всего.»<b>Рудольф Нуриев</b></div>
+    </div>
+
+    <div class="sec">
+      <h2>Контакты</h2>
+      <p class="sub">Если у вас есть вопросы о проекте — свяжитесь с нашей командой</p>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Команда проекта</h3>
+          <p style="font-size:14px">📍 г. Кемерово, ул. Заузелкова, 3<br>
+          📞 <b>8 (3842) 56-69-86</b> &nbsp;·&nbsp; ✉️ <b>ouk@kuz-edu.ru</b><br>
+          💬 Группа ВКонтакте &nbsp;·&nbsp; 📢 Канал Max &nbsp;·&nbsp; 🛠 тех. поддержка</p>
+          <p style="margin-top:10px" class="pol">Приёмная ИРО Кузбасса: +7 (3842) 31-15-86, ipk@kuz-edu.ru<br>Техническая поддержка личного кабинета: adm.kuz-edu.ru</p>
+        </div>
+        <div>
+          <div class="map-box">
+            <svg class="pin" width="46" height="46" viewBox="0 0 24 24" fill="none"><path d="M12 22s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" fill="#4f46e5"/><circle cx="12" cy="10.6" r="2.7" fill="#fff"/></svg>
+            <svg width="100%" height="100%" viewBox="0 0 600 210" preserveAspectRatio="none" style="position:absolute;inset:0">
+              <g stroke="#c7d2fe" stroke-width="2" fill="none">
+                <path d="M0 60 H600"/><path d="M0 130 H600"/><path d="M120 0 V210"/><path d="M300 0 V210"/><path d="M470 0 V210"/>
+              </g>
+              <g stroke="#dbeafe" stroke-width="7" fill="none"><path d="M0 95 H600"/><path d="M385 0 V210"/></g>
+              <rect x="330" y="70" width="70" height="42" rx="6" fill="#e0e7ff" stroke="#a5b4fc"/>
+            </svg>
+            <span class="lbl">Карта: как добраться · г. Кемерово, ул. Заузелкова, 3</span>
+          </div>
+        </div>
+      </div>
+      <p class="pol" style="margin-top:12px">Продолжая использовать ресурс, вы принимаете <a href="#/help" onclick="alert('Политика обработки персональных данных ИРО Кузбасса (раздел будет подключён к официальному сайту)');return false;">Политику обработки персональных данных</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ О ПРОЕКТЕ ═══════════ -->
+<section class="page" id="p-about">
+  <div class="wrap">
+    <h1 class="pt">О проекте <span>«Региональная модель опережающей подготовки…»</span></h1>
+    <p class="lead">Что такое проект? Это научно обоснованная система сопровождения управленца в сфере образования на всех этапах его карьеры: от прогноза кадровой потребности и диагностики до портфолио-аттестации и непрерывного развития. Модель объединяет четыре ключевых элемента: <b>прогнозирование кадровой потребности региона</b>, <b>практико-ориентированное модульное обучение</b>, <b>аттестацию через личное портфолио</b> вместо формальных процедур и <b>индивидуальный трек развития</b>.</p>
+
+    <div class="grid g4">
+      <div class="stat"><b>2027–2029</b><span>период реализации (36 месяцев), статус ФИП РАО</span></div>
+      <div class="stat"><b>267 / 251</b><span>кандидатов в резерв / прошли диагностику (94 %)</span></div>
+      <div class="stat"><b>47 + 31</b><span>стажировочных площадок и опорных площадок сети</span></div>
+      <div class="stat"><b>+35 %</b><span>эффективность «парного управления» (пилот, Новокузнецк)</span></div>
+    </div>
+
+    <div class="sec">
+      <h2>Схема модели</h2>
+      <p class="sub">Описать и показать схематично: цель → задачи → миссия</p>
+      <div class="schema">
+        <div class="box goal"><b>ЦЕЛЬ:</b> разработка, научное обоснование, апробация и тиражирование региональной модели опережающей подготовки и непрерывного профессионального развития управленческих кадров системы образования, обеспечивающей преодоление демографических и социокультурных вызовов.</div>
+        <div class="arr">↓</div>
+        <div class="tasks">
+          <div class="tk"><b>1</b>Теоретико-методологические основания предиктивной диагностики дефицитов</div>
+          <div class="tk"><b>2</b>Диагностический инструментарий по 5 направлениям компетенций</div>
+          <div class="tk"><b>3</b>Научные принципы перехода к портфолио-оценке результатов</div>
+          <div class="tk"><b>4</b>Модульные ДПП ПК с кейсами и симуляционными заданиями</div>
+          <div class="tk"><b>5</b>Региональная система аттестации на основе портфолио</div>
+          <div class="tk"><b>6</b>Сеть опорных площадок — ресурсных центров практик</div>
+          <div class="tk"><b>7</b>Цифровая платформа «Управленческий навигатор Кузбасса» (200+ кейсов)</div>
+          <div class="tk"><b>8</b>Сборник и пакет нормативных документов для тиражирования в субъектах РФ</div>
+        </div>
+        <div class="arr">↓</div>
+        <div class="box mis"><b>МИССИЯ:</b> создать условия для осознанного профессионального роста руководителей, формирования сильного кадрового резерва и совместного поиска инновационных решений, направленных на повышение качества, эффективности и конкурентоспособности образования Кузбасса.</div>
+      </div>
+      <p class="sub" style="margin:18px 0 8px">Единый жизненный цикл руководителя образовательной организации</p>
+      <div class="flow">
+        <div class="st"><b>Отбор</b><span>кадровый резерв, конкурсы</span></div>
+        <div class="st"><b>Диагностика</b><span>предиктивная, 5 направлений</span></div>
+        <div class="st"><b>Подготовка</b><span>модульные ДПП, наставничество</span></div>
+        <div class="st"><b>Назначение</b><span>парное управление</span></div>
+        <div class="st"><b>Аттестация</b><span>портфолио + динамика результатов</span></div>
+        <div class="st"><b>Сопровождение</b><span>непрерывное развитие</span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>💡 Уникальность проекта</h2>
+      <div class="grid g5">
+        <div class="card"><span class="ico">🔹</span><h3>Экосистема</h3><p>Не разовое обучение, а непрерывная экосистема развития</p></div>
+        <div class="card"><span class="ico">🔹</span><h3>Персонализация</h3><p>Каждый получает то, что нужно именно ему</p></div>
+        <div class="card"><span class="ico">🔹</span><h3>Практико-ориентированность</h3><p>Знания сразу применяются в проектах</p></div>
+        <div class="card"><span class="ico">🔹</span><h3>Сообщество</h3><p>Поддержка наставников и коллег</p></div>
+        <div class="card"><span class="ico">🔹</span><h3>Данные</h3><p>Объективная диагностика вместо субъективных оценок</p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="grid g2">
+        <div class="card" style="border-top:4px solid var(--grn)">
+          <h3>📈 Ожидаемые результаты к 2030 году</h3>
+          <p>✅ 20 % управленцев ежегодно проходят комплексную оценку<br>
+          ✅ Индивидуальные программы развития (ИПР) для каждого участника<br>
+          ✅ 31 муниципальная площадка для обмена опытом (онлайн + офлайн)<br>
+          ✅ Банк лучших управленческих практик Кузбасса<br>
+          ✅ Снижение профессиональных дефицитов на 40–50 %<br>
+          ✅ Увеличение доли молодых руководителей до 10 %<br>
+          ✅ Живое профессиональное сообщество лидеров образования</p>
+        </div>
+        <div class="card" style="border-top:4px solid var(--amb)">
+          <h3>🎁 Что получает руководитель</h3>
+          <p>🎯 Индивидуальную программу развития<br>
+          🤝 Поддержку опытного наставника<br>
+          🏆 Возможность войти в кадровый резерв региона<br>
+          📊 Регулярную обратную связь о прогрессе<br>
+          🌐 Доступ к лучшим практикам Кузбасса и России</p>
+          <p style="margin-top:10px"><b>«Портрет лидера образования Кузбасса 2030»</b> — это инвестиция в будущее системы образования региона через развитие тех, кто создаёт это будущее сегодня.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Этапы реализации (календарный план 2027–2029)</h2>
+      <p class="sub">Пять этапов заявки ФИП РАО с ключевыми результатами</p>
+      <div class="timeline">
+        <div class="tl-i"><span class="yr">2027 · 1–9 мес.</span><b class="tt">Организационно-диагностический</b><p>Рабочая группа и экспертный совет (РАО, КемГУ, МОК), нормативный пакет, анализ данных мониторингов 2024–2026, диагностический инструментарий по 5 группам компетенций, контент электронной платформы, конкурсный отбор опорных площадок. Результат: комплект диагностических материалов, платформа комплексной оценки, рейтинг и сеть из 31 опорной площадки (62 стажировки, охват 100 % руководящих работников).</p></div>
+        <div class="tl-i"><span class="yr">2027 · 10–12 мес.</span><b class="tt">Проектировочный</b><p>Комплект модульных ДПП ПК (120 / 72 / 36 ч), Положение о региональной системе аттестации, регламенты процедур, методические рекомендации, критерии и показатели оценки управленческого портфолио, инструмент анализа динамики образовательных результатов, система комплексной оценки компетенций (охват: не менее 80 % директоров школ и 75 % заведующих ДО).</p></div>
+        <div class="tl-i"><span class="yr">2028 · 1–8 мес.</span><b class="tt">Апробационный</b><p>Курсы ПК для участников проекта, апробация модели аттестации (портфолио + динамика результатов), стажировочные сессии на опорных площадках (не менее 2 в квартал), ежегодный форум «Управленческий компас». 100 % вновь назначенных руководителей проходят аттестацию в течение года после назначения.</p></div>
+        <div class="tl-i"><span class="yr">2028 · 9–12 мес.</span><b class="tt">Аналитико-корректирующий</b><p>Встречи «Эффективный диалог», тематические образовательные события (не реже 1 раза в квартал), мониторинг апробации, актуализация ДПП ПК и Положения об аттестации. Результат: аналитический доклад, 200+ лучших кейсов и симуляционных заданий, финальная версия Положения; переход не менее 60 % ОО к проектно-аналитическому управлению; снижение отсева резерва на 50 %.</p></div>
+        <div class="tl-i"><span class="yr">2029 · 1–12 мес.</span><b class="tt">Обобщающий и тиражирующий</b><p>Чемпионат управленческих команд, база лучших практик (200+ кейсов), методический сборник «Управленческий навигатор Кузбасса» (12 п. л., гриф РАО), нормативный акт о введении новой модели аттестации, тиражирование модели в субъекты РФ со схожими кадровыми проблемами.</p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Команда проекта</h2>
+      <p class="sub">Кадровое обеспечение заявки ФИП РАО</p>
+      <div class="grid g4">
+        <div class="card"><h3>Забнева Эльвира Ивановна</h3><p>Ректор ИРО Кузбасса, д-р филос. наук, канд. социол. наук, доцент — <b>научный руководитель проекта</b></p></div>
+        <div class="card"><h3>Умеренкова Ольга Вячеславовна</h3><p>Проректор по науке, канд. ист. наук — администратор: научно-методическое сопровождение</p></div>
+        <div class="card"><h3>Ненилин Сергей Николаевич</h3><p>Проректор по учебно-методической работе, канд. пед. наук — администратор: учебно-методическое сопровождение</p></div>
+        <div class="card"><h3>Сычёва Татьяна Анатольевна</h3><p>Проректор по организационной работе и цифровизации, канд. ист. наук — контент платформы «Управленческий навигатор Кузбасса», Центр аттестации</p></div>
+        <div class="card"><h3>Скрипак Елена Ивановна</h3><p>Заведующий центром ДПО, канд. экон. наук — реализация дополнительных профессиональных программ</p></div>
+        <div class="card"><h3>Вербицкая Ирина Валерьевна</h3><p>Заведующий отделом подготовки и сопровождения управленческих кадров — Лига экспертов и наставников, опорные площадки</p></div>
+        <div class="card"><h3>Плосконосова Елена Алексеевна</h3><p>Методист, канд. экон. наук — диагностический инструментарий, аналитика, ДПП ПК, кураторство курсов</p></div>
+        <div class="card"><h3>Основа Светлана Александровна</h3><p>Методист — сопровождение диагностики и формирования портфолио, ДПП ПК, кураторство курсов</p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Нормативная основа и корреляция с национальными целями</h2>
+      <p class="sub">Указы Президента РФ от 09.11.2022 № 809, от 07.05.2024 № 309, от 08.05.2024 № 314</p>
+      <span class="chip">ФЗ № 273-ФЗ «Об образовании в РФ» (ст. 51, 76)</span>
+      <span class="chip v">Профстандарт «Руководитель образовательной организации» (приказ Минтруда № 250н)</span>
+      <span class="chip t">Госпрограмма РФ «Развитие образования» (ПП РФ № 1642)</span>
+      <span class="chip">Концепция научно-методического сопровождения (Р-174, Р-303)</span>
+      <span class="chip a">Целевая модель аттестации руководителей (Р-117)</span>
+      <span class="chip t">Методология наставничества (Р-145)</span>
+      <span class="chip v">Закон об образовании Кемеровской области № 86-ОЗ</span>
+      <p class="note" style="margin-top:14px">Теоретическая база: теория опережающего образования (Б. М. Бим-Бад, А. М. Новиков, Н. П. Новиков, М. В. Зуев); школа управления образовательными системами Т. И. Шамовой и Н. В. Немовой; андрагогическая концепция С. Г. Вершловского и Э. М. Никитина; идеи регионализации образования В. И. Загвязинского и М. М. Поташника.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ КЛЮЧЕВЫЕ КОМПЕТЕНЦИИ ═══════════ -->
+<section class="page" id="p-comp">
+  <div class="wrap">
+    <h1 class="pt">Компетенции <span>руководителя</span></h1>
+    <p class="lead">Компетентностная модель проекта: под ключевые направления управленческой деятельности выстроено всё — диагностический инструментарий, модульные ДПП ПК, банк кейсов и симуляций, портфолио-аттестация и персональные траектории. Измерение — стандартизированное, единое для всех муниципальных образований региона.</p>
+    <div class="grid g3">
+      <div class="card comp"><span class="n">1</span><span class="ico">🧭</span><h3>Стратегическое управление</h3><p class="st3">Стратегия • Проекты • Управление изменениями • Прогнозирование</p><p style="font-size:13px;color:var(--soft);margin:0">Разработка и реализация программы развития ОО, проектное и портфельное управление, сценарное планирование, учёт региональной специфики (демография, миграция, промышленная трансформация). Для руководителей муниципальных органов управления образованием — стратегическое планирование, межведомственное взаимодействие, оптимизация сети.</p><p class="self">«Я формулирую стратегию развития ОО и эффективно внедряю изменения с учётом требований ФГОС, ФОП и региональных программ; веду проекты и привлекаю внебюджетные средства.»</p><p style="margin-top:10px"><span class="chip">модуль «Стратегическое управление и проектная деятельность»</span><span class="chip t">стратегическая лаборатория</span><span class="chip a">трек форума «Управление изменениями»</span></p></div>
+      <div class="card comp"><span class="n">2</span><span class="ico">⚖️</span><h3>Финансово-хозяйственная деятельность</h3><p class="st3">Бюджет • Закупки • План ФХД • Гранты</p><p style="font-size:13px;color:var(--soft);margin:0">Планирование и исполнение бюджета, план ФХД, закупки по 44-ФЗ / 223-ФЗ, оптимизация материально-технической базы, привлечение внебюджетных средств (гранты, конкурсы). Акценты для ДО и ОДО — финансово-хозяйственная деятельность и ресурсное обеспечение образовательного процесса.</p><p class="self">«Я грамотно планирую бюджет, веду закупки в правовом поле, оптимизирую базу и привлекаю дополнительные ресурсы для развития организации.»</p><p style="margin-top:10px"><span class="chip">модуль «Финансово-хозяйственная деятельность»</span><span class="chip t">финансовая лаборатория</span><span class="chip a">кейс «Ремонт до отопительного сезона»</span></p></div>
+      <div class="card comp"><span class="n">3</span><span class="ico">👥</span><h3>Управление персоналом</h3><p class="st3">Команда • Наставничество • Мотивация • Кадровый резерв</p><p style="font-size:13px;color:var(--soft);margin:0">Формирование и развитие команды, наставничество и «парное управление», мотивация и делегирование, работа с кадровым резервом, профилактика профессионального выгорания, командное взаимодействие в управленческой связке.</p><p class="self">«Я эффективно формирую команду, выстраиваю систему наставничества, мотивации и профессионального роста педагогов; делегирую и развиваю резерв.»</p><p style="margin-top:10px"><span class="chip">модуль «Управление персоналом и командообразование»</span><span class="chip t">кадровая лаборатория</span><span class="chip a">практикум «парного управления»</span></p></div>
+      <div class="card comp"><span class="n">4</span><span class="ico">🎯</span><h3>Управление качеством образования</h3><p class="st3">ВСОКО • ФГОС и ФОП • Данные • Динамика результатов</p><p style="font-size:13px;color:var(--soft);margin:0">Внутренняя система оценки качества образования, соответствие ООП требованиям ФГОС и ФОП, анализ образовательных результатов и их динамики, принятие управленческих решений на данных (ВСОКО, ВПР, ГИА, олимпиады, мониторинги).</p><p class="self">«Я регулярно анализирую показатели качества образования и динамику результатов, корректирую управленческие решения для достижения целевых метрик.»</p><p style="margin-top:10px"><span class="chip">модуль «Управление качеством образования»</span><span class="chip t">лаборатория качества</span><span class="chip a">вебинар «Современная ВСОКО…»</span></p></div>
+      <div class="card comp"><span class="n">5</span><span class="ico">🌐</span><h3>Коммуникации</h3><p class="st3">Родители • СМИ и соцсети • Кризисы • Государственно-общественное управление</p><p style="font-size:13px;color:var(--soft);margin:0">Взаимодействие с родительским сообществом, СМИ и социальными сетями, кризисные коммуникации, коллегиальные органы управления (совет школы, родительские комитеты), партнёрство с социумом (для ОДО — взаимодействие с социумом и благоприятная среда).</p><p class="self">«Я выстраиваю прозрачные коммуникации с родителями, сообществом и партнёрами; уверенно действую в кризисных ситуациях.»</p><p style="margin-top:10px"><span class="chip">модуль «Коммуникации и работа с общественностью»</span><span class="chip t">лаборатория коммуникаций</span><span class="chip a">симуляция «Кризис в родительском чате»</span></p></div>
+      <div class="card" style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-color:#c7d2fe">
+        <h3>Уровни сформированности (динамический профиль)</h3>
+        <p style="font-size:13px;color:var(--soft)">В отличие от статической аттестации, модель ведёт <b>непрерывный мониторинг</b> уровней сформированности каждой компетенции:</p>
+        <p style="margin-top:10px"><span class="chip v">низкий</span><span class="chip v">удовлетворительный</span><span class="chip v">базовый</span><span class="chip v">повышенный</span><span class="chip v">высокий</span></p>
+        <p style="margin-top:10px;font-size:12.8px;color:var(--soft)">Цикл модели: <b>диагностика → ИПР → модульное обучение → портфолио → аттестация → повторная диагностика</b>. Результат измерим: решённые кейсы и симуляции становятся вкладом в управленческое портфолио.</p>
+      </div>
+    </div>
+    <div class="sec">
+      <p class="note">Дифференциация по уровням управления: руководители муниципальных органов управления образованием (стратегическое планирование, межведомственное взаимодействие, оптимизация сети); руководители общеобразовательных организаций (качество образования, кадровый менеджмент, образовательные результаты, ФХД); руководители ДО (ФХД, ФОП ДО, работа с родительским сообществом); руководители ОДО (стратегия, организация процесса, персонал, взаимодействие с социумом); кандидаты в кадровый резерв (нормативное обеспечение, основы управления ОО, организаторские способности, коммуникативная грамотность, лидерские качества, карьерный рост).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ДИАГНОСТИКА ═══════════ -->
+<section class="page" id="p-diag">
+  <div class="wrap">
+    <h1 class="pt">Диагностика <span>профессиональных компетенций</span></h1>
+    <p class="lead">Система комплексной оценки профессиональных (управленческих) компетенций позволяет каждому участнику проекта самостоятельно определить свой индивидуальный уровень сформированности компетенций и получить персональные рекомендации.</p>
+
+    <div class="grid g4">
+      <div class="card"><span class="ico">🧰</span><h3>Стандартизированные инструменты</h3><p>Единые для всех муниципальных образований: анкеты, тесты, опросники, управленческие кейсы и симуляционные задания по пяти направлениям</p></div>
+      <div class="card"><span class="ico">💻</span><h3>Самостоятельная процедура</h3><p>Удобный онлайн-контент платформы «Управленческий навигатор Кузбасса» для самостоятельного заполнения</p></div>
+      <div class="card"><span class="ico">🤖</span><h3>Алгоритм обработки</h3><p>Автоматизированная система анализа данных выдаёт отчёт о сильных сторонах и зонах развития</p></div>
+      <div class="card"><span class="ico">🎯</span><h3>Индивидуальные рекомендации</h3><p>Персональные советы: модульные курсы ПК, переподготовка, тренинги, конкурсы, гранты, саморазвитие</p></div>
+    </div>
+
+    <div class="sec">
+      <h2>Инструменты диагностики</h2>
+      <div class="tabs" id="dtabs">
+        <button class="on" data-t="sa">Лист самооценки</button>
+        <button data-t="test">Пройти тестирование</button>
+        <button data-t="case">Кейсы</button>
+        <button data-t="sim">Симуляционные задания</button>
+      </div>
+
+      <div class="tabpane on" id="dt-sa">
+        <div class="card" style="border-top:4px solid var(--ind)">
+          <h3>Лист самооценки (демо-версия)</h3>
+          <p style="margin-bottom:14px">Оцените каждое утверждение по шкале от 0 (полностью не согласен) до 4 (полностью согласен). Результат рассчитывается по официальной шкале уровней дефицитов проекта.</p>
+          <div id="saList"></div>
+          <button class="btn" id="saCalc">Рассчитать мой уровень</button>
+          <button class="btn ghost" id="saReset" type="button">Сбросить</button>
+          <div class="sa-res" id="saRes" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <div class="tabpane" id="dt-test">
+        <div class="card" style="border-top:4px solid var(--vio)">
+          <h3>Комплексный тест по 5 направлениям управленческих компетенций (20 заданий)</h3>
+          <p style="margin-bottom:6px">Стратегическое управление · финансово-хозяйственная деятельность · управление персоналом · управление качеством образования · коммуникации. После проверки по каждому заданию открывается <b>интерпретация</b> (обоснование верного ответа со ссылкой на нормативный источник), по каждому направлению — <b>уровень и рекомендации</b>. Задания основаны на действующих нормативных актах РФ (редакции актуальны на октябрь 2026 г.).</p>
+          <div id="testList"></div>
+          <button class="btn" id="testCalc">Завершить тест и получить интерпретацию</button>
+          <button class="btn ghost" id="testReset" type="button">Пройти заново</button>
+          <div class="sa-res" id="testRes" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <div class="tabpane" id="dt-case">
+        <div class="grid g3">
+          <div class="card"><span class="ico">📁</span><h3>Кейс «Ремонт до отопительного сезона»</h3><p>ФХД: финансирование урезано на 20 %, кровля требует ремонта до зимы. Предложите финансово-хозяйственный план: перераспределение, внебюджетные источники, приоритеты.</p><p style="margin-top:10px"><span class="badge b-t">финансово-хозяйственная деятельность</span></p></div>
+          <div class="card"><span class="ico">📁</span><h3>Кейс «Конфликт в управленческой команде»</h3><p>Персонал: два заместителя директора демонстрируют открытый конфликт, мотивация коллектива падает. Диагностируйте причины и предложите план командного разрешения.</p><p style="margin-top:10px"><span class="badge b-t">управление персоналом</span></p></div>
+          <div class="card"><span class="ico">📁</span><h3>Кейс «Снижение результатов ВСОКО»</h3><p>Качество: по итогам года снизилась доля обучающихся на «4» и «5», выросла доля неуспевающих. Постройте аналитическую гипотезу и план управленческих решений.</p><p style="margin-top:10px"><span class="badge b-t">управление качеством образования</span></p></div>
+        </div>
+        <p class="note" style="margin-top:14px">Банк проекта — <b>200+ реальных управленческих кейсов и симуляционных заданий</b>: опыт отдельных успешных руководителей превращается в коллективный актив всей региональной системы.</p>
+      </div>
+
+      <div class="tabpane" id="dt-sim">
+        <div class="grid g3">
+          <div class="card"><span class="ico">🎮</span><h3>Симуляция «Назначение директора»</h3><p>Стратегия/кадры: на основе профилей четырёх кандидатов и данных школы примите кадровое решение и обоснуйте его перед экспертной комиссией.</p><p style="margin-top:10px"><span class="badge b-a">командный формат с защитой решения</span></p></div>
+          <div class="card"><span class="ico">🎮</span><h3>Симуляция «Кризис в родительском чате»</h3><p>Коммуникации: за 48 часов нейтрализовать эскалацию конфликта в социальных сетях: план коммуникаций, формулировки, распределение ролей в команде.</p><p style="margin-top:10px"><span class="badge b-a">индивидуальный формат</span></p></div>
+          <div class="card"><span class="ico">🎮</span><h3>Симуляция «Защита программы развития»</h3><p>Стратегия: защита программы развития малокомплектной школы перед панелью экспертов (целеполагание, ресурсы, риски, метрики результата).</p><p style="margin-top:10px"><span class="badge b-a">результат — вклад в портфолио</span></p></div>
+        </div>
+        <p class="note" style="margin-top:14px">Разные уровни погружения: от индивидуальной работы до командной защиты решения перед экспертами. Результаты симуляторов служат инструментом выявления потенциальных руководителей и экспертов-наставников.</p>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Шкала оценки результатов стандартизированной диагностики</h2>
+      <p class="sub">По уровням дефицитов профессиональных компетенций управленческих кадров</p>
+      <div class="grid g2">
+        <div class="scale sc1"><b class="pct">81–100 %</b><p><b>Низкий уровень дефицитов</b>Высокая сформированность. Готов транслировать опыт, выступать наставником</p></div>
+        <div class="scale sc2"><b class="pct">70–80 %</b><p><b>Выше среднего уровня дефицитов</b>Продвинутый уровень. Выполняю задания базового и частично продвинутого уровня</p></div>
+        <div class="scale sc3"><b class="pct">50–69 %</b><p><b>Средний уровень дефицитов</b>Базовый уровень. Требуется включение в ИПР для развития</p></div>
+        <div class="scale sc4"><b class="pct">0–49 %</b><p><b>Высокий уровень дефицитов</b>Требуется развитие. Первоочередное включение в ИПР, наставническое сопровождение</p></div>
+      </div>
+      <p class="note" style="margin-top:14px">ХРАНЕНИЕ ДАННЫХ: история прохождения (дата, результат) и возможность сравнивать результаты (прогресс во времени) доступны в личном кабинете участника проекта.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ОБРАЗОВАТЕЛЬНАЯ ТРАЕКТОРИЯ ═══════════ -->
+<section class="page" id="p-traj">
+  <div class="wrap">
+    <h1 class="pt">Образовательная <span>траектория развития</span></h1>
+    <p class="lead">Вместо общих курсов по менеджменту — персональный маршрут: микромодули под конкретные запросы руководителя (проектное управление, ВСОКО, управление развитием малокомплектной школы и др.), собранные в четыре формата обучения.</p>
+    <div class="grid g4">
+      <div class="card" style="border-top:4px solid var(--ind)"><span class="ico">🎓</span><h3>ДПП ПК и профессиональная переподготовка</h3><p>Четыре модульные программы ДПО (120 / 72 / 36 часов): стратегическое управление и проектная деятельность, финансово-хозяйственная деятельность, управление персоналом и командообразование, управление качеством образования, коммуникации и работа с общественностью, антикризисное управление. Личностно-ориентированный подход с учётом оценки управленческого портфолио.</p><p style="margin-top:10px"><b style="font-size:12px">Материалы:</b> <span class="chip">аннотации и учебные планы модульных программ (120/72/36 ч)</span><span class="chip">методические рекомендации РАО (научное сопровождение)</span><span class="chip">фонд оценочных средств (кейсы, симуляции)</span></p></div>
+      <div class="card" style="border-top:4px solid var(--vio)"><span class="ico">💻</span><h3>Онлайн-модули</h3><p>Модули под специфические дефициты компетенций, выявленные диагностикой, — без отрыва от работы, с немедленным применением результата. Материалы модулей: видео-микролекции, конспекты-шпаргалки, тренажёры, кейсы и симуляции с разбором, чек-листы.</p><p style="margin-top:10px"><span class="chip v">«Управление проектами: от идеи до гранта»</span><span class="chip v">«ФХД: бюджет и план ФХД для руководителя»</span><span class="chip v">«Команда: делегирование и мотивация»</span><span class="chip v">«ВСОКО: от данных к решениям»</span><span class="chip v">«Коммуникации: родители, СМИ, соцсети»</span><span class="chip v">«Антикризисное управление»</span><span class="chip v">«Цифровые инструменты и ГИС»</span><span class="chip v">«Профилактика выгорания»</span></p></div>
+      <div class="card" style="border-top:4px solid var(--teal)"><span class="ico">🎪</span><h3>Интенсивы, форумы, семинары</h3><p>Ежегодный форум «Управленческий компас» на площадках муниципалитетов, интенсивы, круглые столы, вебинары (не реже 1 раза в квартал): лидерские компетенции, карьерное планирование, ФХД, управление изменениями, наставничество, ресурсы, оценка качества.</p><p style="margin-top:10px"><b style="font-size:12px">Материалы:</b> <span class="chip t">тематический план образовательных событий на год</span><span class="chip t">резолюции и сборники материалов форума «Управленческий компас»</span><span class="chip t">записи вебинаров (банк видеоматериалов)</span></p></div>
+      <div class="card" style="border-top:4px solid var(--amb)"><span class="ico">🏫</span><h3>Межмуниципальные сетевые лаборатории</h3><p>Сеть из 31 опорной площадки — ресурсных центров управленческих практик в муниципальных образованиях: стажировочные сессии (не менее 2 в квартал), обмен практиками, виртуальные стажировочные площадки лучших школ региона. Действуют 5 лабораторий по направлениям компетенций: стратегическая, финансовая, кадровая, лаборатория качества образования, лаборатория коммуникаций.</p><p style="margin-top:10px"><b style="font-size:12px">Материалы:</b> <span class="chip a">программы стажировок и регламент сессий</span><span class="chip a">карта опорных площадок региона</span><span class="chip a">банк лучших практик лабораторий</span></p></div>
+    </div>
+
+    <div class="sec">
+      <h2>Как строится индивидуальная траектория (ИПР)</h2>
+      <div class="flow">
+        <div class="st"><b>1. Диагностика</b><span>самооценка, тесты, кейсы, симуляции</span></div>
+        <div class="st"><b>2. Уровень дефицитов</b><span>шкала 0–100 %, отчёт о сильных сторонах</span></div>
+        <div class="st"><b>3. ИПР</b><span>персональный набор модулей и форм</span></div>
+        <div class="st"><b>4. Обучение через действие</b><span>кейсы, симуляции, стажировки</span></div>
+        <div class="st"><b>5. Портфолио</b><span>решённые кейсы как вклад в аттестацию</span></div>
+        <div class="st"><b>6. Повторная диагностика</b><span>сравнение результатов во времени</span></div>
+      </div>
+      <div class="grid g4" style="margin-top:18px">
+        <div class="card"><h3>Повышение квалификации</h3><p>По ключевым управленческим дисциплинам в соответствии с выявленными дефицитами</p></div>
+        <div class="card"><h3>Профессиональная переподготовка</h3><p>Для формирования недостающих управленческих компетенций</p></div>
+        <div class="card"><h3>Целевое самообразование</h3><p>В соответствии со сформированным образовательным маршрутом</p></div>
+        <div class="card"><h3>Наставничество</h3><p>Регулярное взаимодействие с действующим руководителем: передача практического опыта и персональное сопровождение, технология «парного управления» (+35 % эффективности в пилоте)</p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Материалы траектории (рабочие инструменты участника)</h2>
+      <p class="sub">Шаблоны и рабочие листы, которые сопровождают движение по траектории: от дефицитов к результату</p>
+      <div class="grid g3">
+        <div class="doc"><span class="di">🧩</span><div><b>Конструктор ИПР (индивидуальной программы развития)</b><span>Шаблон: дефицит по результатам диагностики → модуль/формат → показатель результата → срок → наставник</span></div></div>
+        <div class="doc"><span class="di">✅</span><div><b>Чек-лист самопроверки управленческого портфолио</b><span>Разделы портфолио, критерии и показатели оценки, типовые доказательства результатов (проектный этап 2027)</span></div></div>
+        <div class="doc"><span class="di">🤝</span><div><b>План встреч наставника и резервиста («парное управление»)</b><span>Цикл 12 месяцев: передача полномочий по этапам, рефлексия, корректировка маршрута, оценка эффективности</span></div></div>
+        <div class="doc"><span class="di">🏫</span><div><b>Программа стажировочной сессии опорной площадки</b><span>Регламент сессии (не менее 2 в квартал): кейс-разбор, обмен практиками, рефлексивный анализ</span></div></div>
+        <div class="doc"><span class="di">📚</span><div><b>Каталог банка кейсов и симуляционных заданий (200+)</b><span>Навигация по 5 направлениям и уровням сложности: базовый, продвинутый, экспертный</span></div></div>
+        <div class="doc"><span class="di">📈</span><div><b>Рабочий лист «Динамика образовательных результатов»</b><span>Таблица и алгоритм анализа вклада руководителя: успеваемость, ГИА, олимпиады, мониторинги качества за 3–5 лет</span></div></div>
+      </div>
+      <p class="note" style="margin-top:14px">Все материалы размещаются в личном кабинете участника и в закрытой коммуникационной среде платформы «Управленческий навигатор Кузбасса»; печатные версии входят в методический сборник (лист «В помощь руководителю»).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ЭФФЕКТИВНЫЙ ДИАЛОГ ═══════════ -->
+<section class="page" id="p-dialog">
+  <div class="wrap">
+    <h1 class="pt">Эффективный диалог <span>(вопрос-ответ)</span></h1>
+    <p class="lead">Поле для вопросов, предложений и консультаций: участники проекта пишут свои вопросы — команда и эксперты отвечают в формате очных и онлайн-встреч «Эффективный диалог» (не реже 1 раза в месяц) и тематических образовательных событий (не реже 1 раза в квартал).</p>
+    <div class="grid g2">
+      <div class="card" style="border-top:4px solid var(--ind)">
+        <h3>Задать вопрос / внести предложение</h3>
+        <div class="f-grp" style="margin-top:12px">
+          <label class="fl">Направление вопроса</label>
+          <select class="inp" id="qCat">
+            <option>Стратегическое управление</option>
+            <option>Финансово-хозяйственная деятельность</option>
+            <option>Управление персоналом</option>
+            <option>Управление качеством образования</option>
+            <option>Коммуникации</option>
+            <option>Другое (предложение по проекту)</option>
+          </select>
+        </div>
+        <div class="f-grp">
+          <label class="fl">Ваш вопрос или предложение</label>
+          <textarea class="inp" id="qText" placeholder="Например: какие инструменты использовать для анализа мотивации команды в малокомплектной школе?"></textarea>
+        </div>
+        <div class="f-grp">
+          <label class="fl">Имя и должность (необязательно)</label>
+          <input class="inp" id="qWho" placeholder="Иванова А. А., директор МБОУ «СОШ № 1»">
+        </div>
+        <button class="btn" id="qSend">Отправить вопрос экспертам</button>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <h3>Кто отвечает</h3>
+          <p>Региональная Лига экспертов и наставников (68 чел. из 27 территорий), члены федерального «Клуба директоров», победители и финалисты конкурсов президентской платформы «Россия — страна возможностей», опытные руководители и заместители руководителей ОО.</p>
+        </div>
+        <h3 style="margin:0 0 10px;font-size:15px">Лента вопросов участников</h3>
+        <div id="qList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ КУЗБАСС.БУДУЩЕЕ РФ ═══════════ -->
+<section class="page" id="p-future">
+  <div class="wrap">
+    <h1 class="pt">КУЗБАСС.БУДУЩЕЕ.РФ <span>· кадровый резерв системы образования</span></h1>
+    <p class="lead">Онлайн-ресурс и проект по формированию, сопровождению, подготовке и использованию кадрового резерва системы образования Кемеровской области — Кузбасса с учётом проектов и конкурсов АНО «Россия — страна возможностей». Площадка для сбора, запуска и продвижения идей и проектов кандидатов в муниципальный и региональный кадровый резерв.</p>
+    <div class="grid g4">
+      <div class="stat"><b>4</b><span>отбора кандидатов в кадровый резерв проведено</span></div>
+      <div class="stat"><b>267</b><span>анкет подано на предварительный отбор</span></div>
+      <div class="stat"><b>94 %</b><span>кандидатов прошли диагностическое тестирование (251 чел.)</span></div>
+      <div class="stat"><b>68 / 27</b><span>экспертов и наставников Лиги / территорий региона</span></div>
+    </div>
+    <div class="sec">
+      <h2>Трёхуровневая модель работы с кадровым резервом</h2>
+      <div class="flow">
+        <div class="st"><b>Уровень 1</b><span>отбор и диагностика: тестирование, индивидуальные рекомендации по компетенциям</span></div>
+        <div class="st"><b>Уровень 2</b><span>подготовка: ИПР, ДПП, переподготовка, самообразование, наставник</span></div>
+        <div class="st"><b>Уровень 3</b><span>сопровождение в должности: парное управление, опорные площадки, сообщество</span></div>
+      </div>
+    </div>
+    <div class="sec">
+      <h2>Возможности онлайн-ресурса «Кузбасс.Будущее.РФ»</h2>
+      <div class="grid g3">
+        <div class="card"><span class="ico">💡</span><h3>Идеи и проекты</h3><p>Сбор, запуск и продвижение идей и проектов кандидатов в муниципальный и региональный кадровый резерв</p></div>
+        <div class="card"><span class="ico">🔎</span><h3>Выявление и отбор</h3><p>Выявление, отбор и мотивация кадров, обладающих проектным и управленческим потенциалом</p></div>
+        <div class="card"><span class="ico">🗺️</span><h3>Индивидуальные маршруты</h3><p>Формирование индивидуальных маршрутов развития и интеграция с системой диагностики профессиональных дефицитов</p></div>
+        <div class="card"><span class="ico">🧪</span><h3>Банк тестовых заданий</h3><p>Тесты, ситуационные задания с развёрнутым решением, ситуационные задания с выбором ответа — для резерва и руководителей ОО в соответствии с профстандартом</p></div>
+        <div class="card"><span class="ico">📡</span><h3>Дистанционное сопровождение</h3><p>Сопровождение управленческих кадров образовательных организаций региона в онлайн-формате</p></div>
+        <div class="card"><span class="ico">🔗</span><h3>Связка с проектом ФИП</h3><p>Интеграция с диагностикой и платформой «Управленческий навигатор Кузбасса»: данные отбора становятся стартовой точкой осознанного профессионального роста</p></div>
+      </div>
+      <p class="note" style="margin-top:14px">Выявленные проблемы резерва, ставшие основой модели: только 57 % кандидатов владеют основами проектной деятельности; дефицит навыков командного взаимодействия и делегирования; нехватка управленческих знаний (ФХД, нормативно-правовое обеспечение); психологический «страх» остаться «один на один» с новой профессией при назначении. 46 % кандидатов уже занимают управленческие должности.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ В ПОМОЩЬ РУКОВОДИТЕЛЮ ═══════════ -->
+<section class="page" id="p-help">
+  <div class="wrap">
+    <h1 class="pt">В помощь <span>руководителю</span></h1>
+    <p class="lead">Методические, нормативные и практические материалы модели: всё, что нужно руководителю для подготовки к аттестации, формирования портфолио и ежедневной управленческой работы.</p>
+    <div class="grid g2">
+      <div>
+        <h3 style="margin:0 0 10px;font-size:16px">📚 Методические материалы</h3>
+        <div class="doc"><span class="di">📘</span><div><b>Методический сборник «Управленческий навигатор Кузбасса»</b><span>Объём 12 п. л., гриф «рекомендовано РАО» — итог обобщающего этапа 2029 года</span></div></div>
+        <div class="doc"><span class="di">🧩</span><div><b>Банк управленческих кейсов и симуляционных заданий (200+)</b><span>Реальные ситуации по пяти направлениям: стратегия, ФХД, персонал, качество, коммуникации</span></div></div>
+        <div class="doc"><span class="di">🏆</span><div><b>Банк лучших управленческих практик Кузбасса</b><span>Облачные хранилища готовых управленческих решений с возможностью адаптации под свою организацию</span></div></div>
+        <div class="doc"><span class="di">📄</span><div><b>Методические рекомендации по формированию управленческого портфолио</b><span>Алгоритм сбора данных, критерии и показатели оценки, подготовка к портфолио-аттестации</span></div></div>
+      </div>
+      <div>
+        <h3 style="margin:0 0 10px;font-size:16px">⚖️ Нормативные документы модели</h3>
+        <div class="doc"><span class="di">📄</span><div><b>Положение о региональной системе аттестации руководителей ОО</b><span>Цели, задачи, участники, сроки, права и обязанности сторон</span></div></div>
+        <div class="doc"><span class="di">📄</span><div><b>Регламент процедур региональной системы аттестации</b><span>От подачи заявки до итогового решения аттестационной комиссии</span></div></div>
+        <div class="doc"><span class="di">📄</span><div><b>Положение об опорных площадках (ресурсных центрах управленческих практик)</b><span>Критерии отбора, порядок деятельности, сети в муниципальных образованиях</span></div></div>
+        <div class="doc"><span class="di">📄</span><div><b>Положение о наставничестве и «парном управлении»</b><span>Технология передачи неявного управленческого знания: наставник + кандидат резерва</span></div></div>
+        <div class="doc"><span class="di">📊</span><div><b>Инструмент анализа динамики образовательных результатов</b><span>Методика оценки вклада руководителя: успеваемость, ГИА, олимпиады, мониторинги качества</span></div></div>
+      </div>
+    </div>
+    <div class="sec">
+      <h2>Поддержка руководителя</h2>
+      <div class="grid g4">
+        <div class="card"><span class="ico">🤝</span><h3>Наставник и куратор</h3><p>1–2 опытных куратора на муниципалитет; распределённое наставничество Лиги экспертов</p></div>
+        <div class="card"><span class="ico">🧘</span><h3>Профилактика выгорания</h3><p>Блоки ДПП по стресс-менеджменту, система психологической поддержки и супервизий для руководителей</p></div>
+        <div class="card"><span class="ico">💬</span><h3>«Эффективный диалог»</h3><p>Ежемесячные встречи «вопрос-ответ» с экспертами по сложным управленческим ситуациям</p></div>
+        <div class="card"><span class="ico">🖥️</span><h3>Цифровая среда</h3><p>Закрытая коммуникационная среда (форумы, мессенджеры): обмен опытом и поддержка «здесь и сейчас»</p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>⚖️ Нормативная база для работы руководителя</h2>
+      <p class="sub">Полный перечень документов, необходимых руководителю образовательной организации, с учётом всех обновлений. Редакции актуальны на <b>9 октября 2026 г.</b> Источники: Официальный интернет-портал правовой информации (publication.pravo.gov.ru), Министерство просвещения РФ (docs.edu.gov.ru), справочные правовые системы. Ссылка «открыть» ведёт к тексту документа.</p>
+      <div id="normLib"></div>
+      <h3 style="margin:22px 0 10px;font-size:16px">🔄 Ключевые обновления 2025–2026 годов</h3>
+      <div class="grid g3">
+        <div class="card" style="border-left:4px solid var(--amb)"><h3>С 1 сентября 2025</h3><p>Новый Порядок организации и осуществления образовательной деятельности по дополнительным профессиональным программам (приказ Минобрнауки России от 24.03.2025 № 266): требования к структуре программ ПК и переподготовки.</p></div>
+        <div class="card" style="border-left:4px solid var(--amb)"><h3>2025: стандарты и профстандарты</h3><p>ФГОС СОО утверждён приказом Минпросвещения России от 24.02.2025 № 138; профстандарт «Руководитель профессиональной образовательной организации» — приказ Минтруда России от 21.03.2025 № 137н; изменения ФГОС НОО/ООО применяются с 01.09.2025.</p></div>
+        <div class="card" style="border-left:4px solid var(--amb)"><h3>2026: региональный уровень</h3><p>Закон Кемеровской области от 05.07.2013 № 86-ОЗ «Об образовании» действует в редакции от 1 июля 2026 г.; ФЗ № 273-ФЗ и кодексы применяются в редакциях 2026 г.</p></div>
+      </div>
+      <p class="note" style="margin-top:14px">Нормативные документы региональной модели (Положение о региональной системе аттестации, об опорных площадках, о наставничестве и «парном управлении», регламент аттестации, критерии оценки портфолио, инструмент анализа динамики результатов) разрабатываются и утверждаются на организационно-диагностическом и проектировочном этапах проекта (2027) и будут добавлены в этот раздел после принятия.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ВОЙТИ / ЛИЧНЫЙ КАБИНЕТ ═══════════ -->
+<section class="page" id="p-login">
+  <div class="wrap">
+    <p class="kicker">Личный кабинет участника проекта</p>
+    <h1 class="pt">Войти <span>· присоединяйтесь к проекту!</span></h1>
+    <p class="lead">Ваш профессиональный рост — наше общее будущее! Нажимая на кнопку «ВОЙТИ», участники проекта оказываются в своем личном кабинете.</p>
+
+    <div class="grid g2" id="loginWrap">
+      <div class="card" style="border-top:4px solid var(--ind)">
+        <h3>Вход для участников проекта</h3>
+        <div class="f-grp" style="margin-top:12px">
+          <label class="fl">Логин (вместо телефона)</label>
+          <input class="inp" id="liLogin" placeholder="например: ivanova.oo1">
+        </div>
+        <div class="f-grp">
+          <label class="fl">Пароль</label>
+          <input class="inp" type="password" id="liPass" placeholder="••••••••">
+        </div>
+        <button class="btn" id="liBtn">Войти</button>
+        <p class="pol" style="margin-top:12px">Техническая поддержка: <b>adm.kuz-edu.ru</b> · При возникновении сложностей со входом обратитесь к координатору проекта в своём муниципалитете.</p>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-color:#c7d2fe">
+        <h3>Что внутри личного кабинета</h3>
+        <p style="font-size:14px">
+          <span class="chip">Лист самооценки</span><span class="chip">Диагностика</span><span class="chip">Анкета</span><span class="chip">Портфолио</span><span class="chip">Персональный отчёт</span>
+        </p>
+        <p style="margin-top:8px"><b>ХРАНЕНИЕ ДАННЫХ:</b><br>· история прохождения (дата, результат);<br>· возможность сравнивать результаты (прогресс во времени).</p>
+        <p style="margin-top:8px">Демо-режим: вход возможен с любым логином и паролем.</p>
+      </div>
+    </div>
+
+    <div class="sec" id="cabWrap" style="display:none">
+      <div class="cab">
+        <h3>Личный кабинет участника проекта</h3>
+        <p class="who" id="cabWho">Участник проекта · демо-доступ</p>
+        <div class="tabs" id="ctabs" style="margin-top:16px">
+          <button class="on" data-t="ank">Анкета</button>
+          <button data-t="sa2">Лист самооценки</button>
+          <button data-t="d2">Диагностика</button>
+          <button data-t="pf">Портфолио</button>
+          <button data-t="rep">Персональный отчёт</button>
+        </div>
+      </div>
+
+      <div class="tabpane on" id="ct-ank" style="margin-top:18px">
+        <div class="card">
+          <h3>Анкета участника проекта</h3>
+          <p style="margin-bottom:14px">Заполните анкету — данные используются для формирования индивидуального маршрута развития.</p>
+          <div class="f-row">
+            <div class="f-grp"><label class="fl">ФИО</label><input class="inp" id="aFio" placeholder="Иванова Анна Андреевна"></div>
+            <div class="f-grp"><label class="fl">Дата рождения</label><input class="inp" type="date" id="aBirth"></div>
+          </div>
+          <div class="f-row">
+            <div class="f-grp"><label class="fl">Адрес проживания</label><input class="inp" id="aAddr" placeholder="г. Кемерово, ул. …"></div>
+            <div class="f-grp"><label class="fl">Телефон</label><input class="inp" id="aPhone" placeholder="+7 (…)"></div>
+          </div>
+          <div class="f-row">
+            <div class="f-grp"><label class="fl">Электронная почта</label><input class="inp" type="email" id="aMail" placeholder="mail@example.ru"></div>
+            <div class="f-grp"><label class="fl">Гражданство</label><input class="inp" id="aCit" placeholder="Российская Федерация"></div>
+          </div>
+          <div class="f-row">
+            <div class="f-grp"><label class="fl">Уровень образования</label><select class="inp" id="aEdu"><option>Высшее (бакалавриат)</option><option>Высшее (магистратура/специалитет)</option><option>Высшее (аспирантура)</option><option>Среднее профессиональное</option></select></div>
+            <div class="f-grp"><label class="fl">Учебное заведение</label><input class="inp" id="aUni" placeholder="КемГУ, педагогический институт"></div>
+          </div>
+          <div class="f-row">
+            <div class="f-grp"><label class="fl">Место работы</label><input class="inp" id="aOrg" placeholder="МБОУ «СОШ № 1»"></div>
+            <div class="f-grp"><label class="fl">Должность</label><input class="inp" id="aPost" placeholder="Директор / заместитель директора / учитель"></div>
+          </div>
+          <div class="f-row">
+            <div class="f-grp"><label class="fl">Стаж работы (общий / педагогический / управленческий)</label><input class="inp" id="aExp" placeholder="15 / 12 / 3"></div>
+            <div class="f-grp"><label class="fl">Каким опытом готов(а) поделиться</label><input class="inp" id="aShare" placeholder="проектная деятельность, наставничество…"></div>
+          </div>
+          <label class="check"><input type="checkbox" id="aConsent"> <span>Согласие на обработку персональных данных: я даю согласие ГБОУ ДПО «ИРО Кузбасса» на обработку указанных персональных данных в целях реализации проекта.</span></label>
+          <button class="btn teal" id="aSave">Сохранить анкету</button>
+          <span id="aMsg" style="margin-left:12px;font-size:13px;font-weight:700;color:var(--grn)"></span>
+        </div>
+      </div>
+
+      <div class="tabpane" id="ct-sa2" style="margin-top:18px">
+        <div class="card">
+          <h3>Лист самооценки</h3>
+          <p>Самооценка по компетенциям руководителя доступна на листе «Диагностика» — результаты автоматически попадают в ваш персональный отчёт.</p>
+          <p style="margin-top:12px"><a class="btn sm" href="#/diag">Перейти к листу самооценки →</a></p>
+        </div>
+      </div>
+
+      <div class="tabpane" id="ct-d2" style="margin-top:18px">
+        <div class="grid g3">
+          <div class="card"><h3>Тесты по 5 направлениям</h3><p>Стратегия · ФХД · персонал · качество · коммуникации (20 заданий с интерпретациями)</p><p style="margin-top:8px"><span class="badge b-g">открыто</span> <a class="btn sm" style="margin-left:6px" href="#/diag">Пройти →</a></p></div>
+          <div class="card"><h3>Кейсы и симуляционные задания</h3><p>Банк 200+ заданий, индивидуальные и командные форматы</p><p style="margin-top:8px"><span class="badge b-g">открыто</span> <a class="btn sm" style="margin-left:6px" href="#/diag">К банку →</a></p></div>
+          <div class="card"><h3>Портфолио-оценка</h3><p>Загрузка документов портфолио для экспертной оценки — с 2028 года (апробационный этап)</p><p style="margin-top:8px"><span class="badge b-a">скоро</span></p></div>
+        </div>
+      </div>
+
+      <div class="tabpane" id="ct-pf" style="margin-top:18px">
+        <div class="card">
+          <h3>Портфолио управленческих результатов</h3>
+          <p style="margin-bottom:12px">Структура портфолио для региональной аттестации (критерии и показатели оценки утверждаются на проектировочном этапе):</p>
+          <div class="grid g3">
+            <div class="card" style="box-shadow:none;background:#f8fafc"><h3>🏫 Управленческие достижения</h3><p>Проекты развития ОО, программы наставничества, модели управления ресурсами</p></div>
+            <div class="card" style="box-shadow:none;background:#f8fafc"><h3>🧩 Кейсы и симуляции</h3><p>Решённые кейсы и симуляционные задания с оценками экспертов</p></div>
+            <div class="card" style="box-shadow:none;background:#f8fafc"><h3>📈 Динамика образовательных результатов</h3><p>Аналитические справки о вкладе руководителя в изменение показателей</p></div>
+            <div class="card" style="box-shadow:none;background:#f8fafc"><h3>🎓 Профессиональное развитие</h3><p>Документы о ПК, переподготовке, участии в конкурсах и грантах</p></div>
+            <div class="card" style="box-shadow:none;background:#f8fafc"><h3>🤝 Экспертная и наставническая деятельность</h3><p>Участие в Лиге экспертов, стажировках, «Эффективном диалоге»</p></div>
+            <div class="card" style="box-shadow:none;background:#f8fafc"><h3>📄 Аналитические справки</h3><p>Документы, подтверждающие управленческие решения и их результаты</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabpane" id="ct-rep" style="margin-top:18px">
+        <div class="grid g2">
+          <div class="card">
+            <h3>История прохождений (дата, результат)</h3>
+            <table class="hist">
+              <tr><th>Дата</th><th>Процедура</th><th>Результат</th><th>Уровень дефицитов</th></tr>
+              <tr><td>21.01.2026</td><td>Лист самооценки</td><td><b>48 %</b></td><td><span class="badge b-r">высокий</span></td></tr>
+              <tr><td>15.04.2026</td><td>Тест: стратегическое управление</td><td><b>61 %</b></td><td><span class="badge b-a">средний</span></td></tr>
+              <tr><td>03.09.2026</td><td>Лист самооценки + кейсы</td><td><b>74 %</b></td><td><span class="badge b-t">выше среднего</span></td></tr>
+            </table>
+            <p class="pol" style="margin-top:10px">Возможность сравнивать результаты: прогресс во времени отображается на графике рядом.</p>
+          </div>
+          <div class="card">
+            <h3>Прогресс во времени</h3>
+            <svg viewBox="0 0 320 170" width="100%" height="auto">
+              <g stroke="#e2e8f0" stroke-width="1"><line x1="30" y1="20" x2="310" y2="20"/><line x1="30" y1="60" x2="310" y2="60"/><line x1="30" y1="100" x2="310" y2="100"/><line x1="30" y1="140" x2="310" y2="140"/></g>
+              <g font-size="9" fill="#94a3b8"><text x="4" y="24">100%</text><text x="8" y="64">75%</text><text x="8" y="104">50%</text><text x="8" y="144">25%</text></g>
+              <polyline points="60,124 150,103 240,82 300,70" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
+              <g fill="#4f46e5"><circle cx="60" cy="124" r="5"/><circle cx="150" cy="103" r="5"/><circle cx="240" cy="82" r="5"/><circle cx="300" cy="70" r="5"/></g>
+              <g font-size="9.5" fill="#475569" font-weight="700"><text x="48" y="140">48%</text><text x="138" y="119">61%</text><text x="228" y="98">74%</text><text x="282" y="60">вы</text></g>
+              <g font-size="9" fill="#94a3b8"><text x="42" y="160">01.2026</text><text x="132" y="160">04.2026</text><text x="222" y="160">09.2026</text><text x="282" y="160">сейчас</text></g>
+            </svg>
+            <p style="font-size:13px;color:var(--soft);margin-top:6px"><b>Индивидуальные рекомендации:</b> включить в ИПР модули «Проектное управление» и «Командное взаимодействие»; назначить наставника из региональной Лиги экспертов; участвовать в стажировочной сессии опорной площадки муниципалитета.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="ft">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>Проект ФИП РАО · 2027–2029</h4>
+        <p>«Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования в условиях демографических и социокультурных вызовов (на примере Кемеровской области — Кузбасса)»</p>
+        <p style="margin-top:8px">ГБОУ ДПО «Институт развития образования Кузбасса» · учредитель — Министерство образования Кузбасса</p>
+      </div>
+      <div>
+        <h4>Листы ресурса</h4>
+        <ul>
+          <li><a href="#/about">О проекте</a></li>
+          <li><a href="#/comp">Ключевые компетенции</a></li>
+          <li><a href="#/diag">Диагностика</a></li>
+          <li><a href="#/traj">Образовательная траектория</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>&nbsp;</h4>
+        <ul>
+          <li><a href="#/dialog">Эффективный диалог (вопрос-ответ)</a></li>
+          <li><a href="#/future">Кузбасс.Будущее РФ</a></li>
+          <li><a href="#/help">В помощь руководителю</a></li>
+          <li><a href="#/login">Личный кабинет</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Контакты</h4>
+        <p>г. Кемерово, ул. Заузелкова, 3<br>8 (3842) 56-69-86 · ouk@kuz-edu.ru<br>Приёмная: +7 (3842) 31-15-86 · ipk@kuz-edu.ru<br>Тех. поддержка: adm.kuz-edu.ru</p>
+        <p>Группа ВКонтакте · Канал Max</p>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <span>© 2026 ИРО Кузбасса. Онлайн-ресурс проекта (прототип по ТЗ от 09.06).</span>
+      <span><a href="#" onclick="alert('Политика обработки персональных данных (раздел официального сайта ИРО Кузбасса)');return false;">Политика обработки персональных данных</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── Router ── */
+var pages={home:'p-home',about:'p-about',comp:'p-comp',diag:'p-diag',traj:'p-traj',dialog:'p-dialog',future:'p-future',help:'p-help',login:'p-login'};
+function route(){
+  var h=(location.hash||'#/home').replace('#/','');
+  if(!pages[h])h='home';
+  for(var k in pages){document.getElementById(pages[k]).classList.toggle('on',k===h);}
+  var links=document.querySelectorAll('nav.main a');
+  links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#/'+h);});
+  document.getElementById('nav').classList.remove('open');
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',route);
+document.getElementById('burger').onclick=function(){document.getElementById('nav').classList.toggle('open');};
+route();
+
+/* ── Generic tabs ── */
+function bindTabs(barId,prefix){
+  var bar=document.getElementById(barId);
+  bar.querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){
+      bar.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      var wrap=bar.parentNode;
+      wrap.parentNode.querySelectorAll('.tabpane').forEach(function(p){
+        if(p.id.indexOf(prefix)===0)p.classList.toggle('on',p.id===prefix+'-'+b.dataset.t);
+      });
+    };
+  });
+}
+bindTabs('dtabs','dt');
+bindTabs('ctabs','ct');
+
+/* ── Self-assessment (7 competencies) ── */
+var SA=[
+ ['🧭','Стратегическое управление','Я формулирую стратегию развития ОО и эффективно внедряю изменения с учётом требований ФГОС, ФОП и региональных программ; веду проекты и привлекаю внебюджетные средства.'],
+ ['⚖️','Финансово-хозяйственная деятельность','Я грамотно планирую бюджет, веду закупки в правовом поле, оптимизирую материально-техническую базу и привлекаю дополнительные ресурсы.'],
+ ['👥','Управление персоналом','Я эффективно формирую команду, выстраиваю систему наставничества, мотивации и делегирования, работаю с кадровым резервом.'],
+ ['🎯','Управление качеством образования','Я анализирую данные ВСОКО и динамику образовательных результатов, корректирую управленческие решения для достижения целевых метрик.'],
+ ['🌐','Коммуникации','Я выстраиваю прозрачные коммуникации с родителями, сообществом, СМИ и партнёрами; уверенно действую в кризисных ситуациях.']
+];
+var saVal=[null,null,null,null,null];
+function renderSA(){
+  var box=document.getElementById('saList');box.innerHTML='';
+  SA.forEach(function(q,i){
+    var d=document.createElement('div');d.className='sa-q';
+    var lik='<div class="lik">'+[0,1,2,3,4].map(function(v){return '<button data-i="'+i+'" data-v="'+v+'" class="'+(saVal[i]===v?'sel':'')+'">'+v+'</button>';}).join('')+'</div>';
+    d.innerHTML='<div class="qt">'+q[0]+' <b>'+q[1]+'</b><small>'+q[2]+'</small></div>'+lik;
+    box.appendChild(d);
+  });
+  box.querySelectorAll('.lik button').forEach(function(b){
+    b.onclick=function(){saVal[+b.dataset.i]=+b.dataset.v;renderSA();};
+  });
+}
+renderSA();
+function saLevel(p){
+  if(p>=81)return{n:'Низкий уровень дефицитов',d:'Высокая сформированность. Вы готовы транслировать опыт и выступать наставником.',c:'linear-gradient(135deg,#15803d,#22c55e)',s:'низкий'};
+  if(p>=70)return{n:'Выше среднего уровня дефицитов',d:'Продвинутый уровень. Вы выполняете задания базового и частично продвинутого уровня.',c:'linear-gradient(135deg,#0f766e,#14b8a6)',s:'выше среднего'};
+  if(p>=50)return{n:'Средний уровень дефицитов',d:'Базовый уровень. Требуется включение в ИПР для развития.',c:'linear-gradient(135deg,#b45309,#f59e0b)',s:'средний'};
+  return{n:'Высокий уровень дефицитов',d:'Требуется развитие. Первоочередное включение в ИПР, наставническое сопровождение.',c:'linear-gradient(135deg,#b91c1c,#ef4444)',s:'высокий'};
+}
+var COMPETREC=[
+ 'стратегическая лаборатория; стратегическая сессия кадрового резерва; онлайн-модуль «Управление проектами: от идеи до гранта».',
+ 'финансовая лаборатория; кейс «Ремонт до отопительного сезона» с экспертным разбором; онлайн-модуль «План ФХД и бюджет для руководителя».',
+ 'кадровая лаборатория; практикум наставничества и «парного управления»; модуль «Управление персоналом и командообразование».',
+ 'лаборатория качества; вебинар «Современная ВСОКО как инструмент управления качеством»; модуль «Управление качеством образования».',
+ 'лаборатория коммуникаций; симуляция «Кризис в родительском чате»; модуль «Коммуникации и работа с общественностью».'
+];
+function compInterp(v){
+  if(v===4)return'сильная сторона: готов(а) транслировать опыт и выступать наставником по компетенции';
+  if(v===3)return'уверенный уровень: результативно, с отдельными пробелами; развивайте через кейсы и симуляции продвинутого уровня';
+  if(v===2)return'базовый уровень: требуется включение в ИПР — тематический модуль и практические задания';
+  return'дефицит: первоочередное включение в ИПР и наставническое сопровождение, начиная с базовых модулей';
+}
+function pushHist(label,pct,lvl){
+  var t=document.querySelector('table.hist');if(!t)return;
+  var d=new Date();
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear()+'</td><td>'+label+'</td><td><b>'+pct+' %</b></td><td><span class="badge b-i">'+lvl+'</span></td>';
+  t.appendChild(tr);
+}
+document.getElementById('saCalc').onclick=function(){
+  if(saVal.some(function(v){return v===null;})){alert('Оцените все утверждения (шкала 0–4).');return;}
+  var sum=saVal.reduce(function(a,b){return a+b;},0);
+  var pct=Math.round(sum/(SA.length*4)*100);
+  var L=saLevel(pct);
+  var r=document.getElementById('saRes');
+  r.className='sa-res on';r.style.background=L.c;
+  var html='<span class="pct">'+pct+' %</span><p class="lvl">'+L.n+'</p><p>'+L.d+'</p>';
+  html+='<p style="margin-top:12px"><b>Интерпретация по каждой компетенции:</b></p>';
+  SA.forEach(function(q,i){
+    var v=saVal[i];
+    var rec=(v===4)?'ресурс для сообщества: наставничество, экспертиза на опорных площадках, выступления на форуме «Управленческий компас».':('рекомендация: '+COMPETREC[i]);
+    html+='<div style="margin-top:8px;background:rgba(255,255,255,.15);border-radius:10px;padding:9px 12px;font-size:12.8px"><b>'+q[0]+' '+q[1]+'</b> — '+v+'/4 · '+compInterp(v)+
+      '<div style="height:6px;background:rgba(255,255,255,.28);border-radius:4px;margin-top:6px"><div style="height:6px;width:'+(v/4*100)+'%;background:#fff;border-radius:4px"></div></div>'+
+      '<div style="margin-top:5px">➤ '+rec+'</div></div>';
+  });
+  var order=saVal.map(function(v,i){return[v,i];}).sort(function(a,b){return a[0]-b[0];});
+  var top=order.slice(0,3).filter(function(x){return x[0]<=3;});
+  if(top.length){
+    html+='<p style="margin-top:12px"><b>Приоритетные шаги ИПР (3 ближайшие зоны роста):</b></p><p style="margin-top:4px">1) '+COMPETREC[top[0][1]]+'</p><p>2) '+COMPETREC[top[1][1]]+'</p><p>3) '+COMPETREC[top[2][1]]+'</p>';
+  }else{
+    html+='<p style="margin-top:12px"><b>Приоритетный шаг:</b> войти в состав региональной Лиги экспертов и наставников и тиражировать практики на опорных площадках.</p>';
+  }
+  r.innerHTML=html;
+  pushHist('Лист самооценки (демо)',pct,L.s);
+};
+document.getElementById('saReset').onclick=function(){saVal=[null,null,null,null,null];renderSA();document.getElementById('saRes').className='sa-res';};
+
+/* ── Dialogue feed ── */
+var QS=[
+ {t:'Какие инструменты использовать для анализа мотивации команды в малокомплектной школе?',c:'Управление персоналом',w:'директор МБОУ «ООШ № 12», Прокопьевский МО',st:'<span class="badge b-g">ответ эксперта направлен</span>'},
+ {t:'Как выстроить стратегию развития школы при снижении числа обучающихся на 15 % за три года?',c:'Стратегическое управление',w:'заместитель директора, г. Новокузнецк',st:'<span class="badge b-a">в работе у эксперта Лиги</span>'}
+];
+function renderQ(){
+  var box=document.getElementById('qList');box.innerHTML='';
+  QS.forEach(function(q){
+    var d=document.createElement('div');d.className='q-item';
+    d.innerHTML='<b style="font-size:13.6px">'+q.t+'</b><div class="meta"><span class="badge b-i">'+q.c+'</span><span>'+q.w+'</span>'+q.st+'</div>';
+    box.appendChild(d);
+  });
+}
+renderQ();
+document.getElementById('qSend').onclick=function(){
+  var t=document.getElementById('qText').value.trim();
+  if(!t){alert('Введите текст вопроса или предложения.');return;}
+  QS.unshift({t:t,c:document.getElementById('qCat').value,w:document.getElementById('qWho').value.trim()||'участник проекта',st:'<span class="badge b-a">принят, ожидает эксперта</span>'});
+  document.getElementById('qText').value='';document.getElementById('qWho').value='';
+  renderQ();
+};
+
+/* ── Login / cabinet ── */
+document.getElementById('liBtn').onclick=function(){
+  var l=document.getElementById('liLogin').value.trim()||'участник проекта';
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('cabWrap').style.display='';
+  document.getElementById('cabWho').textContent='Логин: '+l+' · демо-доступ · тех. поддержка adm.kuz-edu.ru';
+  window.scrollTo(0,0);
+};
+document.getElementById('aSave').onclick=function(){
+  if(!document.getElementById('aConsent').checked){alert('Для сохранения анкеты необходимо согласие на обработку персональных данных.');return;}
+  var fio=document.getElementById('aFio').value.trim();
+  if(fio)document.getElementById('cabWho').textContent=fio+' · анкета заполнена';
+  document.getElementById('aMsg').textContent='Анкета сохранена ✓';
+};
+
+/* ══ ТЕСТ 20 заданий по 5 направлениям ══ */
+var DIRS=['Стратегическое управление','Финансово-хозяйственная деятельность','Управление персоналом','Управление качеством образования','Коммуникации'];
+var DIRREC=[
+ 'ИПР: модуль ДПО «Стратегическое управление и проектная деятельность»; стратегическая сессия кадрового резерва; онлайн-модуль «Управление проектами: от идеи до гранта».',
+ 'ИПР: модуль «Финансово-хозяйственная деятельность»; финансовая лаборатория опорной площадки; кейс «Ремонт до отопительного сезона» с экспертным разбором.',
+ 'ИПР: модуль «Управление персоналом и командообразование»; кадровая лаборатория; практикум наставничества и «парного управления».',
+ 'ИПР: модуль «Управление качеством образования»; вебинар «Современная ВСОКО как инструмент управления качеством»; лаборатория качества.',
+ 'ИПР: модуль «Коммуникации и работа с общественностью»; симуляция «Кризис в родительском чате»; лаборатория коммуникаций.'
+];
+var TEST=[
+ {d:0,q:'Кто утверждает программу развития образовательной организации?',o:['Учредитель образовательной организации','Образовательная организация самостоятельно в соответствии с уставом','Муниципальный орган управления образованием','Общее собрание участников образовательных отношений'],c:1,e:'Согласно п. 6 ч. 2 ст. 28 ФЗ № 273-ФЗ разработка и утверждение программы развития входит в компетенцию самой образовательной организации и осуществляется в соответствии с её уставом. Учредитель утверждает государственное (муниципальное) задание и контролирует его исполнение, а не программу развития.'},
+ {d:0,q:'Верная последовательность цикла стратегического управления:',o:['План → цели → анализ → контроль','Анализ среды → миссия и цели → план → реализация → мониторинг и корректировка','Реализация → отчёт → целеполагание → анализ','Мониторинг → план → анализ → миссия'],c:1,e:'Стратегический цикл начинается с анализа внешней и внутренней среды (включая демографические и социокультурные данные региона), затем миссия и цели, программа действий, реализация, мониторинг и корректировка — цикл управленческих решений (логика PDCA). Эти трудовые функции закреплены в профстандарте «Руководитель образовательной организации» (приказ Минтруда № 250н).'},
+ {d:0,q:'Признаки, отличающие проект от текущей деятельности:',o:['Постоянство и повторяемость операций','Уникальность цели, ограниченность во времени, выделенные ресурсы и команда','Строгая иерархичность управления','Финансирование исключительно из бюджета'],c:1,e:'Проект — уникальная, ограниченная во времени и ресурсах деятельность, направленная на получение нового результата. Проектная компетентность руководителя включает инициирование и ведение проектов, привлечение внебюджетных средств (гранты, конкурсы): диагностика резерва Кузбасса показала, что лишь 57 % кандидатов имеют такой опыт, поэтому проектному управлению отведён отдельный модуль ДПП.'},
+ {d:0,q:'Что обязательно учитывать при стратегических решениях руководителя школы Кузбасса?',o:['Только федеральные требования','Региональную специфику: демографию, миграцию, промышленную трансформацию, этнокультурные особенности','Только мнение педагогического коллектива','Календарь муниципальных мероприятий'],c:1,e:'Методология проекта опирается на идеи регионализации образования (В. И. Загвязинский, М. М. Поташник): руководитель анализирует региональные тренды — старение управленческого корпуса (63,9 % старше 50 лет), динамику численности обучающихся, специфику моногородов — и включает региональную повестку в стратегию развития ОО.'},
+ {d:1,q:'Основной закон, регулирующий закупки бюджетной образовательной организации за счёт средств субсидии на выполнение государственного (муниципального) задания:',o:['ФЗ № 223-ФЗ','ФЗ № 44-ФЗ','Налоговый кодекс РФ','ФЗ № 402-ФЗ'],c:1,e:'Бюджетные образовательные организации осуществляют закупки за счёт бюджетных средств по ФЗ № 44-ФЗ от 05.04.2013 (если в установленном порядке не принято решение о переходе на закупки по ФЗ № 223-ФЗ с собственным положением о закупке). Планирование и обоснование закупок — часть финансово-хозяйственной компетенции руководителя.'},
+ {d:1,q:'Государственное (муниципальное) задание — это:',o:['План доходов и расходов организации','Документ учредителя, устанавливающий требования к предоставлению государственных (муниципальных) услуг (выполнению работ)','Отчёт об образовательных результатах','Локальный акт о распределении стимулирующих выплат'],c:1,e:'В соответствии со ст. 69.2 Бюджетного кодекса РФ и ст. 9.2 ФЗ № 7-ФЗ задание формирует и утверждает учредитель; оно определяет объём, качество и условия предоставления услуг (работ) и обеспечивается субсидией. Выполнение задания — ключевая обязанность и зона ответственности руководителя.'},
+ {d:1,q:'Может ли бюджетная образовательная организация расходовать средства от приносящей доход (платной) деятельности?',o:['Нет, все доходы перечисляются в бюджет','Да, самостоятельно в соответствии с уставом и планом финансово-хозяйственной деятельности','Только с письменного согласия учредителя на каждую операцию','Только на выплату заработной платы'],c:1,e:'По ст. 9.2 ФЗ № 7-ФЗ и ст. 298 ГК РФ бюджетное учреждение распоряжается доходами от платной деятельности и имуществом, приобретённым за счёт таких доходов, самостоятельно — в соответствии с уставом и планом ФХД, на цели, соответствующие уставной деятельности.'},
+ {d:1,q:'Документ, в котором планируются все доходы и расходы бюджетной образовательной организации:',o:['Бюджетная смета','План финансово-хозяйственной деятельности (план ФХД)','Кассовый план','Бухгалтерский баланс'],c:1,e:'Бюджетное учреждение работает на основе плана финансово-хозяйственной деятельности, утверждаемого в порядке, установленном учредителем: в нём отражаются субсидия на задание, средства от платной деятельности и целевые поступления. Бюджетная смета характерна для казённых учреждений.'},
+ {d:2,q:'Норма часов педагогической работы за ставку заработной платы учителя общеобразовательной школы:',o:['18 часов в неделю','20 часов в неделю','25 часов в неделю','36 часов в неделю'],c:0,e:'Согласно постановлению Правительства РФ от 22.11.2009 № 1601 норма часов педагогической работы за ставку для учителей общеобразовательных организаций — 18 часов в неделю (для отдельных должностей предусмотрены иные нормы). Это основа расчёта учебной нагрузки и штатного расписания.'},
+ {d:2,q:'До применения дисциплинарного взыскания руководитель обязан:',o:['Уведомить профсоюзную организацию','Затребовать от работника письменное объяснение','Опубликовать приказ на официальном сайте','Провести комиссионную проверку'],c:1,e:'Статья 193 ТК РФ: до применения дисциплинарного взыскания работодатель обязан затребовать письменное объяснение работника; отказ от объяснения (по истечении двух рабочих дней) не препятствует применению взыскания и оформляется актом. Нарушение процедуры — основание отмены взыскания.'},
+ {d:2,q:'Технология передачи неявного управленческого знания, используемая в проекте:',o:['Лекционные курсы','«Парное управление»: опытный руководитель и кандидат резерва совместно управляют ОО с постепенной передачей полномочий','Самостоятельное изучение регламентов','Ежегодная аттестация'],c:1,e:'«Парное управление» (наставник + кандидат резерва) с постепенной передачей полномочий, оценкой эффективности и корректировкой индивидуального маршрута — ключевая технология проекта; пилот на 20 образовательных организациях Новокузнецка показал рост эффективности управления на 35 %.'},
+ {d:2,q:'Наставничество в образовательной организации выстраивается на основе:',o:['Только устного распоряжения директора','Целевой модели наставничества (распоряжение Минпросвещения России от 25.12.2019 № Р-145) и локального акта','ФЗ № 44-ФЗ','Санитарных правил'],c:1,e:'Методологическая основа — целевая модель наставничества (распоряжение Минпросвещения России от 25.12.2019 № Р-145); конкретные процедуры, пары «наставник — наставляемый», формы поддержки и стимулирования закрепляются локальным актом, а в рамках проекта — региональным положением о наставничестве и «парном управлении» (2027).'},
+ {d:3,q:'Требования к результатам освоения основной образовательной программы основного общего образования устанавливает:',o:['ФГОС ООО (приказ Минпросвещения России от 31.05.2021 № 287, в редакции с изменениями)','Приказ директора школы','ФЗ № 44-ФЗ','Региональная концепция качества'],c:0,e:'ФГОС основного общего образования (приказ Минпросвещения России от 31.05.2021 № 287 с изменениями, применяемыми с 01.09.2025) устанавливает требования к личностным, метапредметным и предметным результатам. На их основе руководитель строит ВСОКО и образовательную программу.'},
+ {d:3,q:'Единство содержания общего образования в стране обеспечивается:',o:['Федеральными основными образовательными программами: НОО (приказ Минпросвещения от 18.05.2023 № 372), ООО (№ 373), СОО (№ 371), а ФОП ДО — приказ от 25.11.2022 № 1028','Методическими письмами региона','Издательствами учебников','Уставом школы'],c:0,e:'С 01.09.2023 основные образовательные программы приведены в соответствие с ФОП (приказы Минпросвещения России от 18.05.2023 № 372 — НОО, № 373 — ООО, № 371 — СОО); для дошкольного уровня действует ФОП ДО (приказ Минпросвещения России от 25.11.2022 № 1028). Они фиксируют единое содержание предметов и курсов.'},
+ {d:3,q:'Первое управленческое действие при снижении образовательных результатов:',o:['Применить санкции к педагогам','Проанализировать данные ВСОКО и внешних мониторингов, выявить причины, скорректировать ООП и управленческие решения','Дождаться проверки учредителя','Сократить количество контрольных процедур'],c:1,e:'Подход data-driven: сначала анализ данных (ВСОКО, ВПР, ГИА, внутренний мониторинг), проверка гипотез о причинах (содержание, методики, контингент, условия), затем адресные управленческие решения и корректировка программы развития. Санкции без анализа не повышают качество и разрушают мотивацию команды.'},
+ {d:3,q:'Что входит во внутреннюю систему оценки качества образования (ВСОКО):',o:['Только внешние проверки','Мониторинги образовательных результатов, самообследование, анкетирование участников, анализ данных и управленческие решения по их итогам','Только результаты ГИА','Рейтинг учителей, утверждённый учредителем'],c:1,e:'ВСОКО — комплекс внутренних процедур: мониторинг результатов, самообследование, опросы обучающихся и родителей, анализ качества уроков и условий, план улучшений. Система строится на требованиях ФГОС/ФОП и связана с программой развития ОО.'},
+ {d:4,q:'Структуру официального сайта и состав обязательных разделов информации образовательной организации устанавливают:',o:['Устав школы','Постановление Правительства РФ от 10.07.2013 № 582 и приказ Рособрнадзора от 04.08.2023 № 831 (в действующей редакции)','ФЗ № 44-ФЗ','Решение руководителя'],c:1,e:'По ст. 29 ФЗ № 273-ФЗ организация обязана размещать информацию на официальном сайте; состав и структура информации регламентируются постановлением Правительства РФ от 10.07.2013 № 582 и приказом Рособрнадзора от 04.08.2023 № 831 (специальные разделы, в т. ч. «Сведения об образовательной организации», «Организация питания»).'},
+ {d:4,q:'Размещение фотографий обучающихся на сайте или в соцсетях организации допустимо:',o:['Свободно — это общедоступная информация','С письменного согласия законных представителей (обработка биометрических персональных данных, ст. 11 ФЗ № 152-ФЗ)','С устного согласия ребёнка','Только по разрешению учредителя'],c:1,e:'Фотоизображение относится к биометрическим персональным данным: по ст. 11 ФЗ № 152-ФЗ их обработка допускается только при наличии письменного согласия субъекта (для несовершеннолетних — законных представителей). Согласие на фото/видео оформляется отдельно от общего согласия на обработку ПД.'},
+ {d:4,q:'Первые действия директора при информационном кризисе (вирусный конфликт в родительском чате):',o:['Игнорировать до затухания','Проверить факты, сформулировать и оперативно опубликовать официальную позицию, организовать прямой диалог с участниками','Удалить сообщения и заблокировать участников','Передать коммуникацию исключительно юристам'],c:1,e:'Алгоритм кризисных коммуникаций: проверка фактов → назначение ответственного спикера → быстрая прозрачная позиция → прямой канал диалога (встреча, горячая линия) → системное решение причины. Замалчивание и цензура эскалируют конфликт; навык отрабатывается в симуляции «Кризис в родительском чате».'},
+ {d:4,q:'Формы участия родителей (законных представителей) в управлении образовательной организацией, закреплённые законом:',o:['Не предусмотрены','Коллегиальные органы управления с участием родителей (советы, конференции, родительские комитеты) — ст. 26–27 ФЗ № 273-ФЗ','Только сбор благотворительных взносов','Согласование приказов директора'],c:1,e:'Статьи 26–27 ФЗ № 273-ФЗ закрепляют принцип государственно-общественного управления: уставом предусматриваются коллегиальные органы (совет школы, родительские комитеты, общественные советы) с компетенцией в принятии локальных актов и программ развития. Учёт мнения таких органов обязателен в случаях, установленных законом и уставом.'}
+];
+function renderTest(){
+  var box=document.getElementById('testList');var html='';
+  TEST.forEach(function(t,i){
+    if(i===0||TEST[i-1].d!==t.d)html+='<h4 style="margin:18px 0 8px;font-size:13.6px;color:var(--ind-d);letter-spacing:.04em;text-transform:uppercase">Направление '+(t.d+1)+': '+DIRS[t.d]+'</h4>';
+    html+='<div class="sa-q" style="display:block"><div class="qt"><b>Вопрос '+(i+1)+'.</b> '+t.q+'</div><div style="margin-top:8px">';
+    t.o.forEach(function(o,oi){html+='<label style="display:flex;gap:9px;align-items:flex-start;font-size:13px;margin:7px 0;cursor:pointer"><input type="radio" name="tq'+i+'" value="'+oi+'" style="margin-top:3px"><span>'+o+'</span></label>';});
+    html+='</div><div id="exp'+i+'" style="display:none;margin-top:10px"></div></div>';
+  });
+  box.innerHTML=html;
+}
+renderTest();
+function dirLevel(s){
+  if(s===4)return'уверенный уровень: высокая сформированность, готовы быть экспертом и наставником по направлению';
+  if(s===3)return'продвинутый уровень: задания базового и частично продвинутого уровня, отдельные пробелы';
+  if(s===2)return'базовый уровень: требуется включение в ИПР — тематический модуль и практические задания';
+  return'высокий дефицит: первоочерёдное включение в ИПР и наставническое сопровождение';
+}
+document.getElementById('testCalc').onclick=function(){
+  var miss=0;
+  TEST.forEach(function(t,i){if(!document.querySelector('input[name="tq'+i+'"]:checked'))miss++;});
+  if(miss){alert('Ответьте на все вопросы: без ответа осталось — '+miss+'.');return;}
+  var sc=[0,0,0,0,0],html='';
+  TEST.forEach(function(t,i){
+    var sel=+document.querySelector('input[name="tq'+i+'"]:checked').value;
+    var ok=sel===t.c;
+    if(ok)sc[t.d]++;
+    var e=document.getElementById('exp'+i);
+    e.style.display='block';
+    e.style.cssText='display:block;margin-top:10px;border-radius:10px;padding:10px 12px;font-size:12.6px;line-height:1.5;background:'+(ok?'#ecfdf5':'#fef2f2')+';border:1px solid '+(ok?'#a7f3d0':'#fecaca')+';color:'+(ok?'#14532d':'#7f1d1d');
+    e.innerHTML=(ok?'<b>✔ Верно.</b> ':'<b>✘ Неверно.</b> Правильный ответ: «'+t.o[t.c]+'». ')+'<b>Интерпретация:</b> '+t.e;
+  });
+  var correct=sc.reduce(function(a,b){return a+b;},0);
+  var pct=Math.round(correct/TEST.length*100);
+  var L=saLevel(pct);
+  var r=document.getElementById('testRes');
+  r.className='sa-res on';r.style.background=L.c;
+  html='<span class="pct">'+pct+' %</span><p class="lvl">'+L.n+' · верно '+correct+' из '+TEST.length+'</p><p>'+L.d+'</p>';
+  html+='<p style="margin-top:12px"><b>Интерпретация и рекомендации по направлениям:</b></p>';
+  var weak=[];
+  DIRS.forEach(function(dn,d){
+    if(sc[d]<=2)weak.push(d);
+    html+='<div style="margin-top:8px;background:rgba(255,255,255,.15);border-radius:10px;padding:9px 12px;font-size:12.8px"><b>'+(d+1)+'. '+dn+'</b> — '+sc[d]+'/4 · '+dirLevel(sc[d])+'<div style="height:6px;background:rgba(255,255,255,.28);border-radius:4px;margin-top:6px"><div style="height:6px;width:'+(sc[d]/4*100)+'%;background:#fff;border-radius:4px"></div></div><div style="margin-top:5px">➤ '+DIRREC[d]+'</div></div>';
+  });
+  if(weak.length){html+='<p style="margin-top:12px"><b>Приоритет ИПР:</b> направления с дефицитом — '+weak.map(function(w){return DIRS[w].toLowerCase();}).join('; ')+'.</p>';}
+  else{html+='<p style="margin-top:12px"><b>Приоритет:</b> все направления на уверенном/продвинутом уровне — рекомендуем экспертную роль: кейс-чемпионаты, наставничество, Лига экспертов.</p>';}
+  r.innerHTML=html;
+  pushHist('Тест по 5 направлениям (демо)',pct,L.s);
+  r.scrollIntoView({behavior:'smooth',block:'center'});
+};
+document.getElementById('testReset').onclick=function(){renderTest();document.getElementById('testRes').className='sa-res';};
+
+/* ══ Нормативная библиотека (лист «В помощь руководителю») ══ */
+var NORM=[
+ {g:'I. Кодексы и федеральные законы',items:[
+  ['Конституция Российской Федерации (действующая редакция)','действует','Ст. 43: гарантии права на образование; разграничение полномочий в сфере образования.','https://www.consultant.ru/search/?q=Конституция Российской Федерации'],
+  ['Трудовой кодекс Российской Федерации (действующая редакция)','действует','Ст. 189, 193 (дисциплина), 331, 336, 351.1 (особенности регулирования труда педагогических и руководящих работников).','https://www.consultant.ru/search/?q=Трудовой кодекс Российской Федерации'],
+  ['Гражданский кодекс Российской Федерации (действующая редакция)','действует','Ст. 296–299: право оперативного управления, распоряжение имуществом и доходами бюджетного учреждения.','https://www.consultant.ru/search/?q=Гражданский кодекс Российской Федерации'],
+  ['Бюджетный кодекс Российской Федерации (действующая редакция)','действует','Ст. 69.2: государственное (муниципальное) задание и субсидия на его выполнение.','https://www.consultant.ru/search/?q=Бюджетный кодекс Российской Федерации'],
+  ['ФЗ от 29.12.2012 № 273-ФЗ «Об образовании в Российской Федерации»','действует, ред. 2026 г.','Ст. 26–29 (управление, компетенция ОО, информация), ст. 41, 48, 51 (статус и аттестация руководителя), ст. 76 (ДПО).','https://www.consultant.ru/search/?q=273-ФЗ Об образовании в Российской Федерации'],
+  ['ФЗ от 12.01.1996 № 7-ФЗ «О некоммерческих организациях»','действует','Ст. 9.2: правовой статус бюджетного учреждения, виды и использование доходов.','https://www.consultant.ru/search/?q=7-ФЗ О некоммерческих организациях'],
+  ['ФЗ от 05.04.2013 № 44-ФЗ «О контрактной системе в сфере закупок…»','действует','Закупки образовательной организации за счёт бюджетных средств: планирование, обоснование, отчётность.','https://www.consultant.ru/search/?q=44-ФЗ О контрактной системе'],
+  ['ФЗ от 18.07.2011 № 223-ФЗ «О закупках товаров, работ, услуг отдельными видами юридических лиц»','действует','Применяется при переходе учреждения на закупки по собственному положению.','https://www.consultant.ru/search/?q=223-ФЗ О закупках товаров'],
+  ['ФЗ от 27.07.2006 № 152-ФЗ «О персональных данных»','действует','Ст. 11: биометрические ПД (фото/видео) — только письменное согласие; постановление Правительства РФ от 01.11.2012 № 1119 (уровни защищённости).','https://www.consultant.ru/search/?q=152-ФЗ О персональных данных'],
+  ['ФЗ от 27.07.2006 № 149-ФЗ «Об информации, информационных технологиях и о защите информации»','действует','Официальный сайт, информационные системы, информационная безопасность ОО.','https://www.consultant.ru/search/?q=149-ФЗ Об информации информационных технологиях и о защите информации'],
+  ['ФЗ от 29.12.2010 № 436-ФЗ «О защите детей от информации, причиняющей вред их здоровью и развитию»','действует','Маркировка информационной продукции на мероприятиях, сайте и в печатных материалах ОО.','https://www.consultant.ru/search/?q=436-ФЗ О защите детей от информации'],
+  ['ФЗ от 06.12.2011 № 402-ФЗ «О бухгалтерском учёте»','действует','Учёт и отчётность учреждения; первичные документы, учётная политика.','https://www.consultant.ru/search/?q=402-ФЗ О бухгалтерском учете'],
+  ['ФЗ от 21.12.1994 № 69-ФЗ «О пожарной безопасности»; постановление Правительства РФ от 16.09.2020 № 1479 (Правила противопожарного режима)','действует','Пожарная безопасность ОО: инструкции, обучение, эвакуация, ответственность руководителя.','https://www.consultant.ru/search/?q=постановление Правительства 1479 правила противопожарного режима']
+ ]},
+ {g:'II. Подзаконные акты сферы образования и охраны труда',items:[
+  ['Приказ Минтруда России от 19.04.2021 № 250н «Профессиональный стандарт „Руководитель образовательной организации (управление дошкольной образовательной организацией и общеобразовательной организацией)“»','действует','Основа компетентностной модели, диагностики и аттестации директоров школ и заведующих ДО.','https://www.consultant.ru/search/?q=приказ Минтруда 250н руководитель образовательной организации профессиональный стандарт'],
+  ['Приказ Минтруда России от 21.03.2025 № 137н «Профессиональный стандарт „Руководитель профессиональной образовательной организации“»','действует с 2025 г.','Требования к руководителям СПО; учитывается при дифференциации региональной аттестации.','https://docs.cntd.ru/document/1312637514'],
+  ['ФГОС НОО (приказ Минпросвещения от 31.05.2021 № 286), ФГОС ООО (№ 287 от 31.05.2021), ФГОС СОО (№ 138 от 24.02.2025), ФГОС ДО (приказ Минобрнауки от 17.10.2013 № 1155)','действуют, с изменениями (НОО/ООО — с 01.09.2025)','Требования к структуре, результатам и условиям реализации образовательных программ всех уровней.','https://www.consultant.ru/search/?q=ФГОС основного общего образования приказ 287'],
+  ['ФОП НОО (приказ Минпросвещения от 18.05.2023 № 372), ФОП ООО (№ 373), ФОП СОО (№ 371); ФОП ДО (приказ Минпросвещения от 25.11.2022 № 1028)','действуют','Единое содержание общего образования; обязательность применения при разработке ООП.','https://docs.edu.gov.ru/document/0e6ad380fc69dd72b6065672830540ac/'],
+  ['Приказ Минобрнауки России от 24.03.2025 № 266 «Порядок организации и осуществления образовательной деятельности по дополнительным профессиональным программам»','действует с 01.09.2025','Требования к структуре и реализации программ ПК и переподготовки — основа модульных ДПП проекта.','https://docs.cntd.ru/document/1312587284'],
+  ['Распоряжения Минпросвещения России: от 31.05.2021 № Р-117 (целевая модель аттестации руководителей ОО); от 16.12.2020 № Р-174 и от 15.12.2022 № Р-303 (научно-методическое сопровождение); от 25.12.2019 № Р-145 (целевая модель наставничества)','действуют','Каркас региональной модели аттестации, сопровождения и наставничества.','https://www.consultant.ru/search/?q=распоряжение Минпросвещения Р-117 целевая модель аттестации руководителей'],
+  ['Постановление Правительства РФ от 10.07.2013 № 582; приказ Рособрнадзора от 04.08.2023 № 831 (требования к структуре официального сайта ОО и формату представления информации)','действуют','Разделы «Сведения об образовательной организации», «Организация питания» и иные обязательные сведения.','https://docs.cntd.ru/document/1302664691'],
+  ['СП 2.4.3648-20 (санитарные требования к организациям воспитания и обучения); СП 2.3/2.4.3590-20 (организация общественного питания)','действуют','Безопасная образовательная среда, режим, питание обучающихся.','https://www.consultant.ru/search/?q=СП 2.4.3648-20 санитарные требования'],
+  ['Постановление Правительства РФ от 24.12.2021 № 2464 «О порядке обучения по охране труда и проверки знания требований охраны труда»','действует','Обучение и инструктажи работников, требования к руководителю и службе ОТ.','https://www.consultant.ru/search/?q=постановление 2464 порядок обучения по охране труда']
+ ]},
+ {g:'III. Региональный уровень (Кемеровская область — Кузбасс)',items:[
+  ['Закон Кемеровской области от 05.07.2013 № 86-ОЗ «Об образовании»','действует, ред. от 01.07.2026','Правовые, организационные и экономические особенности функционирования системы образования региона.','https://docs.cntd.ru/document/465200916'],
+  ['Концепция формирования, сопровождения, подготовки и использования кадрового резерва системы образования Кузбасса; региональный проект «КУЗБАСС. БУДУЩЕЕ.РФ»','действует, 2024–2026 с пролонгацией до 2030','Региональная основа работы с кадровым резервом, трёхуровневая модель отбора и сопровождения.','https://kuz-edu.ru/'],
+  ['Акты Министерства образования Кузбасса (о порядке аттестации руководителей, о кадровом резерве, о сети стажировочных и опорных площадок)','действуют / разрабатываются в проекте (2027)','Региональная система аттестации и сеть опорных площадок модели ФИП.','https://kuz-edu.ru/']
+ ]},
+ {g:'IV. Локальные акты образовательной организации (конструктор руководителя)',items:[
+  ['Устав; программа развития ОО; основные образовательные программы (в соответствии с ФОП); план финансово-хозяйственной деятельности','локальные акты','Базовый пакет документов ОО (ст. 28 ФЗ № 273-ФЗ).',''],
+  ['Правила внутреннего трудового распорядка; штатное расписание; положение о наставничестве; положение о ВСОКО; политика обработки персональных данных; приказ об официальном сайте и ответственных','локальные акты','Пакет по кадрам, качеству образования и защите данных.','']
+ ]}
+];
+(function(){
+  var box=document.getElementById('normLib');var html='';
+  NORM.forEach(function(gr){
+    html+='<h3 style="margin:18px 0 10px;font-size:15px">'+gr.g+'</h3>';
+    gr.items.forEach(function(it){
+      html+='<div class="doc"><span class="di">§</span><div><b>'+it[0]+'</b><span>'+it[2]+'</span><div style="margin-top:6px"><span class="badge b-g">'+it[1]+'</span>'+(it[3]?' <a href="'+it[3]+'" target="_blank" rel="noopener" style="font-size:12px;font-weight:700">открыть текст ↗</a>':'')+'</div></div></div>';
+    });
+  });
+  box.innerHTML=html;
+})();
+</script>
+</body>
+</html>
