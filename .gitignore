@@ -1,13 +1,14 @@
+# Зависимости
 node_modules/
-npm-debug.log*
-.DS_Store
-uploads/*
-!uploads/.gitkeep
-data/*.db
-data/*.db-journal
-data/*.db-wal
-data/*.db-shm
-*.zip
+
+# Данные пользователей и БД — в репозиторий не попадают
+data/
+uploads/
+
+# Устаревшие скриншоты старого дизайна
 screenshots/
-.chrome-tmp/
-take_screenshots.sh
+
+# Системное
+.DS_Store
+*.log
+npm-debug.log*

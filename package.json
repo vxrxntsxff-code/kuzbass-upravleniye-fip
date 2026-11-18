@@ -1,18 +1,19 @@
 {
   "name": "kuzbass-management-platform",
-  "version": "1.0.0",
-  "description": "Цифровая платформа региональной модели опережающей подготовки и непрерывного развития управленческих кадров системы образования Кузбасса",
+  "version": "1.1.0",
+  "description": "Платформа «Управленческий навигатор Кузбасса»: региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "node --watch server/index.js"
+    "dev": "node --watch server/index.js",
+    "test": "node --test test/e2e.test.mjs test/property.test.mjs test/differential.test.mjs"
   },
   "keywords": [
     "кузбасс",
     "образование",
     "иро-кузбасса",
-    "региональная-модель",
-    "управленческие-кадры"
+    "управленческие-кадры",
+    "управленческий-навигатор"
   ],
   "author": "ГБОУ ДПО «ИРО Кузбасса»",
   "license": "ISC",

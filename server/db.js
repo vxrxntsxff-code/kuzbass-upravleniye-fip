@@ -2,7 +2,8 @@ const { DatabaseSync } = require('node:sqlite');
 const path = require('node:path');
 const fs = require('node:fs');
 
-const dbPath = path.join(__dirname, '..', 'data', 'kuzbass_edu.db');
+// Путь к БД можно переопределить окружением — тесты работают во временной папке
+const dbPath = process.env.KUZBASS_DB_PATH || path.join(__dirname, '..', 'data', 'kuzbass_edu.db');
 fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
 const db = new DatabaseSync(dbPath);

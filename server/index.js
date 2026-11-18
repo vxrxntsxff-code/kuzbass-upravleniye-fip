@@ -8,8 +8,8 @@ const { db } = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Setup upload directory
-const uploadDir = path.join(__dirname, '..', 'uploads');
+// Каталог загрузок переопределяется окружением — тесты не трогают данные продакшена
+const uploadDir = process.env.KUZBASS_UPLOADS_DIR || path.join(__dirname, '..', 'uploads');
 fs.mkdirSync(uploadDir, { recursive: true });
 
 // ── Password hashing (scrypt; поддержана миграция с старых открыых паролей) ──
@@ -338,6 +338,7 @@ app.post('/api/user/ipr', (req, res) => {
     INSERT INTO ipr_items (user_id, competency, deficit_score, recommended_module, action_format, target_result, deadline, mentor_name, status)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'planned')
   `).run(
+    user.id,
     String(competency || 'Стратегическое управление').slice(0, 200),
     Math.max(0, Math.min(100, Number(deficit_score) || 50)),
     String(recommended_module || 'Модульная программа ДПО').slice(0, 300),
@@ -444,7 +445,8 @@ app.delete('/api/user/portfolio/:id', (req, res) => {
 
   const item = db.prepare('SELECT * FROM portfolio_items WHERE id = ? AND user_id = ?').get(id, user.id);
   if (item && item.file_path) {
-    const fullDiskPath = path.join(__dirname, '..', item.file_path);
+    // file_path — URL вида /uploads/<name>; физически файл лежит в uploadDir
+    const fullDiskPath = path.join(uploadDir, path.basename(item.file_path));
     if (fs.existsSync(fullDiskPath)) {
       try { fs.unlinkSync(fullDiskPath); } catch (_) {}
     }
@@ -621,8 +623,7 @@ app.get('/api/stats/summary', (req, res) => {
   res.json({
     users_total: 267 + userCount,
     diagnostics_passed: 251 + diagCount,
-    municipalities: '33 муниципалитета',
-    schools_covered: '520+ ОО',
+    platforms_network: '47 + 31',
     efficiency_growth: '+35 %',
     active_ideas: 14 + ideasCount,
     answered_questions: 58 + questionsCount

@@ -1,13 +1,9 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// Клиентская логика платформы «Региональная Модель» (ГБОУ ДПО «ИРО Кузбасса»)
-// Реализовано в стиле грифонклуб.рф
-// ═══════════════════════════════════════════════════════════════════════════
+// Клиентская логика платформы «Управленческие кадры Кузбасса»
 
 const state = {
   currentUser: null,
   sessionToken: null,
   activeRoute: 'home',
-  activeCabinetTab: 'ank',
   saScores: [null, null, null, null, null],
   testAnswers: {},
   diagHistory: [],
@@ -17,13 +13,8 @@ const state = {
   reserveIdeas: []
 };
 
-// Пароли демо-учетных записей для быстрого переключения ролей
-const DEMO_PASSWORDS = {
-  director: 'demo123',
-  deputy: 'demo123',
-  reserve: 'demo123',
-  expert: 'expert123'
-};
+// Пароли демо-учетных записей для переключателя ролей
+const DEMO_PASSWORDS = { director: 'demo123', deputy: 'demo123', reserve: 'demo123', expert: 'expert123' };
 
 // ── Toast Helper ──
 function showToast(message, isError = false) {
@@ -34,14 +25,14 @@ function showToast(message, isError = false) {
     document.body.appendChild(toast);
   }
   toast.textContent = message;
-  toast.style.background = isError ? 'var(--danger)' : 'var(--hero-bg)';
+  toast.style.background = isError ? 'var(--danger)' : 'var(--ink)';
   toast.className = 'on';
   setTimeout(() => {
     toast.className = '';
   }, 3500);
 }
 
-// ── Fallback Offline Seed Data ──
+// ── Offline / File Protocol Fallback Data ──
 const OFFLINE_SEED = {
   users: {
     director: {
@@ -49,109 +40,95 @@ const OFFLINE_SEED = {
       fio: 'Иванова Анна Андреевна', birth_date: '1983-05-14', address: 'г. Кемерово, пр. Ленина, 82',
       phone: '+7 (905) 912-34-56', email: 'ivanova@kuz-edu.ru', citizenship: 'Российская Федерация',
       education_level: 'Высшее (специалитет)', institution: 'Кемеровский государственный университет (КемГУ)',
-      workplace: 'МБОУ «СОШ № 1 г. Кемерово»', position: 'Директор', experience_total: '18',
-      experience_ped: '18', experience_mgmt: '6',
-      share_experience: 'Управление качеством (ВСОКО), бережливые технологии, парное наставничество', consent_pd: 1
+      workplace: 'МБОУ «СОШ № 1 г. Кемерово»', position: 'Директор',
+      experience_total: '19', experience_ped: '15', experience_mgmt: '7',
+      share_experience: 'Проектное управление, развитие кадрового резерва школы, внедрение ВСОКО', consent_pd: 1
     },
     deputy: {
       id: 2, login: 'deputy', role: 'deputy', role_title: 'Заместитель по УВР',
-      fio: 'Смирнов Михаил Владимирович', birth_date: '1987-11-20', address: 'г. Новокузнецк, ул. Кирова, 45',
-      phone: '+7 (923) 456-78-90', email: 'smirnov@kuz-edu.ru', citizenship: 'Российская Федерация',
-      education_level: 'Высшее (магистратура)', institution: 'Новокузнецкий филиал-институт КемГУ',
-      workplace: 'МБОУ «Лицей № 84 г. Новокузнецка»', position: 'Заместитель директора по УВР',
-      experience_total: '12', experience_ped: '12', experience_mgmt: '3',
-      share_experience: 'Профильное обучение, инженерные классы, сетевые программы', consent_pd: 1
+      fio: 'Смирнов Михаил Васильевич', birth_date: '1989-11-22', address: 'г. Новокузнецк, ул. Кирова, 45',
+      phone: '+7 (903) 845-67-89', email: 'smirnov@kuz-edu.ru', citizenship: 'Российская Федерация',
+      education_level: 'Высшее (магистратура)', institution: 'Кузбасский гуманитарно-педагогический институт',
+      workplace: 'МБОУ «Лицей № 84 им. В. А. Власова»', position: 'Заместитель директора по УВР',
+      experience_total: '14', experience_ped: '14', experience_mgmt: '4',
+      share_experience: 'Аналитика образовательных результатов, организация ВСОКО, наставничество молодых педагогов', consent_pd: 1
     },
     reserve: {
       id: 3, login: 'reserve', role: 'reserve', role_title: 'Кадровый резерв',
-      fio: 'Кузнецова Елена Петровна', birth_date: '1992-03-08', address: 'г. Прокопьевск, ул. Гагарина, 12',
-      phone: '+7 (913) 789-01-23', email: 'kuznetsova@kuz-edu.ru', citizenship: 'Российская Федерация',
-      education_level: 'Высшее (специалитет)', institution: 'Кузбасский гуманитарно-педагогический институт',
-      workplace: 'МБОУ «Гимназия № 72 г. Прокопьевска»', position: 'Учитель математики, участник резерва',
-      experience_total: '9', experience_ped: '9', experience_mgmt: '1',
-      share_experience: 'Цифровая среда, олимпиадная подготовка, проектная работа', consent_pd: 1
+      fio: 'Кузнецова Екатерина Павловна', birth_date: '1994-08-30', address: 'г. Прокопьевск, ул. Гагарина, 12',
+      phone: '+7 (908) 543-21-00', email: 'kuznetsova@kuz-edu.ru', citizenship: 'Российская Федерация',
+      education_level: 'Высшее (бакалавриат)', institution: 'КемГУ, педагогический факультет',
+      workplace: 'МБОУ «ООШ № 12 г. Прокопьевска»', position: 'Учитель физики, руководитель ШМО',
+      experience_total: '9', experience_ped: '9', experience_mgmt: '2',
+      share_experience: 'Цифровые инструменты в управлении ОО, проектная деятельность учащихся', consent_pd: 1
     },
     expert: {
-      id: 4, login: 'expert', role: 'expert', role_title: 'Эксперт Региональной Модели',
-      fio: 'Вербицкая Ирина Васильевна', birth_date: '1975-09-19', address: 'г. Кемерово, б-р Строителей, 28',
-      phone: '+7 (903) 901-23-45', email: 'verbitskaya@kuz-edu.ru', citizenship: 'Российская Федерация',
-      education_level: 'Высшее (аспирантура / ученая степень)', institution: 'ИРО Кузбасса (к.п.н., доцент)',
-      workplace: 'ГБОУ ДПО «ИРО Кузбасса»', position: 'Заведующая кафедрой управления образованием',
-      experience_total: '26', experience_ped: '26', experience_mgmt: '15',
-      share_experience: 'Аттестация руководящих кадров, разработка ВСОКО, наставничество', consent_pd: 1
+      id: 4, login: 'expert', role: 'expert', role_title: 'Эксперт Лиги',
+      fio: 'Вербицкая Ирина Валерьевна', birth_date: '1976-03-18', address: 'г. Кемерово, ул. Заузелкова, 3',
+      phone: '+7 (3842) 56-69-86', email: 'ouk@kuz-edu.ru', citizenship: 'Российская Федерация',
+      education_level: 'Высшее (аспирантура, к.п.н.)', institution: 'ГБОУ ДПО «ИРО Кузбасса»',
+      workplace: 'ГБОУ ДПО «ИРО Кузбасса»', position: 'Заведующий отделом подготовки управленческих кадров, эксперт Лиги',
+      experience_total: '26', experience_ped: '24', experience_mgmt: '15',
+      share_experience: 'Моделирование образовательных систем, аудит управленческих практик, парное управление', consent_pd: 1
     }
   },
   ipr: [
     {
-      id: 1, competency: 'Финансово-хозяйственная деятельность', deficit_level: 'medium',
-      recommended_module: 'Микромодуль: Закупки по 44-ФЗ для первого руководителя: аудит рисков (24 ч)',
-      action_format: 'Онлайн-тренажер + практикум со специалистом ФАС',
-      target_result: 'Аудит плана-графика закупок ОО и чек-лист контракта без нарушений',
-      deadline: 'I квартал', status: 'in_progress', mentor_name: 'Вербицкая И. В.'
+      id: 1, competency: 'Стратегическое управление', deficit_score: 35,
+      recommended_module: 'Модуль ДПО «Стратегическое управление и проектная деятельность» (72 ч)',
+      action_format: 'Стратегическая лаборатория + онлайн-курс',
+      target_result: 'Проект обновленной программы развития школы на 2027–2030 гг.',
+      deadline: '2026-12-15', status: 'in_progress', mentor_name: 'Забнева Э. И., д-р филос. наук'
     },
     {
-      id: 2, competency: 'Управление качеством образования', deficit_level: 'medium',
-      recommended_module: 'Микромодуль: ВСОКО без рисков необъективности Рособрнадзора (24 ч)',
-      action_format: 'Стажировка в школе-лидере ВСОКО',
-      target_result: 'Новая редакция Положения о ВСОКО и матрица оценочных процедур',
-      deadline: 'II квартал', status: 'planned', mentor_name: 'Совет Региональной Модели'
+      id: 2, competency: 'Финансово-хозяйственная деятельность', deficit_score: 40,
+      recommended_module: 'Практикум «План ФХД и закупки по 44-ФЗ для первого руководителя»',
+      action_format: 'Стажировка на опорной площадке',
+      target_result: 'Оптимизированный план закупок и привлечение гранта',
+      deadline: '2027-02-28', status: 'planned', mentor_name: 'Скрипак Е. И., канд. экон. наук'
     },
     {
-      id: 3, competency: 'Управление персоналом', deficit_level: 'low',
-      recommended_module: 'Микромодуль: Технология «парного управления»: адаптация преемника (24 ч)',
-      action_format: 'Командная сессия руководителей',
-      target_result: 'План наставничества для 2 резервистов образовательной организации',
-      deadline: 'Прошлый период', status: 'completed', mentor_name: 'Вербицкая И. В.'
+      id: 3, competency: 'Коммуникации', deficit_score: 50,
+      recommended_module: 'Симуляционный тренажер «Кризис в родительском чате»',
+      action_format: 'Индивидуальный симулятор + супервизия',
+      target_result: 'Регламент реагирования на информационные инциденты ОО',
+      deadline: '2026-11-30', status: 'in_progress', mentor_name: 'Вербицкая И. В.'
     }
   ],
   diagnostics: [
-    {
-      id: 1, type: 'self_assessment', score_percent: 48, deficit_level: 'high',
-      summary_text: 'Первичный диагностический срез (48%). Высокий уровень управленческих дефицитов.',
-      created_at: '2026-09-12T09:00:00Z'
-    },
-    {
-      id: 2, type: 'test_20', score_percent: 70, deficit_level: 'above_average',
-      summary_text: 'Промежуточный замер после микромодуля (70%). Выше среднего уровня.',
-      created_at: '2026-10-18T11:30:00Z'
-    },
-    {
-      id: 3, type: 'test_20', score_percent: 88, deficit_level: 'low',
-      summary_text: 'Контрольный срез после проработки ошибок (88%). Низкий уровень дефицитов.',
-      created_at: '2026-11-16T14:15:00Z'
-    }
+    { id: 1, type: 'self_assessment', score_percent: 75, deficit_level: 'above_average', summary_text: 'Выше среднего уровня (75%). Самооценка.', created_at: '2026-09-15T09:00:00Z' },
+    { id: 2, type: 'test_20', score_percent: 85, deficit_level: 'low', summary_text: 'Тест 20 заданий: 17/20 (85%). Низкий уровень дефицитов.', created_at: '2026-10-20T11:30:00Z' },
+    { id: 3, type: 'test_20', score_percent: 90, deficit_level: 'low', summary_text: 'Комплексный тест: 18/20 (90%). Низкий уровень дефицитов.', created_at: '2026-11-12T14:15:00Z' }
   ],
   portfolio: [
     {
       id: 1, title: 'Программа развития МБОУ «СОШ № 1 г. Кемерово» на 2025–2028 гг.', category: 'achievements',
       description: 'Утверждена педсоветом, согласована с Учредителем. Заняла II место в региональном конкурсе программ развития.',
-      file_path: '', verification_status: 'approved', expert_comment: 'Полностью соответствует ФОП и стратегическим приоритетам Кузбасса.', created_at: '2026-10-01T10:00:00Z'
+      file_path: '', verification_status: 'approved', expert_comment: 'Соответствует ФОП и стратегическим приоритетам Кузбасса.', created_at: '2026-10-01T10:00:00Z'
     },
     {
       id: 2, title: 'Аналитическая справка: динамика показателей ВПР и ГИА за 3 года', category: 'results_dynamics',
       description: 'Рост качества образования по профильным предметам на 14.2%.',
-      file_path: '', verification_status: 'approved', expert_comment: 'Объективность оценивания подтверждена независимым мониторингом ИРО Кузбасса.', created_at: '2026-10-15T12:00:00Z'
+      file_path: '', verification_status: 'approved', expert_comment: 'Объективность оценивания подтверждена независимым мониторингом.', created_at: '2026-10-15T12:00:00Z'
     },
     {
       id: 3, title: 'Удостоверение о повышении квалификации: «Менеджмент в образовании» (144 ч)', category: 'prof_development',
       description: 'ФГАОУ ДПО «Академия Минпросвещения России», рег. номер 77/4921.',
-      file_path: '', verification_status: 'approved', expert_comment: 'Зачтено в счёт обязательного модуля регионального стандарта.', created_at: '2026-11-01T08:00:00Z'
+      file_path: '', verification_status: 'approved', expert_comment: 'Зачтено в счёт обязательного модуля ДПО.', created_at: '2026-11-01T08:00:00Z'
     }
   ],
   dialogue: [
     {
       id: 1, author_name: 'Смирнов М. В.', author_role: 'Заместитель по УВР', author_workplace: 'Лицей № 84 г. Новокузнецка',
-      category: 'Управление персоналом',
       question_text: 'Как правильно оформить доплату за наставничество в локальном Положении об оплате труда по методике парного руководства?',
       status: 'answered', answer_text: 'Рекомендуется включить фиксированную стимулирующую надбавку в Положение об оплате труда ОО на основании Распоряжения Минпросвещения РФ № Р-145 и методических рекомендаций ИРО Кузбасса (раздел 4). Приказ издаётся ежегодно по результатам соглашения сторон.',
-      expert_name: 'Вербицкая И. В. (эксперт ИРО Кузбасса)', created_at: '2026-11-10T10:00:00Z'
+      expert_name: 'Вербицкая И. В. (эксперт Лиги)', created_at: '2026-11-10T10:00:00Z'
     },
     {
       id: 2, author_name: 'Кузнецова Е. П.', author_role: 'Кадровый резерв', author_workplace: 'Гимназия № 72 г. Прокопьевска',
-      category: 'Стратегическое управление',
       question_text: 'Какие подтверждающие документы в портфолио имеют наивысший вес при аттестации кандидата на должность руководителя ОО?',
-      status: 'answered', answer_text: 'Наибольший вес имеют: 1) Подтверждённая динамика образовательных результатов ОО/класса за 3 года (ВСОКО/ГИА); 2) Защищённый управленческий проект развития ОО; 3) Результаты независимой стандартизованной диагностики дефицитов ИРО Кузбасса.',
-      expert_name: 'Аттестационная комиссия Региональной Модели', created_at: '2026-11-14T15:20:00Z'
+      status: 'answered', answer_text: 'Наибольший вес имеют: 1) Подтверждённая динамика образовательных результатов ОО/класса за 3 года (ВСОКО/ГИА); 2) Защищённый управленческий проект развития ОО; 3) Результаты независимой диагностики дефицитов ИРО Кузбасса.',
+      expert_name: 'Комиссия Лиги директоров Кузбасса', created_at: '2026-11-14T15:20:00Z'
     }
   ],
   ideas: [
@@ -193,15 +170,6 @@ async function mockApi(endpoint, options = {}) {
     try { body = JSON.parse(options.body || '{}'); } catch (_) {}
   }
 
-  if (endpoint === '/api/stats/summary') {
-    return {
-      total_users: 1420,
-      total_diagnostics: 890,
-      growth_rate: '+40%',
-      municipalities: '33 муниципалитета',
-      schools_covered: '520+ ОО'
-    };
-  }
   if (endpoint === '/api/auth/me') {
     return { user: state.currentUser || OFFLINE_SEED.users.director };
   }
@@ -238,11 +206,32 @@ async function mockApi(endpoint, options = {}) {
   }
   if (endpoint === '/api/user/ipr') {
     let ipr = getLocalState('ipr', OFFLINE_SEED.ipr);
+    if (method === 'POST') {
+      const newItem = {
+        id: Date.now(),
+        competency: body.competency || 'Стратегическое управление',
+        deficit_score: 50,
+        recommended_module: body.recommended_module || 'Модульная программа ДПО',
+        action_format: body.action_format || 'Лаборатория опорной площадки',
+        target_result: body.target_result || 'Разработка локального нормативного акта',
+        deadline: body.deadline || '2027 г.',
+        mentor_name: body.mentor_name || 'Наставник Лиги экспертов',
+        status: 'planned'
+      };
+      ipr = [newItem, ...ipr];
+      setLocalState('ipr', ipr);
+      return { success: true, item: newItem };
+    }
     return { items: ipr };
   }
   if (endpoint.startsWith('/api/user/ipr/')) {
     const id = +endpoint.split('/').pop();
     let ipr = getLocalState('ipr', OFFLINE_SEED.ipr);
+    if (method === 'DELETE') {
+      ipr = ipr.filter(it => it.id !== id);
+      setLocalState('ipr', ipr);
+      return { success: true };
+    }
     ipr = ipr.map(it => it.id === id ? { ...it, status: body.status } : it);
     setLocalState('ipr', ipr);
     return { success: true };
@@ -260,7 +249,7 @@ async function mockApi(endpoint, options = {}) {
         description: desc || '',
         file_path: '',
         verification_status: 'pending',
-        expert_comment: 'Передано на проверку экспертной комиссии.',
+        expert_comment: 'Передано на проверку аттестационной комиссии.',
         created_at: new Date().toISOString()
       };
       pf = [newItem, ...pf];
@@ -304,7 +293,7 @@ async function mockApi(endpoint, options = {}) {
       ...q,
       status: 'answered',
       answer_text: body.answer_text,
-      expert_name: state.currentUser ? `${state.currentUser.fio} (эксперт)` : 'Эксперт Региональной Модели'
+      expert_name: state.currentUser ? `${state.currentUser.fio} (эксперт)` : 'Эксперт Лиги'
     } : q);
     setLocalState('dialogue', dlg);
     return { success: true };
@@ -319,7 +308,7 @@ async function mockApi(endpoint, options = {}) {
         expected_effect: body.expected_effect,
         category: body.category || 'Инициатива',
         author_name: state.currentUser ? state.currentUser.fio : 'Резервист',
-        author_role: state.currentUser ? state.currentUser.role_title : 'Кадровый резерв',
+        author_role: state.currentUser ? state.currentUser.role_title : 'Резерв',
         workplace: state.currentUser ? state.currentUser.workplace : 'Кузбасс',
         votes_count: 1,
         has_voted: 1
@@ -352,7 +341,7 @@ async function mockApi(endpoint, options = {}) {
   return { success: true };
 }
 
-// ── API Fetch Wrapper ──
+// ── API Fetch wrapper ──
 async function api(endpoint, options = {}) {
   if (window.location.protocol === 'file:') {
     return mockApi(endpoint, options);
@@ -372,15 +361,17 @@ async function api(endpoint, options = {}) {
     try { data = await res.json(); } catch (_) {}
     if (!res.ok) {
       if (res.status === 401 && endpoint !== '/api/auth/login') {
+        // Сессия истекла/недействительна — разлогиниваем
         clearSession();
-        showToast('Сессия обновлена. Перезайдите в кабинет.', true);
+        showToast('Сессия истекла. Войдите в кабинет заново.', true);
       }
       throw new Error(data.error || 'Ошибка при запросе к серверу');
     }
     return data;
   } catch (err) {
     if (err.name === 'TypeError') {
-      console.warn('Backend API unreachable, using local fallback:', err.message);
+      // Сеть недоступна — офлайн-режим с локальными данными
+      console.warn('Backend API unreachable, using local mode:', err.message);
       return mockApi(endpoint, options);
     }
     throw err;
@@ -407,6 +398,7 @@ async function initAuth() {
       state.currentUser = res.user;
       localStorage.setItem('kuzbass_user', JSON.stringify(res.user));
     } catch (_) {
+      // Неверный токен — тихий вход под демо-директором (для гладкого демо)
       await loginAs('director', 'demo123', true);
     }
   } else {
@@ -440,38 +432,41 @@ async function logout() {
   } catch (_) {}
   clearSession();
   showToast('Вы вышли из личного кабинета');
-  location.hash = '#/home';
+  location.hash = '#/login';
 }
 
 function updateAuthUI() {
   const headerBtn = document.getElementById('navLoginBtn');
   const userBadge = document.getElementById('userHeaderBadge');
+  const loginWrap = document.getElementById('loginWrap');
+  const cabWrap = document.getElementById('cabWrap');
   const cabWho = document.getElementById('cabWho');
-  const cabDetailsLine = document.getElementById('cabDetailsLine');
-  const cabRoleBadge = document.getElementById('cabRoleBadge');
   const demoRoleSelect = document.getElementById('demoRoleSelect');
 
   if (state.currentUser) {
     if (headerBtn) headerBtn.style.display = 'none';
     if (userBadge) {
-      userBadge.style.display = 'inline-flex';
-      const shortName = state.currentUser.fio.split(' ')[0] || state.currentUser.login;
-      userBadge.innerHTML = `
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>${escapeHtml(shortName)}</span>
-      `;
+      userBadge.style.display = 'flex';
+      userBadge.innerHTML = `<span>${escapeHtml(state.currentUser.fio.split(' ')[0] || state.currentUser.login)}</span><span class="badge b-t">кабинет</span>`;
     }
-    if (cabWho) cabWho.textContent = state.currentUser.fio;
-    if (cabDetailsLine) {
-      cabDetailsLine.textContent = `${state.currentUser.position || 'Руководитель'}, ${state.currentUser.workplace || 'Кузбасс'}`;
+    if (loginWrap) loginWrap.style.display = 'none';
+    if (cabWrap) cabWrap.style.display = 'block';
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+    if (cabWho) {
+      cabWho.innerHTML = `${escapeHtml(state.currentUser.fio)} · <span style="font-weight:400;color:var(--ink-muted)">${escapeHtml(state.currentUser.position || 'Руководитель')}, ${escapeHtml(state.currentUser.workplace || 'ОО Кузбасса')}</span> · <span class="badge b-g">${getRoleTitle(state.currentUser.role)}</span>`;
     }
-    if (cabRoleBadge) cabRoleBadge.textContent = getRoleTitle(state.currentUser.role);
-    if (demoRoleSelect) demoRoleSelect.value = state.currentUser.login;
-
+    if (demoRoleSelect) {
+      demoRoleSelect.value = state.currentUser.login;
+    }
     fillProfileForm();
   } else {
     if (headerBtn) headerBtn.style.display = 'inline-flex';
     if (userBadge) userBadge.style.display = 'none';
+    if (loginWrap) loginWrap.style.display = 'grid';
+    if (cabWrap) cabWrap.style.display = 'none';
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'none';
   }
 }
 
@@ -480,34 +475,24 @@ function getRoleTitle(role) {
     case 'director': return 'Директор ОО';
     case 'deputy': return 'Заместитель директора';
     case 'reserve': return 'Кадровый резерв';
-    case 'expert': return 'Эксперт Региональной Модели';
+    case 'expert': return 'Эксперт Лиги';
     case 'admin': return 'Администратор';
-    default: return 'Руководитель';
+    default: return 'Участник проекта';
   }
 }
 
 // ── Routing ──
-const ROUTES = ['home', 'about', 'comp', 'diag', 'traj', 'dialog', 'future', 'help', 'cabinet'];
+const ROUTES = ['home', 'about', 'comp', 'diag', 'traj', 'dialog', 'future', 'help', 'login'];
 
 function route() {
-  let hash = (location.hash || '#/home').replace('#/', '');
-  if (hash === 'login') hash = 'cabinet';
-  if (hash === 'directions') hash = 'comp';
-  if (hash === 'reserve') hash = 'future';
-  if (!ROUTES.includes(hash)) hash = 'home';
-  state.activeRoute = hash;
+  const hash = (location.hash || '#/home').replace('#/', '');
+  state.activeRoute = ROUTES.includes(hash) ? hash : 'home';
 
-  // Показываем активную страницу и скрываем остальные
   ROUTES.forEach(r => {
     const el = document.getElementById('p-' + r);
-    if (el) {
-      const isTarget = r === state.activeRoute;
-      el.classList.toggle('on', isTarget);
-      el.style.display = isTarget ? 'block' : 'none';
-    }
+    if (el) el.classList.toggle('on', r === state.activeRoute);
   });
 
-  // Обновляем подсветку ссылок в шапке
   document.querySelectorAll('nav.main a').forEach(a => {
     const target = a.getAttribute('href');
     a.classList.toggle('on', target === '#/' + state.activeRoute);
@@ -518,182 +503,54 @@ function route() {
 
   window.scrollTo(0, 0);
 
-  if (state.activeRoute === 'comp') renderCompetencies();
   if (state.activeRoute === 'dialog') loadDialogueFeed();
   if (state.activeRoute === 'future') loadReserveIdeas();
-  if (state.activeRoute === 'cabinet') loadCabinetData();
-  if (state.activeRoute === 'help') {
-    renderCasesAndSimulations();
-    renderNormativeLibrary();
-  }
+  if (state.activeRoute === 'login' && state.currentUser) loadCabinetData();
 }
 
 window.addEventListener('hashchange', route);
 
-// ── Navigation Helper: Пройти диагностику ──
-function goToCabinetDiag() {
-  location.hash = '#/cabinet';
-  switchCabinetTab('diag');
-  setTimeout(() => {
-    const diagSection = document.getElementById('ct-diag');
-    if (diagSection) {
-      diagSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, 100);
-}
-
-// ── Cabinet 5 Tabs Switching ──
-function switchCabinetTab(tabKey) {
-  state.activeCabinetTab = tabKey;
-  const tabs = document.querySelectorAll('#cabTabs button');
-  tabs.forEach(btn => {
-    btn.classList.toggle('on', btn.dataset.ctab === tabKey);
+// ── Tabs Generic ──
+function initTabs(barId, panePrefix) {
+  const bar = document.getElementById(barId);
+  if (!bar) return;
+  bar.querySelectorAll('button').forEach(btn => {
+    btn.onclick = () => {
+      bar.querySelectorAll('button').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      const targetId = panePrefix + '-' + btn.dataset.t;
+      document.querySelectorAll('.' + panePrefix + '-pane').forEach(pane => {
+        pane.classList.toggle('on', pane.id === targetId);
+      });
+    };
   });
-
-  document.querySelectorAll('.cab-pane').forEach(pane => {
-    pane.classList.toggle('on', pane.id === 'ct-' + tabKey);
-  });
-
-  if (tabKey === 'progress') {
-    renderProgressTab();
-  }
 }
 
-// ── Diagnostic Sub-Tabs (Самооценка / Тест 20) ──
-function switchDiagSubTab(tab) {
-  const selfBtn = document.getElementById('diagSubTabSelfBtn');
-  const testBtn = document.getElementById('diagSubTabTestBtn');
-  const selfPane = document.getElementById('diagSubSelf');
-  const testPane = document.getElementById('diagSubTest');
-
-  if (tab === 'self') {
-    if (selfBtn) selfBtn.classList.add('on');
-    if (testBtn) testBtn.classList.remove('on');
-    if (selfPane) selfPane.style.display = 'block';
-    if (testPane) testPane.style.display = 'none';
-  } else {
-    if (selfBtn) selfBtn.classList.remove('on');
-    if (testBtn) testBtn.classList.add('on');
-    if (selfPane) selfPane.style.display = 'none';
-    if (testPane) testPane.style.display = 'block';
-  }
-}
-
-// ── Help Sub-Tabs (Кейсы / Документы) ──
-function switchHelpTab(tab) {
-  const docsPane = document.getElementById('helpTabDocs');
-  const casesPane = document.getElementById('helpTabCases');
-  const buttons = document.querySelectorAll('.help-tab-btn');
-
-  buttons.forEach(b => {
-    b.classList.toggle('on', b.textContent.toLowerCase().includes(tab === 'docs' ? 'документ' : 'кейс'));
-  });
-
-  if (tab === 'docs') {
-    if (docsPane) docsPane.style.display = 'block';
-    if (casesPane) casesPane.style.display = 'none';
-  } else {
-    if (docsPane) docsPane.style.display = 'none';
-    if (casesPane) casesPane.style.display = 'block';
-  }
-}
-
-// ── Render 6 Stages Infographic on Home ──
-function renderRegionalModelStages() {
-  const box = document.getElementById('stagesContainer');
-  if (!box || typeof REGIONAL_MODEL_STAGES === 'undefined') return;
-
-  box.innerHTML = REGIONAL_MODEL_STAGES.map(st => `
-    <div class="stage-card">
-      <div class="stage-img-wrap">
-        <img src="${escapeHtml(st.img || st.image)}" alt="${escapeHtml(st.title)}">
-        <span class="stage-num">${st.step || st.num}</span>
-      </div>
-      <div class="stage-body">
-        <span class="stage-tag">${escapeHtml(st.badge || st.tag)}</span>
-        <h3 class="stage-title">${escapeHtml(st.title)}</h3>
-        <p class="stage-desc">${escapeHtml(st.desc)}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ── Render Top Micromodules on Home ──
-function renderHomeMicromodules() {
-  const box = document.getElementById('homeMicromodulesList');
-  if (!box || typeof DIRECTIONS === 'undefined') return;
-
-  const allMods = [];
-  DIRECTIONS.forEach(d => {
-    (d.micromodules || []).forEach(m => {
-      allMods.push({ ...m, dirTitle: d.title, dirCode: d.code });
-    });
-  });
-
-  box.innerHTML = allMods.slice(0, 6).map(m => `
-    <div class="micromodule-item">
-      <div style="font-size:11.5px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--accent-sand-deep)">
-        ${escapeHtml(m.dirTitle)}
-      </div>
-      <h4>${escapeHtml(m.title)}</h4>
-      <div class="meta">
-        <span>⏱ ${m.hours} ак. ч.</span>
-        <span>•</span>
-        <span>${escapeHtml(m.format)}</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ── Render Competencies Page (#/comp) ──
+// ── Render Competencies Page ──
 function renderCompetencies() {
-  const box = document.getElementById('compContainer') || document.getElementById('directionsList');
-  if (!box || typeof DIRECTIONS === 'undefined') return;
+  const box = document.getElementById('compContainer');
+  if (!box) return;
 
-  box.innerHTML = DIRECTIONS.map(d => `
-    <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
-      <div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-          <div style="width:44px;height:44px;border-radius:10px;background:var(--hero-bg);color:var(--accent-sand);display:flex;align-items:center;justify-content:center;padding:9px;flex-shrink:0">
-            ${d.icon}
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--accent-sand-deep);letter-spacing:0.06em;text-transform:uppercase">
-              Компетенция ${d.id + 1} · ${d.code}
-            </div>
-            <h3 style="margin:2px 0 0;font-size:17px">${escapeHtml(d.title)}</h3>
-          </div>
-        </div>
-
-        <div style="font-size:12px;font-weight:600;color:var(--ink-muted);margin-bottom:10px;line-height:1.4">
-          ${escapeHtml(d.subtitle)}
-        </div>
-
-        <p style="margin:0 0 14px;font-size:13.5px;line-height:1.6;color:var(--ink-secondary)">
-          ${escapeHtml(d.desc)}
-        </p>
-
-        <div style="background:var(--surface-subtle);border-left:3px solid var(--hero-bg);padding:10px 14px;border-radius:0 6px 6px 0;font-size:12.5px;font-style:italic;color:var(--ink-secondary);margin-bottom:16px;line-height:1.5">
-          ${escapeHtml(d.selfQuote)}
-        </div>
-      </div>
-
-      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:auto">
-        <button class="btn sm sand full" onclick="goToCabinetDiag()">Пройти диагностику в личном кабинете →</button>
+  box.innerHTML = COMPETENCIES.map(c => `
+    <div class="card">
+      <div class="card-icon">${c.icon}</div>
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">${c.code} · ${c.subtitle}</div>
+      <h3>${c.title}</h3>
+      <p>${c.desc}</p>
+      <div style="margin:12px 0 0;background:var(--surface-subtle);border-left:3px solid var(--accent);padding:10px 12px;font-size:12.5px;color:var(--ink-secondary);font-style:italic">
+        ${c.selfQuote}
       </div>
     </div>
   `).join('');
 }
 
-const renderDirections = renderCompetencies;
-
-// ── Self Assessment (Tab 2 inside Cabinet) ──
+// ── Self Assessment ──
 function renderSelfAssessment() {
-  const box = document.getElementById('selfAssessmentRows');
-  if (!box || typeof DIRECTIONS === 'undefined') return;
+  const box = document.getElementById('saList');
+  if (!box) return;
   box.innerHTML = '';
 
-  DIRECTIONS.forEach((d, i) => {
+  SA_QUESTIONS.forEach((q, i) => {
     const row = document.createElement('div');
     row.className = 'sa-row';
     const buttons = [0, 1, 2, 3, 4].map(v => 
@@ -702,8 +559,8 @@ function renderSelfAssessment() {
 
     row.innerHTML = `
       <div class="sa-info">
-        <span class="sa-title">${i + 1}. ${d.title}</span>
-        <span class="sa-desc">${d.selfQuote || d.desc}</span>
+        <span class="sa-title">${q.code}. ${q.title}</span>
+        <span class="sa-desc">${q.text}</span>
       </div>
       <div class="likert-group">${buttons}</div>
     `;
@@ -718,16 +575,9 @@ function renderSelfAssessment() {
   });
 }
 
-function calculateDeficitLevel(pct) {
-  if (pct >= 81) return { level: 'low', name: 'Низкий уровень дефицитов', desc: 'Высокая сформированность. Вы готовы выступать в качестве руководителя-наставника региона.', color: 'var(--success)' };
-  if (pct >= 70) return { level: 'above_average', name: 'Выше среднего уровня', desc: 'Продвинутый уровень. Компетенции достаточны для решения комплексных задач.', color: '#0d9488' };
-  if (pct >= 50) return { level: 'medium', name: 'Средний уровень дефицитов', desc: 'Базовый уровень. Требуется включение в индивидуальную программу развития (ИПР).', color: 'var(--warning)' };
-  return { level: 'high', name: 'Высокий уровень дефицитов', desc: 'Требуется интенсивное развитие. Первоочередное включение в микромодули и наставническое сопровождение.', color: 'var(--danger)' };
-}
-
 async function submitSelfAssessment() {
   if (state.saScores.some(s => s === null)) {
-    showToast('Пожалуйста, оцените все 5 направлений по шкале от 0 до 4', true);
+    showToast('Пожалуйста, оцените все 5 компетенций (шкала 0–4)', true);
     return;
   }
 
@@ -736,48 +586,45 @@ async function submitSelfAssessment() {
   const def = calculateDeficitLevel(pct);
 
   const resBox = document.getElementById('saRes');
-  if (resBox) {
-    resBox.className = 'diag-result-card on';
-    resBox.style.borderLeft = `4px solid ${def.color}`;
+  resBox.className = 'diag-result-card on';
+  resBox.style.borderLeft = `4px solid ${def.color}`;
 
-    let detailsHtml = `
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
-        <div>
-          <div style="font-size:12px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em">Итоговый результат самооценки</div>
-          <div class="score-num" style="color:${def.color}">${pct}%</div>
-          <h3 style="margin:4px 0 2px;font-size:16px">${def.name}</h3>
-          <p style="margin:0;font-size:13.5px;color:var(--ink-secondary)">${def.desc}</p>
-        </div>
-        <div>
-          <button class="btn sm sand" onclick="switchCabinetTab('ipr')">Смотреть обновлённую ИПР →</button>
-        </div>
+  let detailsHtml = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em">Итоговый показатель сформированности</div>
+        <div class="score-num" style="color:${def.color}">${pct}%</div>
+        <h3 style="margin:4px 0 2px;font-size:16px">${def.name}</h3>
+        <p style="margin:0;font-size:13.5px;color:var(--ink-secondary)">${def.desc}</p>
       </div>
-      
-      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
-        <b style="font-size:12.5px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-muted)">Срез по 5 направлениям:</b>
-    `;
+      <div>
+        <button class="btn sm outline" onclick="gotoCabinetTab('rep')">Смотреть прогресс во времени →</button>
+      </div>
+    </div>
+    
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
+      <b style="font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-muted)">Срез по направлениям компетенций:</b>
+  `;
 
-    DIRECTIONS.forEach((d, i) => {
-      const score = state.saScores[i];
-      const mod = (d.micromodules && d.micromodules[0]) ? d.micromodules[0].title : d.module;
-      detailsHtml += `
-        <div style="margin-top:10px;background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px">
-          <div style="display:flex;justify-content:space-between;font-weight:700">
-            <span>${d.title}</span>
-            <span style="font-variant-numeric:tabular-nums">${score} / 4 баллов</span>
-          </div>
-          <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0">
-            <div style="height:5px;width:${score * 25}%;background:var(--hero-bg);border-radius:3px"></div>
-          </div>
-          <div style="font-size:12px;color:var(--ink-muted)">Рекомендация для ИПР: <b>${mod}</b></div>
+  SA_QUESTIONS.forEach((q, i) => {
+    const score = state.saScores[i];
+    const comp = COMPETENCIES[i];
+    detailsHtml += `
+      <div style="margin-top:10px;background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;font-weight:700">
+          <span>${q.title}</span>
+          <span style="font-variant-numeric:tabular-nums">${score} / 4 баллов</span>
         </div>
-      `;
-    });
+        <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0">
+          <div style="height:5px;width:${score * 25}%;background:var(--ink);border-radius:3px"></div>
+        </div>
+        <div style="font-size:12px;color:var(--ink-muted)">Рекомендация для ИПР: <b>${comp.module}</b> (${comp.lab})</div>
+      </div>
+    `;
+  });
 
-    detailsHtml += `</div>`;
-    resBox.innerHTML = detailsHtml;
-    resBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+  detailsHtml += `</div>`;
+  resBox.innerHTML = detailsHtml;
 
   if (state.currentUser) {
     try {
@@ -787,47 +634,40 @@ async function submitSelfAssessment() {
           type: 'self_assessment',
           score_percent: pct,
           deficit_level: def.level,
-          summary_text: `Самооценка по 5 направлениям: ${pct}%. ${def.name}.`,
+          summary_text: `${def.name} (${pct}%). Самооценка.`,
           details: { competencyScores: state.saScores }
         })
       });
-      showToast('Результаты сохранены в вашем личном кабинете ✓');
+      showToast('Результат сохранён в личном кабинете');
       loadCabinetData();
     } catch (err) {
       showToast(err.message, true);
     }
   }
+
+  resBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// ── 20-Question Comprehensive Test ──
-function shuffleTestOptions() {
-  if (typeof TEST_QUESTIONS === 'undefined') return;
-  TEST_QUESTIONS.forEach((t, qi) => {
-    let seed = (qi * 2654435761 + 1) % 2147483647;
-    if (seed <= 0) seed = 1;
-    const rnd = () => {
-      seed = (seed * 48271) % 2147483647;
-      return seed / 2147483647;
-    };
-    const idx = t.o.map((_, i) => i);
-    for (let i = idx.length - 1; i > 0; i--) {
-      const j = Math.floor(rnd() * (i + 1));
-      [idx[i], idx[j]] = [idx[j], idx[i]];
-    }
-    t.oShown = idx.map(i => t.o[i]);
-    t.cShown = idx.indexOf(t.c);
-  });
+function updateTestProgress() {
+  const answeredCount = Object.keys(state.testAnswers).length;
+  const countEl = document.getElementById('testAnsweredCount');
+  const fillEl = document.getElementById('testProgressFill');
+  if (countEl) countEl.textContent = answeredCount;
+  if (fillEl) fillEl.style.width = `${Math.min(100, Math.round((answeredCount / TEST_QUESTIONS.length) * 100))}%`;
 }
+
+// ── Comprehensive Test ──
+// Перемешивание вариантов — в logic.js (чистая функция, покрыта тестами)
 
 function renderTest() {
   const box = document.getElementById('testList');
-  if (!box || typeof TEST_QUESTIONS === 'undefined') return;
+  if (!box) return;
   let html = '';
 
   TEST_QUESTIONS.forEach((t, i) => {
     if (i === 0 || TEST_QUESTIONS[i - 1].d !== t.d) {
       html += `
-        <h4 style="margin:24px 0 10px;font-size:13px;color:var(--hero-bg);letter-spacing:0.06em;text-transform:uppercase;font-weight:800">
+        <h4 style="margin:24px 0 10px;font-size:13px;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;font-weight:800">
           Направление ${t.d + 1}: ${t.dir}
         </h4>
       `;
@@ -836,13 +676,13 @@ function renderTest() {
     const options = (t.oShown || t.o).map((opt, optIndex) => `
       <label class="test-option">
         <input type="radio" name="test_q_${i}" value="${optIndex}" ${state.testAnswers[i] === optIndex ? 'checked' : ''}>
-        <span>${escapeHtml(opt)}</span>
+        <span>${opt}</span>
       </label>
     `).join('');
 
     html += `
       <div class="test-q-card">
-        <div class="q-title"><b>${i + 1}.</b> ${escapeHtml(t.q)}</div>
+        <div class="q-title"><b>${i + 1}.</b> ${t.q}</div>
         <div>${options}</div>
         <div id="test_exp_${i}" class="test-explanation" style="display:none"></div>
       </div>
@@ -861,20 +701,10 @@ function renderTest() {
   updateTestProgress();
 }
 
-function updateTestProgress() {
-  const answeredCount = Object.keys(state.testAnswers).length;
-  const countEl = document.getElementById('testAnsweredCount');
-  const fillEl = document.getElementById('testProgressFill');
-  const total = (typeof TEST_QUESTIONS !== 'undefined') ? TEST_QUESTIONS.length : 20;
-  if (countEl) countEl.textContent = answeredCount;
-  if (fillEl) fillEl.style.width = `${Math.min(100, Math.round((answeredCount / total) * 100))}%`;
-}
-
 async function submitTest() {
-  const total = (typeof TEST_QUESTIONS !== 'undefined') ? TEST_QUESTIONS.length : 20;
   const answeredCount = Object.keys(state.testAnswers).length;
-  if (answeredCount < total) {
-    showToast(`Ответьте на все ${total} заданий (осталось: ${total - answeredCount})`, true);
+  if (answeredCount < TEST_QUESTIONS.length) {
+    showToast(`Ответьте на все 20 заданий (осталось: ${TEST_QUESTIONS.length - answeredCount})`, true);
     return;
   }
 
@@ -896,55 +726,53 @@ async function submitTest() {
       expBox.style.border = `1px solid ${isCorrect ? '#a7f3d0' : '#fecaca'}`;
       expBox.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
       expBox.innerHTML = `
-        <b>${isCorrect ? '✔ Верный ответ.' : `✘ Неверно. Правильно: «${escapeHtml((t.oShown || t.o)[t.cShown])}».`}</b>
-        <div style="margin-top:6px;color:var(--ink-secondary);font-size:12.5px">${escapeHtml(t.e)}</div>
+        <b>${isCorrect ? 'Верный ответ.' : `Неверно. Правильный ответ: «${(t.oShown || t.o)[t.cShown]}».`}</b>
+        <div style="margin-top:6px;color:var(--ink-secondary);font-size:12.5px">${t.e}</div>
       `;
     }
   });
 
-  const pct = Math.round((correctCount / total) * 100);
+  const pct = Math.round((correctCount / TEST_QUESTIONS.length) * 100);
   const def = calculateDeficitLevel(pct);
   const resBox = document.getElementById('testRes');
-  if (resBox) {
-    resBox.className = 'diag-result-card on';
-    resBox.style.borderLeft = `4px solid ${def.color}`;
+  resBox.className = 'diag-result-card on';
+  resBox.style.borderLeft = `4px solid ${def.color}`;
 
-    let summaryHtml = `
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
-        <div>
-          <div style="font-size:12px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em">Результат комплексной диагностики</div>
-          <div class="score-num" style="color:${def.color}">${pct}%</div>
-          <h3 style="margin:4px 0 2px;font-size:16px">${def.name} · ${correctCount} из ${total} верно</h3>
-          <p style="margin:0;font-size:13.5px;color:var(--ink-secondary)">${def.desc}</p>
-        </div>
-        <div>
-          <button class="btn sm sand" onclick="switchCabinetTab('progress')">Смотреть график прогресса →</button>
-        </div>
+  let summaryHtml = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.04em">Результат комплексного теста</div>
+        <div class="score-num" style="color:${def.color}">${pct}%</div>
+        <h3 style="margin:4px 0 2px;font-size:16px">${def.name} · ${correctCount} из ${TEST_QUESTIONS.length} верно</h3>
+        <p style="margin:0;font-size:13.5px;color:var(--ink-secondary)">${def.desc}</p>
       </div>
-      
-      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
-        <b style="font-size:12.5px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-muted)">Результаты по 5 направлениям:</b>
-    `;
+      <div>
+        <button class="btn sm outline" onclick="gotoCabinetTab('rep')">Смотреть прогресс во времени →</button>
+      </div>
+    </div>
+    
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
+      <b style="font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-muted)">Результаты по 5 направлениям стандарта:</b>
+  `;
 
-    DIRECTIONS.forEach((d, idx) => {
-      const sc = dirScores[idx];
-      summaryHtml += `
-        <div style="margin-top:10px;background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px">
-          <div style="display:flex;justify-content:space-between;font-weight:700">
-            <span>${d.title}</span>
-            <span style="font-variant-numeric:tabular-nums">${sc} / 4 заданий верно</span>
-          </div>
-          <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0">
-            <div style="height:5px;width:${sc * 25}%;background:var(--hero-bg);border-radius:3px"></div>
-          </div>
+  COMPETENCIES.forEach((comp, idx) => {
+    const sc = dirScores[idx];
+    summaryHtml += `
+      <div style="margin-top:10px;background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;font-weight:700">
+          <span>${comp.title}</span>
+          <span style="font-variant-numeric:tabular-nums">${sc} / 4 заданий верно</span>
         </div>
-      `;
-    });
+        <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0">
+          <div style="height:5px;width:${sc * 25}%;background:var(--ink);border-radius:3px"></div>
+        </div>
+        <div style="font-size:12px;color:var(--ink-muted)">Рекомендуемый трек: <b>${comp.module}</b></div>
+      </div>
+    `;
+  });
 
-    summaryHtml += `</div>`;
-    resBox.innerHTML = summaryHtml;
-    resBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+  summaryHtml += `</div>`;
+  resBox.innerHTML = summaryHtml;
 
   if (state.currentUser) {
     try {
@@ -954,105 +782,65 @@ async function submitTest() {
           type: 'test_20',
           score_percent: pct,
           deficit_level: def.level,
-          summary_text: `Комплексная диагностика (20 заданий): ${correctCount}/${total} (${pct}%). ${def.name}.`,
+          summary_text: `Тест 20 заданий: ${correctCount}/20 (${pct}%). ${def.name}.`,
           details: { competencyScores: dirScores }
         })
       });
-      showToast('Результаты диагностики зафиксированы в базе данных ✓');
+      showToast('Результат теста сохранён в личном кабинете');
       loadCabinetData();
     } catch (err) {
       showToast(err.message, true);
     }
   }
+
+  resBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// ── Cases & Normative Library (#/help) ──
-let currentCaseFilter = 'all';
-let currentCaseSearch = '';
-
-function renderCasesAndSimulations() {
-  const caseBox = document.getElementById('casesContainer');
-  if (!caseBox || typeof CASES_CATALOG === 'undefined') return;
-
-  let filtered = CASES_CATALOG;
-  if (currentCaseFilter && currentCaseFilter !== 'all') {
-    const q = currentCaseFilter.toLowerCase();
-    filtered = filtered.filter(c =>
-      (c.dir && c.dir.toLowerCase().includes(q)) ||
-      (c.badge && c.badge.toLowerCase().includes(q)) ||
-      (c.title && c.title.toLowerCase().includes(q))
-    );
-  }
-  if (currentCaseSearch) {
-    const sq = currentCaseSearch.toLowerCase().trim();
-    filtered = filtered.filter(c =>
-      c.title.toLowerCase().includes(sq) ||
-      c.desc.toLowerCase().includes(sq) ||
-      (c.dir && c.dir.toLowerCase().includes(sq)) ||
-      (c.badge && c.badge.toLowerCase().includes(sq))
-    );
-  }
-
-  if (!filtered.length) {
-    caseBox.innerHTML = `
-      <div style="grid-column:1/-1;background:var(--surface-subtle);padding:24px;border-radius:var(--radius-sm);text-align:center;color:var(--ink-muted);font-size:13.5px">
-        По заданным критериям кейсов не найдено.
-      </div>
-    `;
-    return;
-  }
-
-  caseBox.innerHTML = filtered.map(c => `
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <span class="badge b-i">${escapeHtml(c.badge)}</span>
-        <span class="badge b-a">${escapeHtml(c.level)}</span>
-      </div>
-      <h3>${escapeHtml(c.title)}</h3>
-      <p style="font-size:13px">${escapeHtml(c.desc)}</p>
-    </div>
-  `).join('');
-}
-
+// ── Normative Library ──
 function renderNormativeLibrary() {
-  const box = document.getElementById('normLibContainer');
-  if (!box || typeof NORMATIVE_DOCS === 'undefined') return;
+  const box = document.getElementById('normLib');
+  if (!box) return;
+  let html = '';
 
-  box.innerHTML = NORMATIVE_DOCS.map(group => `
-    <h3 style="margin:24px 0 12px;font-size:16px;color:var(--ink)">${escapeHtml(group.group)}</h3>
-    ${group.items.map(doc => `
-      <div class="doc-row">
-        <div class="doc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-        </div>
-        <div class="doc-content">
-          <span class="doc-title">${escapeHtml(doc.name)}</span>
-          <span class="doc-desc">${escapeHtml(doc.note)}</span>
-          <div style="margin-top:6px">
-            <span class="badge b-g">${escapeHtml(doc.status)}</span>
-            ${doc.url ? `<a href="${doc.url}" target="_blank" rel="noopener" style="margin-left:10px;font-size:12px;font-weight:600;color:var(--hero-bg)">Открыть документ ↗</a>` : ''}
+  NORMATIVE_DOCS.forEach(group => {
+    html += `<h3 style="margin:26px 0 12px;font-size:15px;color:var(--ink)">${group.group}</h3>`;
+    group.items.forEach(doc => {
+      html += `
+        <div class="doc-row">
+          <div class="doc-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div class="doc-content">
+            <span class="doc-title">${doc.name}</span>
+            <span class="doc-desc">${doc.note}</span>
+            <div style="margin-top:6px">
+              <span class="badge b-g">${doc.status}</span>
+              ${doc.url ? `<a href="${doc.url}" target="_blank" rel="noopener" style="margin-left:10px;font-size:12px;font-weight:600">Открыть первоисточник ↗</a>` : ''}
+            </div>
           </div>
         </div>
-      </div>
-    `).join('')}
-  `).join('');
+      `;
+    });
+  });
+
+  box.innerHTML = html;
 }
 
-// ── Dialogue Q&A (#/dialog) ──
+// ── Dialogue Q&A ──
 async function loadDialogueFeed() {
-  const box = document.getElementById('dialogueFeed');
+  const box = document.getElementById('qList');
   if (!box) return;
 
   try {
     const res = await api('/api/dialogue');
-    state.dialogueQuestions = res.questions || [];
+    state.dialogueQuestions = res.questions;
 
-    if (!state.dialogueQuestions.length) {
-      box.innerHTML = '<p style="color:var(--ink-muted);font-size:13.5px">Вопросов пока нет. Задайте вопрос экспертам Региональной Модели.</p>';
+    if (!res.questions.length) {
+      box.innerHTML = '<p style="color:var(--ink-muted);font-size:13.5px">Вопросов пока нет. Задайте вопрос экспертам Лиги.</p>';
       return;
     }
 
-    box.innerHTML = state.dialogueQuestions.map(q => {
+    box.innerHTML = res.questions.map(q => {
       const isAnswered = q.status === 'answered' && q.answer_text;
       const canAnswer = state.currentUser && (state.currentUser.role === 'expert' || state.currentUser.role === 'admin');
 
@@ -1067,7 +855,7 @@ async function loadDialogueFeed() {
 
           ${isAnswered ? `
             <div style="margin-top:12px;background:var(--surface-subtle);border-left:3px solid var(--success);padding:10px 14px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:13px">
-              <b style="color:var(--ink)">Ответ эксперта (${escapeHtml(q.expert_name || 'ИРО Кузбасса')}):</b>
+              <b style="color:var(--ink)">Ответ эксперта (${escapeHtml(q.expert_name || 'Лига экспертов ИРО Кузбасса')}):</b>
               <p style="margin:4px 0 0;color:var(--ink-secondary)">${escapeHtml(q.answer_text)}</p>
             </div>
           ` : ''}
@@ -1075,7 +863,7 @@ async function loadDialogueFeed() {
           ${canAnswer && !isAnswered ? `
             <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)">
               <textarea class="inp" id="ans_${q.id}" placeholder="Текст официального ответа эксперта..." style="min-height:64px"></textarea>
-              <button class="btn sm sand" style="margin-top:6px" onclick="submitAnswer(${q.id})">Опубликовать ответ</button>
+              <button class="btn sm primary" style="margin-top:6px" onclick="submitAnswer(${q.id})">Опубликовать ответ</button>
             </div>
           ` : ''}
         </div>
@@ -1089,8 +877,8 @@ async function loadDialogueFeed() {
 async function sendDialogueQuestion() {
   const textEl = document.getElementById('qText');
   const catEl = document.getElementById('qCat');
+  const whoEl = document.getElementById('qWho');
 
-  if (!textEl) return;
   const text = textEl.value.trim();
   if (!text) {
     showToast('Введите текст вашего вопроса', true);
@@ -1102,12 +890,13 @@ async function sendDialogueQuestion() {
       method: 'POST',
       body: JSON.stringify({
         question_text: text,
-        category: catEl ? catEl.value : 'Стратегическое управление',
-        author_name: state.currentUser ? state.currentUser.fio : 'Руководитель ОО'
+        category: catEl.value,
+        author_name: whoEl ? whoEl.value.trim() : null
       })
     });
     textEl.value = '';
-    showToast('Вопрос направлен экспертам ИРО Кузбасса ✓');
+    if (whoEl) whoEl.value = '';
+    showToast('Вопрос передан экспертам Лиги');
     loadDialogueFeed();
   } catch (err) {
     showToast(err.message, true);
@@ -1126,26 +915,26 @@ async function submitAnswer(questionId) {
       method: 'PUT',
       body: JSON.stringify({
         answer_text: ansEl.value.trim(),
-        expert_name: state.currentUser ? state.currentUser.fio : 'Эксперт Региональной Модели'
+        expert_name: state.currentUser.fio
       })
     });
-    showToast('Ответ опубликован ✓');
+    showToast('Ответ опубликован');
     loadDialogueFeed();
   } catch (err) {
     showToast(err.message, true);
   }
 }
 
-// ── Reserve Ideas (Кадровый резерв #/reserve) ──
+// ── Reserve Ideas (Кузбасс.Будущее.РФ) ──
 async function loadReserveIdeas() {
   const box = document.getElementById('reserveIdeasList');
   if (!box) return;
 
   try {
     const res = await api('/api/reserve/ideas');
-    state.reserveIdeas = res.ideas || [];
+    state.reserveIdeas = res.ideas;
 
-    box.innerHTML = state.reserveIdeas.map(idea => `
+    box.innerHTML = res.ideas.map(idea => `
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
           <div>
@@ -1153,7 +942,7 @@ async function loadReserveIdeas() {
             <span class="badge b-i">${escapeHtml(idea.category)}</span>
             <span style="font-size:12px;color:var(--ink-muted);margin-left:8px">${escapeHtml(idea.author_name)} · ${escapeHtml(idea.workplace || 'Кузбасс')}</span>
           </div>
-          <button class="btn sm ${idea.has_voted ? 'sand' : 'outline-dark'}" onclick="voteIdea(${idea.id})">
+          <button class="btn sm ${idea.has_voted ? 'primary' : 'outline'}" onclick="voteIdea(${idea.id})">
             ▲ ${idea.votes_count} ${idea.has_voted ? 'Поддержано' : 'Поддержать'}
           </button>
         </div>
@@ -1177,7 +966,7 @@ async function submitReserveIdea() {
   const cat = document.getElementById('ideaCat').value;
 
   if (!title || !desc) {
-    showToast('Заполните название и описание инициативы', true);
+    showToast('Заполните название и описание идеи', true);
     return;
   }
 
@@ -1194,7 +983,7 @@ async function submitReserveIdea() {
     document.getElementById('ideaTitle').value = '';
     document.getElementById('ideaDesc').value = '';
     document.getElementById('ideaEffect').value = '';
-    showToast('Проектная инициатива опубликована ✓');
+    showToast('Инициатива опубликована');
     loadReserveIdeas();
   } catch (err) {
     showToast(err.message, true);
@@ -1202,6 +991,10 @@ async function submitReserveIdea() {
 }
 
 async function voteIdea(ideaId) {
+  if (!state.currentUser) {
+    showToast('Войдите в систему для голосования', true);
+    return;
+  }
   try {
     await api(`/api/reserve/ideas/${ideaId}/vote`, { method: 'POST' });
     loadReserveIdeas();
@@ -1210,145 +1003,62 @@ async function voteIdea(ideaId) {
   }
 }
 
-// ── Load Cabinet Data & Comparative Progress ──
+// ── Cabinet Data & Dynamic SVG Chart ──
 async function loadCabinetData() {
   if (!state.currentUser) return;
 
   try {
     const diagRes = await api('/api/user/diagnostics');
-    state.diagHistory = diagRes.results || [];
-    renderCabinetDiagnostics(state.diagHistory);
-    renderProgressTab();
+    state.diagHistory = diagRes.results;
+    renderCabinetDiagnostics(diagRes.results);
+    renderProgressChart(diagRes.results);
+    renderProgressDelta(diagRes.results);
 
     const iprRes = await api('/api/user/ipr');
-    state.iprItems = iprRes.items || [];
-    renderCabinetIpr(state.iprItems);
+    state.iprItems = iprRes.items;
+    renderCabinetIpr(iprRes.items);
 
     const portRes = await api('/api/user/portfolio');
-    state.portfolioItems = portRes.items || [];
-    renderCabinetPortfolio(state.portfolioItems);
+    state.portfolioItems = portRes.items;
+    renderCabinetPortfolio(portRes.items);
+
+    updateCabinetReadiness();
   } catch (err) {
     console.error('Failed loading cabinet data:', err);
   }
 }
 
-// ── Tab 5: Прогресс во времени (Сравнение «Было → Стало») ──
-function renderProgressTab() {
-  const history = state.diagHistory || [];
+function updateCabinetReadiness() {
+  const diagCount = state.diagHistory ? state.diagHistory.length : 0;
+  const iprTotal = state.iprItems ? state.iprItems.length : 0;
+  const iprDone = state.iprItems ? state.iprItems.filter(i => i.status === 'completed').length : 0;
+  const portTotal = state.portfolioItems ? state.portfolioItems.length : 0;
 
-  const startEl = document.getElementById('compScoreStart');
-  const currEl = document.getElementById('compScoreCurrent');
-  const deltaEl = document.getElementById('compDelta');
-  const statusEl = document.getElementById('compStatusLabel');
-
-  if (!history.length) {
-    if (startEl) startEl.textContent = '—';
-    if (currEl) currEl.textContent = '—';
-    if (deltaEl) deltaEl.textContent = 'Пройдите диагностику';
-    if (statusEl) statusEl.textContent = 'Ожидает замера';
-    renderProgressChart([]);
-    return;
+  let score = 20; // базовый профиль
+  if (diagCount > 0) score += 30;
+  if (iprTotal > 0) {
+    score += Math.round((iprDone / iprTotal) * 30);
   }
+  if (portTotal > 0) score += Math.min(20, portTotal * 5);
 
-  // История отсортирована chronologically для расчета динамики
-  const sorted = [...history].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-  const first = sorted[0];
-  const latest = sorted[sorted.length - 1];
+  score = Math.min(100, Math.max(15, score));
 
-  const firstScore = first.score_percent;
-  const latestScore = latest.score_percent;
-  const delta = latestScore - firstScore;
+  const textEl = document.getElementById('cabReadinessText');
+  const detEl = document.getElementById('cabReadinessDetails');
+  const fillEl = document.getElementById('cabReadinessFill');
 
-  if (startEl) startEl.textContent = `${firstScore} %`;
-  if (currEl) currEl.textContent = `${latestScore} %`;
+  if (textEl && fillEl) {
+    fillEl.style.width = `${score}%`;
+    let statusLabel = 'Базовый уровень';
+    if (score >= 80) statusLabel = 'Высокая степень готовности';
+    else if (score >= 60) statusLabel = 'Достаточная степень готовности';
+    else if (score >= 40) statusLabel = 'Формирующийся уровень';
 
-  if (deltaEl) {
-    if (delta > 0) {
-      deltaEl.textContent = `+${delta}% прирост после проработки`;
-      deltaEl.style.color = 'var(--success)';
-    } else if (delta === 0) {
-      deltaEl.textContent = 'Базовый уровень зафиксирован';
-      deltaEl.style.color = 'var(--ink-secondary)';
-    } else {
-      deltaEl.textContent = `${delta}% динамика`;
-      deltaEl.style.color = 'var(--danger)';
+    textEl.textContent = `${score}% · ${statusLabel}`;
+    if (detEl) {
+      detEl.textContent = `Диагностика: ${diagCount > 0 ? 'пройдена (' + diagCount + ' замера)' : 'не пройдена'}, ИПР: ${iprDone} из ${iprTotal} освоено, портфолио: ${portTotal} документов`;
     }
   }
-
-  if (statusEl) {
-    if (latestScore >= 80) statusEl.textContent = 'Высокая готовность';
-    else if (latestScore >= 60) statusEl.textContent = 'Достаточная готовность';
-    else statusEl.textContent = 'В процессе развития';
-  }
-
-  renderProgressChart(sorted);
-}
-
-function renderProgressChart(history) {
-  const chartBox = document.getElementById('cabProgressChart');
-  if (!chartBox) return;
-
-  if (!history || history.length < 2) {
-    chartBox.innerHTML = `
-      <div style="background:var(--surface-subtle);padding:22px;border-radius:var(--radius-sm);text-align:center;color:var(--ink-muted);font-size:13px">
-        Для построения динамического графика пройдите диагностику повторно (минимум 2 замера).
-      </div>
-    `;
-    return;
-  }
-
-  const W = 460;
-  const H = 190;
-  const padLeft = 46;
-  const padRight = 36;
-  const padTop = 24;
-  const padBottom = 34;
-
-  const innerW = W - padLeft - padRight;
-  const innerH = H - padTop - padBottom;
-
-  const points = history.map((item, index) => {
-    const x = padLeft + (index / (history.length - 1)) * innerW;
-    const y = padTop + innerH - (item.score_percent / 100) * innerH;
-    const d = new Date(item.created_at);
-    const dateStr = `${('0' + d.getDate()).slice(-2)}.${('0' + (d.getMonth() + 1)).slice(-2)}`;
-    return { x, y, score: item.score_percent, dateStr };
-  });
-
-  const polylineStr = points.map(p => `${p.x},${p.y}`).join(' ');
-
-  chartBox.innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" width="100%" style="height:auto;display:block">
-      <defs>
-        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#202754" stop-opacity="0.25"/>
-          <stop offset="100%" stop-color="#202754" stop-opacity="0.02"/>
-        </linearGradient>
-      </defs>
-      <g stroke="var(--border)" stroke-width="1">
-        <line x1="${padLeft}" y1="${padTop}" x2="${W - padRight}" y2="${padTop}"/>
-        <line x1="${padLeft}" y1="${padTop + innerH * 0.30}" x2="${W - padRight}" y2="${padTop + innerH * 0.30}"/>
-        <line x1="${padLeft}" y1="${padTop + innerH * 0.50}" x2="${W - padRight}" y2="${padTop + innerH * 0.50}"/>
-        <line x1="${padLeft}" y1="${padTop + innerH}" x2="${W - padRight}" y2="${padTop + innerH}"/>
-      </g>
-      <g font-size="9" fill="var(--ink-muted)" text-anchor="end">
-        <text x="${padLeft - 8}" y="${padTop + 3}">100%</text>
-        <text x="${padLeft - 8}" y="${padTop + innerH * 0.30 + 3}">70%</text>
-        <text x="${padLeft - 8}" y="${padTop + innerH * 0.50 + 3}">50%</text>
-        <text x="${padLeft - 8}" y="${padTop + innerH + 3}">0%</text>
-      </g>
-      <polygon points="${padLeft},${padTop + innerH} ${polylineStr} ${points[points.length - 1].x},${padTop + innerH}" fill="url(#chartGrad)"/>
-      <polyline points="${polylineStr}" fill="none" stroke="var(--hero-bg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      ${points.map(p => `
-        <circle cx="${p.x}" cy="${p.y}" r="5" fill="var(--hero-bg)" stroke="#ffffff" stroke-width="2.5"/>
-        <text x="${p.x}" y="${p.y - 9}" font-size="11" font-weight="700" fill="var(--hero-bg)" text-anchor="middle">${p.score}%</text>
-        <text x="${p.x}" y="${H - 10}" font-size="9.5" fill="var(--ink-muted)" text-anchor="middle">${p.dateStr}</text>
-      `).join('')}
-    </svg>
-    <div style="font-size:12px;color:var(--ink-muted);margin-top:6px;text-align:center">
-      Точки фиксации динамики: первичный срез → межмодульный замер → итоговый контроль
-    </div>
-  `;
 }
 
 function renderCabinetDiagnostics(history) {
@@ -1362,31 +1072,133 @@ function renderCabinetDiagnostics(history) {
 
   table.innerHTML = `
     <tr>
-      <th style="padding:8px;border-bottom:2px solid var(--border);text-align:left">Дата</th>
-      <th style="padding:8px;border-bottom:2px solid var(--border);text-align:left">Процедура</th>
-      <th style="padding:8px;border-bottom:2px solid var(--border);text-align:left">Результат</th>
-      <th style="padding:8px;border-bottom:2px solid var(--border);text-align:left">Дефициты</th>
+      <th>Дата</th>
+      <th>Процедура</th>
+      <th>Результат</th>
+      <th>Уровень дефицитов</th>
     </tr>
     ${history.map(item => {
       const d = new Date(item.created_at);
       const dateStr = `${('0' + d.getDate()).slice(-2)}.${('0' + (d.getMonth() + 1)).slice(-2)}.${d.getFullYear()}`;
-      const typeLabel = item.type === 'self_assessment' ? 'Самооценка (5 направлений)' : 'Комплексный тест (20)';
+      const typeLabel = item.type === 'self_assessment' ? 'Лист самооценки' : (item.type === 'test_20' ? 'Комплексный тест (20)' : 'Кейс / Симуляция');
       const badgeClass = item.deficit_level === 'low' ? 'b-g' : (item.deficit_level === 'above_average' ? 'b-t' : (item.deficit_level === 'medium' ? 'b-a' : 'b-r'));
       const lvlLabel = item.deficit_level === 'low' ? 'Низкий' : (item.deficit_level === 'above_average' ? 'Выше среднего' : (item.deficit_level === 'medium' ? 'Средний' : 'Высокий'));
 
       return `
         <tr>
-          <td style="padding:8px;border-bottom:1px solid var(--border)">${dateStr}</td>
-          <td style="padding:8px;border-bottom:1px solid var(--border)"><b>${typeLabel}</b></td>
-          <td style="padding:8px;border-bottom:1px solid var(--border)"><b style="color:var(--hero-bg);font-variant-numeric:tabular-nums">${item.score_percent} %</b></td>
-          <td style="padding:8px;border-bottom:1px solid var(--border)"><span class="badge ${badgeClass}">${lvlLabel}</span></td>
+          <td>${dateStr}</td>
+          <td><b>${typeLabel}</b></td>
+          <td><b style="color:var(--ink);font-variant-numeric:tabular-nums">${item.score_percent} %</b></td>
+          <td><span class="badge ${badgeClass}">${lvlLabel}</span></td>
         </tr>
       `;
     }).join('')}
   `;
 }
 
-// ── Tab 3: Моя траектория (ИПР) ──
+function renderProgressChart(history) {
+  const chartBox = document.getElementById('cabProgressChart');
+  if (!chartBox) return;
+
+  if (!history || history.length < 2) {
+    chartBox.innerHTML = `
+      <div style="background:var(--surface-subtle);padding:22px;border-radius:var(--radius-sm);text-align:center;color:var(--ink-muted);font-size:13px">
+        Для построения динамического графика пройдите хотя бы две процедуры диагностики.
+      </div>
+    `;
+    return;
+  }
+
+  const W = 360;
+  const H = 150;
+  const padLeft = 40;
+  const padRight = 30;
+  const padTop = 20;
+  const padBottom = 30;
+
+  const innerW = W - padLeft - padRight;
+  const innerH = H - padTop - padBottom;
+
+  const points = history.map((item, index) => {
+    const x = padLeft + (index / (history.length - 1)) * innerW;
+    const y = padTop + innerH - (item.score_percent / 100) * innerH;
+    const d = new Date(item.created_at);
+    const dateStr = `${('0' + (d.getMonth() + 1)).slice(-2)}.${String(d.getFullYear()).slice(-2)}`;
+    return { x, y, score: item.score_percent, dateStr };
+  });
+
+  const polylineStr = points.map(p => `${p.x},${p.y}`).join(' ');
+
+  chartBox.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" width="100%" height="auto">
+      <g stroke="var(--border)" stroke-width="1">
+        <line x1="${padLeft}" y1="${padTop}" x2="${W - padRight + 10}" y2="${padTop}"/>
+        <line x1="${padLeft}" y1="${padTop + innerH * 0.30}" x2="${W - padRight + 10}" y2="${padTop + innerH * 0.30}"/>
+        <line x1="${padLeft}" y1="${padTop + innerH * 0.50}" x2="${W - padRight + 10}" y2="${padTop + innerH * 0.50}"/>
+        <line x1="${padLeft}" y1="${padTop + innerH}" x2="${W - padRight + 10}" y2="${padTop + innerH}"/>
+      </g>
+      <g font-size="9" fill="var(--ink-muted)" text-anchor="end">
+        <text x="${padLeft - 6}" y="${padTop + 3}">100%</text>
+        <text x="${padLeft - 6}" y="${padTop + innerH * 0.30 + 3}">70%</text>
+        <text x="${padLeft - 6}" y="${padTop + innerH * 0.50 + 3}">50%</text>
+        <text x="${padLeft - 6}" y="${padTop + innerH + 3}">0%</text>
+      </g>
+      <polyline points="${polylineStr}" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${points.map(p => `
+        <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="var(--ink)" stroke="#fff" stroke-width="2"/>
+        <text x="${p.x}" y="${p.y - 7}" font-size="10" font-weight="700" fill="var(--ink)" text-anchor="middle">${p.score}%</text>
+        <text x="${p.x}" y="${H - 8}" font-size="9.5" fill="var(--ink-muted)" text-anchor="middle">${p.dateStr}</text>
+      `).join('')}
+    </svg>
+    <div style="font-size:12.5px;color:var(--ink-muted);margin-top:8px">
+      Данные сравнительного прогресса сохраняются в личном кабинете платформы «Управленческий навигатор Кузбасса».
+    </div>
+  `;
+}
+
+// ── Сравнение результатов «было → стало» ──
+function deficitLabel(level) {
+  return { low: 'низкий', above_average: 'выше среднего', medium: 'средний', high: 'высокий' }[level] || level || '—';
+}
+
+function renderProgressDelta(history) {
+  const box = document.getElementById('cabProgressDelta');
+  if (!box) return;
+
+  if (!history || history.length < 2) {
+    box.innerHTML = `
+      <h3 style="margin:0">Динамика результатов</h3>
+      <p style="margin:8px 0 0;font-size:13.5px;color:var(--ink-muted)">
+        Пройдите диагностику дважды: до и после обучения по ИПР. Здесь появится сравнение результатов.
+      </p>
+    `;
+    return;
+  }
+
+  const first = history[0];
+  const last = history[history.length - 1];
+  const delta = last.score_percent - first.score_percent;
+  const deltaClass = delta >= 0 ? 'delta-pos' : 'delta-neg';
+  const deltaSign = delta >= 0 ? '+' : '';
+
+  box.innerHTML = `
+    <h3 style="margin:0">Динамика результатов</h3>
+    <div class="delta-line">
+      <span style="font-size:13px;color:var(--ink-muted)">${new Date(first.created_at).toLocaleDateString('ru-RU')} · ${deficitLabel(first.deficit_level)} уровень дефицитов</span>
+      <b style="font-size:20px;font-variant-numeric:tabular-nums">${first.score_percent}%</b>
+      <span style="color:var(--ink-muted)">→</span>
+      <span style="font-size:13px;color:var(--ink-muted)">${new Date(last.created_at).toLocaleDateString('ru-RU')} · ${deficitLabel(last.deficit_level)} уровень дефицитов</span>
+      <b style="font-size:20px;font-variant-numeric:tabular-nums">${last.score_percent}%</b>
+      <span class="delta-num ${deltaClass}">${deltaSign}${delta} п.п.</span>
+    </div>
+    <p style="margin:8px 0 0;font-size:13px;color:var(--ink-secondary)">
+      ${delta >= 0
+        ? 'Уровень дефицитов снизился: освоение модулей ИПР даёт результат. Всего замеров: ' + history.length + '.'
+        : 'Результат ниже предыдущего замера. Вернитесь к модулям ИПР, подключите наставника и пройдите диагностику повторно. Всего замеров: ' + history.length + '.'}
+    </p>
+  `;
+}
+
 function renderCabinetIpr(items) {
   const box = document.getElementById('cabIprList');
   if (!box) return;
@@ -1394,7 +1206,7 @@ function renderCabinetIpr(items) {
   if (!items.length) {
     box.innerHTML = `
       <div style="background:var(--surface-subtle);padding:20px;border-radius:var(--radius-sm);text-align:center;color:var(--ink-muted);font-size:13px">
-        В индивидуальной программе развития пока нет модулей. Пройдите диагностику для автогенерации индивидуальной траектории.
+        В индивидуальной программе развития пока нет пунктов. Пройдите самооценку или тест для автогенерации маршрута.
       </div>
     `;
     return;
@@ -1402,24 +1214,76 @@ function renderCabinetIpr(items) {
 
   box.innerHTML = items.map(it => `
     <div class="ipr-item-card ${it.status}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
-        <div style="flex:1;min-width:240px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div>
           <b style="font-size:14.5px;color:var(--ink)">${escapeHtml(it.competency)}</b>
-          <p style="margin:4px 0;font-size:13px;color:var(--ink-secondary)"><b>Рекомендуемый курс / микромодуль:</b> ${escapeHtml(it.recommended_module)}</p>
-          <p style="margin:2px 0;font-size:12.5px;color:var(--ink-muted)">Формат: ${escapeHtml(it.action_format)} · Наставник: ${escapeHtml(it.mentor_name || 'Совет Региональной Модели')}</p>
-          <p style="margin:4px 0;font-size:12.5px;color:var(--hero-bg)">Целевой управленческий продукт: <b>${escapeHtml(it.target_result)}</b></p>
+          <p style="margin:4px 0;font-size:13px;color:var(--ink-secondary)"><b>Курс:</b> ${escapeHtml(it.recommended_module)}</p>
+          <p style="margin:2px 0;font-size:12.5px;color:var(--ink-muted)">Формат: ${escapeHtml(it.action_format)} · Наставник: ${escapeHtml(it.mentor_name || 'Лига экспертов')}</p>
+          <p style="margin:4px 0;font-size:12.5px;color:var(--accent)">Целевой продукт: <b>${escapeHtml(it.target_result)}</b></p>
         </div>
         <div style="text-align:right">
-          <select class="inp" style="padding:6px 10px;font-size:12.5px;width:auto;font-weight:600" onchange="updateIprStatus(${it.id}, this.value)">
+          <select class="inp" style="padding:4px 8px;font-size:12px;width:auto" onchange="updateIprStatus(${it.id}, this.value)">
             <option value="planned" ${it.status === 'planned' ? 'selected' : ''}>Запланировано</option>
-            <option value="in_progress" ${it.status === 'in_progress' ? 'selected' : ''}>В процессе изучения</option>
+            <option value="in_progress" ${it.status === 'in_progress' ? 'selected' : ''}>В процессе</option>
             <option value="completed" ${it.status === 'completed' ? 'selected' : ''}>Освоено ✓</option>
           </select>
-          <div style="font-size:11.5px;color:var(--ink-muted);margin-top:6px">Срок: ${escapeHtml(it.deadline || '2026–2027')}</div>
+          <div style="font-size:11.5px;color:var(--ink-muted);margin-top:6px">Срок: ${escapeHtml(it.deadline || '2027 г.')}</div>
+          <button class="btn sm danger" style="margin-top:8px" onclick="deleteIprItem(${it.id})">Удалить</button>
         </div>
       </div>
     </div>
   `).join('');
+}
+
+// ── Конструктор ИПР ──
+async function addIprItem(e) {
+  e.preventDefault();
+  const module = document.getElementById('ipr_module').value.trim();
+  const result = document.getElementById('ipr_result').value.trim();
+  if (!module || !result) {
+    showToast('Укажите модуль и целевой результат', true);
+    return;
+  }
+
+  const deadline = document.getElementById('ipr_deadline').value;
+  try {
+    await api('/api/user/ipr', {
+      method: 'POST',
+      body: JSON.stringify({
+        competency: document.getElementById('ipr_competency').value,
+        recommended_module: module,
+        action_format: document.getElementById('ipr_format').value,
+        target_result: result,
+        deadline: deadline || null,
+        mentor_name: document.getElementById('ipr_mentor').value.trim() || null
+      })
+    });
+    document.getElementById('ipr_module').value = '';
+    document.getElementById('ipr_result').value = '';
+    document.getElementById('ipr_mentor').value = '';
+    document.getElementById('ipr_deadline').value = '';
+    showToast('Пункт добавлен в ИПР');
+    loadCabinetData();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+async function deleteIprItem(id) {
+  if (!confirm('Удалить этот пункт из индивидуальной программы развития?')) return;
+  try {
+    await api(`/api/user/ipr/${id}`, { method: 'DELETE' });
+    showToast('Пункт ИПР удалён');
+    loadCabinetData();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+// ── Быстрый переход на вкладку кабинета ──
+function gotoCabinetTab(t) {
+  const btn = document.querySelector(`#ctabs button[data-t="${t}"]`);
+  if (btn) btn.click();
 }
 
 async function updateIprStatus(id, newStatus) {
@@ -1428,20 +1292,19 @@ async function updateIprStatus(id, newStatus) {
       method: 'PUT',
       body: JSON.stringify({ status: newStatus })
     });
-    showToast('Статус модуля ИПР обновлен ✓');
+    showToast('Статус пункта ИПР обновлён');
     loadCabinetData();
   } catch (err) {
     showToast(err.message, true);
   }
 }
 
-// ── Tab 4: Портфолио ──
 function renderCabinetPortfolio(items) {
   const box = document.getElementById('cabPortfolioList');
   if (!box) return;
 
   if (!items.length) {
-    box.innerHTML = `<p style="color:var(--ink-muted);font-size:13px;margin-top:16px">В портфолио пока нет прикреплённых документов.</p>`;
+    box.innerHTML = `<p style="color:var(--ink-muted);font-size:13px">В портфолио пока нет прикреплённых документов.</p>`;
     return;
   }
 
@@ -1455,20 +1318,21 @@ function renderCabinetPortfolio(items) {
   };
 
   box.innerHTML = items.map(doc => `
-    <div class="doc-row" style="justify-content:space-between;align-items:flex-start">
-      <div style="display:flex;gap:12px;flex:1">
+    <div class="doc-row" style="justify-content:space-between">
+      <div style="display:flex;gap:12px">
         <div class="doc-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
         <div>
           <span class="doc-title">${escapeHtml(doc.title)}</span>
-          <span style="color:var(--hero-bg);font-size:12px;font-weight:600">${categoryNames[doc.category] || doc.category}</span>
+          <span style="color:var(--accent);font-size:12px;font-weight:600">${categoryNames[doc.category] || doc.category}</span>
           ${doc.description ? `<p style="margin:4px 0 0;font-size:12.5px;color:var(--ink-secondary)">${escapeHtml(doc.description)}</p>` : ''}
           ${doc.expert_comment ? `<p style="margin:4px 0 0;font-size:12px;color:var(--success)"><b>Экспертное заключение:</b> ${escapeHtml(doc.expert_comment)}</p>` : ''}
           <div style="margin-top:6px">
             <span class="badge ${doc.verification_status === 'approved' ? 'b-g' : (doc.verification_status === 'revision' ? 'b-r' : 'b-a')}">
-              ${doc.verification_status === 'approved' ? 'Одобрено экспертной комиссией' : (doc.verification_status === 'revision' ? 'На доработке' : 'На проверке')}
+              ${doc.verification_status === 'approved' ? 'Одобрено аттестационной комиссией' : (doc.verification_status === 'revision' ? 'На доработке' : 'На проверке')}
             </span>
+            ${doc.file_path ? `<a href="${escapeHtml(doc.file_path)}${state.sessionToken && state.sessionToken !== 'offline-demo' ? '?token=' + encodeURIComponent(state.sessionToken) : ''}" target="_blank" style="margin-left:10px;font-size:12px;font-weight:600">Скачать файл</a>` : ''}
           </div>
         </div>
       </div>
@@ -1495,7 +1359,7 @@ async function addPortfolioDocument(e) {
   formData.append('title', title);
   formData.append('category', category);
   formData.append('description', desc);
-  if (fileInput && fileInput.files.length > 0) {
+  if (fileInput.files.length > 0) {
     formData.append('document', fileInput.files[0]);
   }
 
@@ -1506,8 +1370,8 @@ async function addPortfolioDocument(e) {
     });
     document.getElementById('pfTitle').value = '';
     document.getElementById('pfDesc').value = '';
-    if (fileInput) fileInput.value = '';
-    showToast('Документ добавлен в портфолио ✓');
+    fileInput.value = '';
+    showToast('Документ добавлен в портфолио');
     loadCabinetData();
   } catch (err) {
     showToast(err.message, true);
@@ -1525,16 +1389,12 @@ async function deletePortfolioDoc(id) {
   }
 }
 
-// ── Tab 1: Анкета ──
+// ── Profile Questionnaire ──
 function fillProfileForm() {
   const u = state.currentUser;
   if (!u) return;
 
-  const fields = [
-    'fio', 'birth_date', 'address', 'phone', 'email', 'citizenship',
-    'education_level', 'institution', 'workplace', 'position',
-    'experience_total', 'experience_ped', 'experience_mgmt', 'share_experience'
-  ];
+  const fields = ['fio', 'birth_date', 'address', 'phone', 'email', 'citizenship', 'education_level', 'institution', 'workplace', 'position', 'experience_total', 'experience_ped', 'experience_mgmt', 'share_experience'];
   fields.forEach(f => {
     const el = document.getElementById('a_' + f);
     if (el && u[f] !== undefined && u[f] !== null) {
@@ -1580,42 +1440,15 @@ async function saveProfileForm(e) {
     state.currentUser = res.user;
     localStorage.setItem('kuzbass_user', JSON.stringify(res.user));
     updateAuthUI();
-    showToast('Анкета успешно сохранена в базе данных ✓');
+    showToast('Анкета сохранена');
   } catch (err) {
     showToast(err.message, true);
   }
 }
 
-// ── Update Summary Stats in Hero ──
-async function updateSummaryStats() {
-  try {
-    const res = await api('/api/stats/summary');
-    if (res) {
-      const uEl = document.getElementById('kpiUsers');
-      const dEl = document.getElementById('kpiDiag');
-      const gEl = document.getElementById('kpiGrowth');
-      const mEl = document.getElementById('kpiMuni');
-
-      const totalUsers = res.users_total || res.total_users;
-      const totalDiag = res.diagnostics_passed || res.total_diagnostics;
-      const growth = res.efficiency_growth || res.growth_rate;
-
-      if (uEl && totalUsers) uEl.textContent = `${totalUsers}+`;
-      if (dEl && totalDiag) dEl.textContent = `${totalDiag}`;
-      if (gEl && growth) gEl.textContent = growth;
-      if (mEl && res.municipalities) {
-        const numOnly = res.municipalities.replace(/[^\d]/g, '');
-        mEl.textContent = numOnly || '33';
-      }
-    }
-  } catch (err) {
-    console.warn('Failed to load stats summary:', err);
-  }
-}
-
 function escapeHtml(str) {
   if (!str) return '';
-  return String(str).replace(/[&<>'"]/g, tag => ({
+  return str.replace(/[&<>'"]/g, tag => ({
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
@@ -1624,9 +1457,8 @@ function escapeHtml(str) {
   }[tag] || tag));
 }
 
-// ── Startup Initialization ──
+// ── Startup ──
 document.addEventListener('DOMContentLoaded', async () => {
-  // Mobile Burger Menu
   const burger = document.getElementById('burger');
   if (burger) {
     burger.onclick = () => {
@@ -1634,28 +1466,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
-  // Cabinet Tabs Navigation
-  const cabTabs = document.getElementById('cabTabs');
-  if (cabTabs) {
-    cabTabs.querySelectorAll('button').forEach(btn => {
-      btn.onclick = () => {
-        switchCabinetTab(btn.dataset.ctab);
-      };
-    });
-  }
+  initTabs('ctabs', 'ct');
 
-  // Render Page Content
-  renderRegionalModelStages();
-  renderHomeMicromodules();
-  renderDirections();
+  renderCompetencies();
   renderSelfAssessment();
-  shuffleTestOptions();
+  shuffleTestOptions(TEST_QUESTIONS);
   renderTest();
-  renderCasesAndSimulations();
   renderNormativeLibrary();
-  updateSummaryStats();
 
-  // Buttons & Forms
   const saCalcBtn = document.getElementById('saCalc');
   if (saCalcBtn) saCalcBtn.onclick = submitSelfAssessment;
 
@@ -1683,6 +1501,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
+  // Конструктор ИПР
+  const iprForm = document.getElementById('iprForm');
+  if (iprForm) iprForm.onsubmit = addIprItem;
+
   const qSendBtn = document.getElementById('qSend');
   if (qSendBtn) qSendBtn.onclick = sendDialogueQuestion;
 
@@ -1695,6 +1517,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pfForm = document.getElementById('pfUploadForm');
   if (pfForm) pfForm.onsubmit = addPortfolioDocument;
 
+  const liBtn = document.getElementById('liBtn');
+  if (liBtn) {
+    liBtn.onclick = async () => {
+      const login = document.getElementById('liLogin').value.trim() || 'director';
+      const pass = document.getElementById('liPass').value.trim() || 'demo123';
+      await loginAs(login, pass);
+    };
+  }
+
   const demoRoleSelect = document.getElementById('demoRoleSelect');
   if (demoRoleSelect) {
     demoRoleSelect.onchange = async (e) => {
@@ -1705,29 +1536,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) logoutBtn.onclick = logout;
 
-  // Case Filter buttons
-  document.querySelectorAll('.case-filter-btn').forEach(btn => {
-    btn.onclick = () => {
-      document.querySelectorAll('.case-filter-btn').forEach(b => {
-        b.classList.remove('sand', 'on');
-        b.classList.add('outline-dark');
-      });
-      btn.classList.remove('outline-dark');
-      btn.classList.add('sand', 'on');
-      currentCaseFilter = btn.dataset.cat;
-      renderCasesAndSimulations();
-    };
-  });
-
-  const caseSearch = document.getElementById('caseSearchInput');
-  if (caseSearch) {
-    caseSearch.oninput = (e) => {
-      currentCaseSearch = e.target.value;
-      renderCasesAndSimulations();
-    };
-  }
-
-  // Initialize auth session and route
   await initAuth();
   route();
 });
