@@ -9,4 +9,5 @@ data/*.db-wal
 data/*.db-shm
 *.zip
 screenshots/
+.chrome-tmp/
 take_screenshots.sh

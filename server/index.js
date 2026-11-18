@@ -621,7 +621,8 @@ app.get('/api/stats/summary', (req, res) => {
   res.json({
     users_total: 267 + userCount,
     diagnostics_passed: 251 + diagCount,
-    platforms_network: '47 + 31',
+    municipalities: '33 муниципалитета',
+    schools_covered: '520+ ОО',
     efficiency_growth: '+35 %',
     active_ideas: 14 + ideasCount,
     answered_questions: 58 + questionsCount
