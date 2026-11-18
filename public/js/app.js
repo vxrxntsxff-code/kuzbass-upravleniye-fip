@@ -1539,19 +1539,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   const iprForm = document.getElementById('iprForm');
   if (iprForm) iprForm.onsubmit = addIprItem;
 
-  // Карта: если виджет не загрузился (картосервис недоступен у посетителя),
-  // показываем карточку-фолбэк со ссылками на Яндекс Карты и 2ГИС
+  // Карта: пока виджет грузится — ничего не мигаем; если картосервис
+  // недоступен у посетителя (12 секунд без загрузки), показываем карточку-фолбэк.
+  // Если карта догрузится позже — она возвращается на место автоматически.
   const mapFrame = document.getElementById('mapFrame');
   if (mapFrame) {
+    const mapEmbed = mapFrame.closest('.map-embed');
+    const mapFallback = document.getElementById('mapFallback');
+    const showFallback = () => {
+      if (mapEmbed) mapEmbed.style.display = 'none';
+      if (mapFallback) mapFallback.hidden = false;
+    };
+    const showMap = () => {
+      if (mapFallback) mapFallback.hidden = true;
+      if (mapEmbed) mapEmbed.style.display = '';
+    };
     let mapLoaded = false;
-    mapFrame.addEventListener('load', () => { mapLoaded = true; });
-    setTimeout(() => {
-      if (!mapLoaded) {
-        mapFrame.closest('.map-embed').style.display = 'none';
-        const fb = document.getElementById('mapFallback');
-        if (fb) fb.hidden = false;
+    mapFrame.addEventListener('load', () => { mapLoaded = true; showMap(); });
+    let tries = 0;
+    const mapTimer = setInterval(() => {
+      tries += 1;
+      if (mapLoaded) { clearInterval(mapTimer); return; }
+      if (tries >= 24) { // 24 × 500 мс = 12 с
+        clearInterval(mapTimer);
+        showFallback();
       }
-    }, 8000);
+    }, 500);
   }
 
   const qSendBtn = document.getElementById('qSend');
