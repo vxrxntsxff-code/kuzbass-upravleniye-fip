@@ -1462,19 +1462,6 @@ function escapeHtml(str) {
 
 // ── Startup ──
 document.addEventListener('DOMContentLoaded', async () => {
-  // Цветовые темы: swatch-кнопки в шапке, выбор запоминается
-  const THEME_KEY = 'kuz_theme';
-  const themeBtns = document.querySelectorAll('.swatch');
-  const applyTheme = (t) => {
-    document.documentElement.dataset.theme = t;
-    try { localStorage.setItem(THEME_KEY, t); } catch (_) {}
-    themeBtns.forEach(b => b.classList.toggle('on', b.dataset.theme === t));
-  };
-  let themeSaved = 'classic';
-  try { themeSaved = localStorage.getItem(THEME_KEY) || 'classic'; } catch (_) {}
-  applyTheme(['classic', 'sky', 'petrol'].includes(themeSaved) ? themeSaved : 'classic');
-  themeBtns.forEach(b => { b.onclick = () => applyTheme(b.dataset.theme); });
-
   const burger = document.getElementById('burger');
   const headerEl = document.querySelector('header.top');
   if (burger) {
@@ -1552,9 +1539,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const iprForm = document.getElementById('iprForm');
   if (iprForm) iprForm.onsubmit = addIprItem;
 
-  // Карта: пока виджет грузится — ничего не мигаем; если картосервис
-  // недоступен у посетителя (12 секунд без загрузки), показываем карточку-фолбэк.
-  // Если карта догрузится позже — она возвращается на место автоматически.
+  // Карта: пока виджет грузится — молчим; если картосервис недоступен
+  // у посетителя (20 секунд после появления карты на экране), показываем
+  // карточку-фолбэк. Если карта догрузится позже — вернётся автоматически.
   const mapFrame = document.getElementById('mapFrame');
   if (mapFrame) {
     const mapEmbed = mapFrame.closest('.map-embed');
@@ -1569,17 +1556,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     let mapLoaded = false;
     mapFrame.addEventListener('load', () => { mapLoaded = true; showMap(); });
-    let tries = 0;
-    const mapTimer = setInterval(() => {
-      tries += 1;
-      if (mapLoaded) { clearInterval(mapTimer); return; }
-      if (tries >= 24) { // 24 × 500 мс = 12 с
-        clearInterval(mapTimer);
-        showFallback();
-      }
-    }, 500);
+    const startMapWatch = () => {
+      let tries = 0;
+      const mapTimer = setInterval(() => {
+        tries += 1;
+        if (mapLoaded) { clearInterval(mapTimer); return; }
+        if (tries >= 40) { // 40 × 500 мс = 20 с
+          clearInterval(mapTimer);
+          if (!mapLoaded) showFallback();
+        }
+      }, 500);
+    };
+    if ('IntersectionObserver' in window) {
+      const mapIO = new IntersectionObserver(entries => {
+        if (entries.some(e => e.isIntersecting)) {
+          mapIO.disconnect();
+          startMapWatch();
+        }
+      }, { threshold: 0.1 });
+      mapIO.observe(mapEmbed);
+    } else {
+      startMapWatch();
+    }
   }
-
   const qSendBtn = document.getElementById('qSend');
   if (qSendBtn) qSendBtn.onclick = sendDialogueQuestion;
 
