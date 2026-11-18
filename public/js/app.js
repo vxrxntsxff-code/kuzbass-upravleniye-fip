@@ -499,7 +499,10 @@ function route() {
   });
 
   const nav = document.getElementById('nav');
-  if (nav) nav.classList.remove('open');
+  if (nav) {
+    nav.classList.remove('open');
+    document.querySelector('header.top')?.classList.remove('menu-open');
+  }
 
   window.scrollTo(0, 0);
 
@@ -1460,10 +1463,41 @@ function escapeHtml(str) {
 // ── Startup ──
 document.addEventListener('DOMContentLoaded', async () => {
   const burger = document.getElementById('burger');
+  const headerEl = document.querySelector('header.top');
   if (burger) {
     burger.onclick = () => {
-      document.getElementById('nav').classList.toggle('open');
+      const opened = document.getElementById('nav').classList.toggle('open');
+      headerEl?.classList.toggle('menu-open', opened);
     };
+  }
+
+  // Тень шапки при прокрутке
+  window.addEventListener('scroll', () => {
+    headerEl?.classList.toggle('scrolled', window.scrollY > 10);
+  }, { passive: true });
+
+  // Плавное появление блоков при прокрутке (в духе scrolltide):
+  // каскад внутри одного контейнера, одноразовое срабатывание
+  const revealEls = document.querySelectorAll(
+    '.card, .stat, .flow .st, .scale-item, .doc-row, .task-pill, .md-node, .micro-item, .quote-box, .mission-box, .note-strip, .schema-box'
+  );
+  revealEls.forEach(el => {
+    el.classList.add('reveal');
+    const siblings = el.parentElement ? [...el.parentElement.children].filter(c => c.classList.contains('reveal')) : [];
+    el.style.setProperty('--reveal-delay', Math.min(siblings.indexOf(el) * 70, 420) + 'ms');
+  });
+  if ('IntersectionObserver' in window) {
+    const revealIO = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          revealIO.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(el => revealIO.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('in'));
   }
 
   initTabs('ctabs', 'ct');
@@ -1505,9 +1539,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const iprForm = document.getElementById('iprForm');
   if (iprForm) iprForm.onsubmit = addIprItem;
 
-  // Карта 2ГИС: если виджет не загрузился (CDN недоступен у посетителя),
-  // показываем карточку-фолбэк со ссылкой на карточку организации в 2ГИС
-  const mapFrame = document.getElementById('map2gisFrame');
+  // Карта: если виджет не загрузился (картосервис недоступен у посетителя),
+  // показываем карточку-фолбэк со ссылками на Яндекс Карты и 2ГИС
+  const mapFrame = document.getElementById('mapFrame');
   if (mapFrame) {
     let mapLoaded = false;
     mapFrame.addEventListener('load', () => { mapLoaded = true; });

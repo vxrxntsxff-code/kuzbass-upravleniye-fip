@@ -5,40 +5,41 @@
    ═════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --canvas: #f4e7d5;            /* тёплый крем — фон страницы */
-  --cream-deep: #efd9bd;        /* чуть глубже крема */
+  --canvas: #f1f4f3;            /* светлый фон с холодной зеленью */
+  --cream-deep: #e7eceb;
   --surface: #ffffff;
-  --surface-subtle: #faf3e8;
+  --surface-subtle: #f7faf9;
 
-  --ink: #1f2740;               /* тёмно-синий текст */
-  --ink-secondary: #3c4358;
-  --ink-muted: #6f7486;
-  --ink-faint: #9aa0b0;
+  --ink: #10262b;               /* тёмный петроль — основной текст */
+  --ink-secondary: #2f444a;
+  --ink-muted: #5d7178;
+  --ink-faint: #8ba0a4;
 
-  --navy: #202945;              /* шапка, hero, тёмные блоки */
-  --navy-deep: #171e33;
-  --navy-soft: #2b3557;
+  --navy: #12333a;              /* шапка, hero, тёмные блоки — глубокий петроль */
+  --navy-deep: #0c262c;
+  --navy-soft: #1c4550;
 
-  --gold: #c9a06d;              /* фирменное золото */
-  --gold-deep: #b28a56;
-  --gold-tint: #f3e6d2;
-  --gold-tint-deep: #e9d3b4;
+  --gold: #c2703d;              /* медный акцент — кнопки, маркеры */
+  --gold-deep: #a85c2e;
+  --gold-tint: #f8e9de;
+  --gold-tint-deep: #eed3bd;
+  --gold-bright: #e2a878;       /* светлый медный для текста на тёмном */
 
-  --border: #e6d7c0;
-  --border-strong: #d3bf9f;
-  --border-focus: #1f2740;
+  --border: #dbe3e0;
+  --border-strong: #c2cdc8;
+  --border-focus: #10262b;
 
-  --accent: #1f2740;            /* акцент = navy */
-  --accent-blue: #4a6fb5;       /* синий карточек-отзывов */
-  --accent-blue-hover: #3d5da0;
-  --accent-tint: #eef2fb;
+  --accent: #12333a;            /* акцент = петроль */
+  --accent-blue: #2f7d6e;       /* изумруд — ссылки */
+  --accent-blue-hover: #25655a;
+  --accent-tint: #e8f3ef;
 
-  --success: #4e8f5f;
-  --success-tint: #e9f4ec;
-  --warning: #c98a3d;
-  --warning-tint: #faf1e2;
-  --danger: #c25a4b;
-  --danger-tint: #fbece9;
+  --success: #3e7d5a;
+  --success-tint: #e7f2ea;
+  --warning: #b96a2f;
+  --warning-tint: #faf0e4;
+  --danger: #b8483b;
+  --danger-tint: #faeae7;
 
   --radius-sm: 12px;
   --radius-md: 18px;
@@ -46,10 +47,10 @@
   --radius-xl: 34px;
   --radius-pill: 999px;
 
-  --shadow-subtle: 0 1px 3px rgba(31, 39, 64, 0.06);
-  --shadow-sm: 0 2px 8px rgba(31, 39, 64, 0.07);
-  --shadow-md: 0 6px 18px rgba(31, 39, 64, 0.09);
-  --shadow-lg: 0 14px 34px rgba(31, 39, 64, 0.12);
+  --shadow-subtle: 0 1px 3px rgba(16, 38, 43, 0.06);
+  --shadow-sm: 0 2px 8px rgba(16, 38, 43, 0.07);
+  --shadow-md: 0 6px 18px rgba(16, 38, 43, 0.09);
+  --shadow-lg: 0 14px 34px rgba(16, 38, 43, 0.12);
 
   --font-body: "Montserrat", "Segoe UI", Arial, sans-serif;
   --font-serif: "Prata", "Georgia", "Times New Roman", serif;
@@ -184,7 +185,7 @@ header.top {
 .logo small {
   display: block;
   font-size: 10.5px;
-  color: var(--gold);
+  color: var(--gold-bright);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -229,7 +230,7 @@ nav.main {
 }
 nav.main a {
   text-decoration: none;
-  color: #e8e5de;
+  color: #d7e2df;
   font-size: 11.5px;
   font-weight: 600;
   padding: 6px 7px;
@@ -258,7 +259,7 @@ nav.main a.on {
   margin-left: 6px;
 }
 .btn-login:hover {
-  background: #d9b47f !important;
+  background: #d0804e !important;
   color: var(--navy-deep) !important;
 }
 
@@ -410,9 +411,9 @@ nav.main a.on {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: var(--gold);
-  background: rgba(201, 160, 109, 0.14);
-  border: 1px solid rgba(201, 160, 109, 0.4);
+  color: var(--gold-bright);
+  background: rgba(194, 112, 61, 0.16);
+  border: 1px solid rgba(194, 112, 61, 0.45);
   border-radius: var(--radius-pill);
   padding: 6px 14px;
   margin-bottom: 20px;
@@ -651,8 +652,8 @@ nav.main a.on {
   border-color: var(--gold);
 }
 .btn.primary:hover {
-  background: #d9b47f;
-  border-color: #d9b47f;
+  background: #d0804e;
+  border-color: #d0804e;
   text-decoration: none;
 }
 .btn.outline {
@@ -661,7 +662,7 @@ nav.main a.on {
   border-color: currentColor;
 }
 .btn.outline:hover {
-  background: rgba(201, 160, 109, 0.12);
+  background: rgba(194, 112, 61, 0.14);
   text-decoration: none;
 }
 .hero-box .btn.outline {
@@ -817,10 +818,10 @@ nav.main a.on {
 }
 .schema-box.goal {
   background: var(--navy);
-  color: #e8e5de;
+  color: #d7e2df;
   border: 1px solid var(--navy-soft);
 }
-.schema-box.goal b { color: var(--gold); }
+.schema-box.goal b { color: var(--gold-bright); }
 .schema-box.mission {
   background: var(--gold-tint);
   color: var(--ink);
@@ -1087,7 +1088,7 @@ label.fl {
 .inp:focus {
   outline: none;
   border-color: var(--gold-deep);
-  box-shadow: 0 0 0 3px rgba(201, 160, 109, 0.25);
+  box-shadow: 0 0 0 3px rgba(194, 112, 61, 0.3);
 }
 textarea.inp {
   min-height: 84px;
@@ -1422,7 +1423,7 @@ footer.ft {
   padding: 52px 0 34px;
 }
 footer.ft h4 {
-  color: var(--gold);
+  color: var(--gold-bright);
   font-size: 12.5px;
   font-weight: 700;
   margin: 0 0 14px;
@@ -1430,7 +1431,7 @@ footer.ft h4 {
   letter-spacing: 0.1em;
 }
 footer.ft a {
-  color: #e8e5de;
+  color: #d7e2df;
   text-decoration: none;
   font-size: 13px;
 }
@@ -1465,6 +1466,54 @@ footer.ft ul {
   flex-wrap: wrap;
   font-size: 11.5px;
   color: #8f8c85;
+}
+
+/* ── Анимации (в духе scrolltide: плавные появления и отзывчивый hover) ── */
+header.top {
+  transition: border-radius 0.25s ease, box-shadow 0.25s ease;
+}
+header.top.menu-open { border-radius: 0; }
+header.top.scrolled {
+  box-shadow: 0 10px 28px rgba(12, 38, 44, 0.22);
+}
+
+.btn { transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.18s ease, box-shadow 0.18s ease; }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.card { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+.card:hover { transform: translateY(-2px); }
+.flow .st, .scale-item, .doc-row, .stat, .task-pill, .model-diagram .md-node, .micro-item, .sa-row, .test-q-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.flow .st:hover, .task-pill:hover, .md-node:hover, .micro-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+/* Плавное появление блоков при прокрутке */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .btn:hover, .card:hover, .flow .st:hover, .task-pill:hover, .md-node:hover, .micro-item:hover { transform: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── Print ── */
@@ -1564,15 +1613,33 @@ footer.ft ul {
   .map-embed { height: 260px; }
   .map-fallback b { font-size: 18px; }
 
-  /* Вкладки: полными словами в сетку, без обрезанного скролла */
+  /* Вкладки: сетка отдельных пилюль — контейнера, за который можно вылезти, больше нет */
   .tabs {
     display: flex;
     flex-wrap: wrap;
     width: 100%;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
     overflow: visible;
-    gap: 6px;
+    border-radius: 0;
+    margin-bottom: 16px;
   }
-  .tabs button { flex: 1 1 42%; text-align: center; white-space: normal; padding: 10px 8px; }
+  .tabs button {
+    flex: 1 1 42%;
+    text-align: center;
+    white-space: normal;
+    padding: 11px 10px;
+    background: var(--surface);
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+  }
+  .tabs button.on {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
 
   /* Кабинет */
   .cabinet-header { padding: 18px 16px; border-radius: 20px; }
