@@ -606,7 +606,7 @@ function renderRegionalModelStages() {
   box.innerHTML = REGIONAL_MODEL_STAGES.map(st => `
     <div class="stage-card">
       <div class="stage-img-wrap">
-        <img src="${escapeHtml(st.img || st.image)}" alt="${escapeHtml(st.title)}" loading="lazy">
+        <img src="${escapeHtml(st.img || st.image)}" alt="${escapeHtml(st.title)}">
         <span class="stage-num">${st.step || st.num}</span>
       </div>
       <div class="stage-body">
@@ -1318,7 +1318,7 @@ function renderProgressChart(history) {
   const polylineStr = points.map(p => `${p.x},${p.y}`).join(' ');
 
   chartBox.innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" width="100%" height="auto">
+    <svg viewBox="0 0 ${W} ${H}" width="100%" style="height:auto;display:block">
       <defs>
         <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#202754" stop-opacity="0.25"/>
@@ -1603,7 +1603,10 @@ async function updateSummaryStats() {
       if (uEl && totalUsers) uEl.textContent = `${totalUsers}+`;
       if (dEl && totalDiag) dEl.textContent = `${totalDiag}`;
       if (gEl && growth) gEl.textContent = growth;
-      if (mEl && res.municipalities) mEl.textContent = res.municipalities;
+      if (mEl && res.municipalities) {
+        const numOnly = res.municipalities.replace(/[^\d]/g, '');
+        mEl.textContent = numOnly || '33';
+      }
     }
   } catch (err) {
     console.warn('Failed to load stats summary:', err);
