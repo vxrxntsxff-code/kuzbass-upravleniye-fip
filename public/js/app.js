@@ -1333,7 +1333,7 @@ function renderCabinetPortfolio(items) {
           ${doc.expert_comment ? `<p style="margin:4px 0 0;font-size:12px;color:var(--success)"><b>Экспертное заключение:</b> ${escapeHtml(doc.expert_comment)}</p>` : ''}
           <div style="margin-top:6px">
             <span class="badge ${doc.verification_status === 'approved' ? 'b-g' : (doc.verification_status === 'revision' ? 'b-r' : 'b-a')}">
-              ${doc.verification_status === 'approved' ? 'Одобрено аттестационной комиссией' : (doc.verification_status === 'revision' ? 'На доработке' : 'На проверке')}
+              ${doc.verification_status === 'approved' ? 'Одобрено комиссией' : (doc.verification_status === 'revision' ? 'На доработке' : 'На проверке')}
             </span>
             ${doc.file_path ? `<a href="${escapeHtml(doc.file_path)}${state.sessionToken && state.sessionToken !== 'offline-demo' ? '?token=' + encodeURIComponent(state.sessionToken) : ''}" target="_blank" style="margin-left:10px;font-size:12px;font-weight:600">Скачать файл</a>` : ''}
           </div>

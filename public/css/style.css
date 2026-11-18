@@ -562,13 +562,15 @@ nav.main a.on {
   height: 26px;
   border-radius: 50%;
   background: var(--gold);
-  color: var(--navy-deep);
-  font-size: 13px;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 11px;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-sm);
+  font-variant-numeric: tabular-nums;
 }
 .model-diagram .md-node b {
   display: block;
@@ -609,9 +611,10 @@ nav.main a.on {
 }
 .stat b {
   display: block;
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: 30px;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: -0.02em;
   color: var(--gold-deep);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -888,16 +891,18 @@ nav.main a.on {
   color: var(--ink-secondary);
 }
 .task-pill b {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 21px;
-  height: 21px;
-  border-radius: 50%;
-  background: var(--gold);
-  color: var(--navy-deep);
+  display: block;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  color: var(--gold-deep);
+  font-family: var(--font-body);
   font-size: 11px;
-  margin-right: 7px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin: 0 0 5px;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Self Assessment ── */
@@ -975,9 +980,10 @@ nav.main a.on {
 }
 .diag-result-card.on { display: block; animation: fadeIn 0.2s ease; }
 .diag-result-card .score-num {
-  font-family: var(--font-serif);
-  font-size: 44px;
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -1042,12 +1048,14 @@ nav.main a.on {
 .scale-item.s-amber { border-top-color: var(--warning); }
 .scale-item.s-red { border-top-color: var(--danger); }
 .scale-item b.num {
-  font-family: var(--font-serif);
-  font-size: 22px;
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   display: block;
   margin-bottom: 5px;
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 .scale-item .label {
   font-size: 13px;
@@ -1420,9 +1428,10 @@ table.data-table td {
   margin-top: 6px;
 }
 #cabProgressDelta .delta-num {
-  font-family: var(--font-serif);
-  font-size: 34px;
-  letter-spacing: 0;
+  font-family: var(--font-body);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 #cabProgressDelta .delta-pos { color: var(--success); }
@@ -1601,11 +1610,56 @@ header.top.scrolled {
   .hero-photo img { min-height: 190px; }
   .hero-photo { border-radius: 16px; }
 
-  /* Диаграмма модели: вертикальный список без боковых стрелок */
-  .model-diagram { padding: 18px 14px 12px; gap: 8px; border-radius: 20px; }
+  /* Диаграмма модели: вертикальный таймлайн с линией */
+  .model-diagram { padding: 14px 16px 12px; gap: 6px; border-radius: 20px; position: relative; }
+  .model-diagram::before {
+    content: "";
+    position: absolute;
+    left: 31px;
+    top: 24px;
+    bottom: 46px;
+    width: 2px;
+    background: var(--border-strong);
+  }
   .model-diagram .md-arrow { display: none; }
-  .model-diagram .md-node { flex-basis: 100%; min-width: 0; }
-  .model-diagram .md-return { font-size: 12px; }
+  .model-diagram .md-node {
+    flex-basis: 100%;
+    min-width: 0;
+    position: relative;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 7px 0 7px 46px;
+  }
+  .model-diagram .md-node:hover { transform: none; box-shadow: none; }
+  .model-diagram .md-node .md-num {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  .model-diagram .md-node b { font-size: 14px; }
+  .model-diagram .md-node > span:last-child { font-size: 12.3px; }
+  .model-diagram .md-return { margin-left: 46px; text-align: left; font-size: 12px; }
+
+  /* Сетки: колонка строго в одну фракцию — таблицы и графики не растягивают карточки */
+  .g2, .g3, .g4, .g5 { grid-template-columns: minmax(0, 1fr); }
+  .card { min-width: 0; overflow: hidden; }
+
+  /* Таблица истории: колонки не ломаются, карточка скроллится */
+  .table-scroll { width: 100%; }
+  table.data-table { min-width: 460px; }
+  table.data-table th, table.data-table td { white-space: nowrap; }
+  table.data-table td:nth-child(2) { white-space: normal; min-width: 150px; }
+
+  /* Документы портфолио: колонкой, мета-ряд снизу */
+  .doc-row { flex-wrap: wrap; }
+  .doc-row > div:nth-child(2) { flex: 1 1 100%; }
+  .doc-row .doc-content { min-width: 0; }
+  .doc-row .badge { max-width: 100%; white-space: normal; line-height: 1.35; }
 
   /* Фото-полоса */
   .photo-strip { gap: 12px; margin-top: 18px; }
