@@ -1315,3 +1315,156 @@ footer.ft {
   font-size: 13px;
   color: var(--ink-secondary);
 }
+
+/* ═══════════ СХЕМА МОДЕЛИ: ЦЕЛЬ ➔ ЗАДАЧИ ➔ МИССИЯ ═══════════ */
+.schema {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  margin: 24px 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.schema-box {
+  padding: 20px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+.schema-box.goal {
+  background: var(--surface-warm);
+  border-left: 4px solid var(--accent-sand-deep);
+  color: var(--ink);
+}
+
+.schema-box.mission {
+  background: var(--hero-bg);
+  color: #ffffff;
+  border-left: 4px solid var(--accent-sand);
+}
+
+.schema-box.mission b {
+  color: var(--accent-sand);
+}
+
+.schema-arrow {
+  text-align: center;
+  font-size: 22px;
+  color: var(--accent-sand-deep);
+  padding: 12px 0;
+  font-weight: 700;
+}
+
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.task-item {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.task-num {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  border-radius: 50%;
+  background: var(--hero-bg);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════ FLOW: ЕДИНЫЙ ЖИЗНЕННЫЙ ЦИКЛ ═══════════ */
+.lifecycle-flow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.lifecycle-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.lifecycle-step:hover {
+  border-color: var(--accent-sand-deep);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.lifecycle-step b {
+  display: block;
+  font-size: 14px;
+  color: var(--hero-bg);
+  margin-bottom: 4px;
+}
+
+.lifecycle-step span {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-secondary);
+  line-height: 1.4;
+}
+
+/* ═══════════ МИССИЯ ПЛАТФОРМЫ ═══════════ */
+.mission-strip {
+  background: var(--hero-bg);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 30px 32px;
+  margin: 32px 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.mission-strip .lbl {
+  display: inline-block;
+  background: var(--accent-sand);
+  color: var(--hero-bg);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 12px;
+}
+
+.mission-strip p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 0 0 10px 0;
+}
+
+.mission-strip p b {
+  color: #ffffff;
+}
+
+.mission-strip .p2 {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}

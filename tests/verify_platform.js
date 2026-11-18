@@ -19,15 +19,17 @@ async function runTests() {
   console.log('🧪 Starting Full-Story Automated Verification for Kuzbass Platform...\n');
 
   // Test 1: Frontend HTML delivery and legacy string absence
-  console.log('1. Checking HTML delivery and legacy string absence...');
+  console.log('1. Checking HTML delivery and verified structure...');
   const htmlRes = await request('/');
   assert.strictEqual(htmlRes.status, 200, 'HTML should return 200');
-  assert.ok(htmlRes.data.includes('Региональная Модель'), 'HTML must include Региональная Модель');
+  assert.ok(htmlRes.data.includes('Региональная модель'), 'HTML must include Региональная модель');
+  assert.ok(htmlRes.data.includes('Управленческий навигатор Кузбасса'), 'HTML must include Управленческий навигатор Кузбасса');
   assert.ok(htmlRes.data.includes('logo_iro.png'), 'HTML must reference official IRO logo');
   assert.ok(!htmlRes.data.includes('ФИП РАО'), 'HTML must NOT include ФИП РАО');
   assert.ok(!htmlRes.data.includes('2027–2029'), 'HTML must NOT include 2027–2029');
-  assert.ok(!htmlRes.data.includes('31 опорная'), 'HTML must NOT include 31 опорная площадка');
-  console.log('   ✓ HTML verified cleanly without legacy mentions\n');
+  assert.ok(!htmlRes.data.includes('Горячая линия методической поддержки'), 'HTML must NOT include removed support hotline');
+  assert.ok(htmlRes.data.includes('31 опорн'), 'HTML should include 31 опорная площадка per track 4 note');
+  console.log('   ✓ HTML verified cleanly with new structure and without legacy mentions\n');
 
   // Test 2: Stats summary
   console.log('2. Checking /api/stats/summary endpoint...');

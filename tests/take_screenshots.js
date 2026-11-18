@@ -93,63 +93,72 @@ async function run() {
     console.log(`   Saved ${filename} (${Math.round(buffer.length / 1024)} KB)`);
   };
 
-  // 1. Home page Hero & 6 Stages Infographic
+  // 1. Home page Hero & 6 Stages
   await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/home' });
   await delay(1200);
   await capture('01_home_hero.png', 'Home Hero & Seal');
 
-  await sendCdp(ws, 'Runtime.evaluate', {
-    expression: 'document.getElementById("stagesContainer").scrollIntoView({ behavior: "instant", block: "start" })'
-  });
-  await delay(800);
-  await capture('02_home_6stages.png', '6 Regional Model Stages Infographic');
-
-  await sendCdp(ws, 'Runtime.evaluate', {
-    expression: 'window.scrollTo({ top: 1700, behavior: "instant" })'
-  });
-  await delay(800);
-  await capture('03_home_benefits_micromodules.png', 'Benefits Grid & Micromodules');
-
-  // 2. Directions Page
-  await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/directions' });
+  // 2. About page (#/about)
+  await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/about' });
   await delay(1000);
-  await capture('04_directions.png', '5 Directions of Management Development');
+  await capture('02_about.png', 'About Regional Model (Цель, Задачи, Миссия, Жизненный цикл, 2030)');
 
-  // 3. Help Page (В помощь руководителю)
+  // 3. Competencies page (#/comp)
+  await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/comp' });
+  await delay(1000);
+  await capture('03_comp.png', '5 Key Competencies (без модулей и уровней)');
+
+  // 4. Diagnostics page (#/diag)
+  await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/diag' });
+  await delay(1000);
+  await capture('04_diag.png', 'Diagnostics Page (4 блока, шкала, переход в ЛК)');
+
+  // 5. Trajectory page (#/traj)
+  await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/traj' });
+  await delay(1000);
+  await capture('05_traj.png', 'Educational Trajectory (4 трека с 31 опорной площадкой, 6 шагов ИПР)');
+
+  // 6. Dialogue page (#/dialog)
+  await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/dialog' });
+  await delay(1000);
+  await capture('06_dialog.png', 'Effective Dialogue (Форма + эксперты + лента)');
+
+  // 7. Kuzbass Future page (#/future)
+  await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/future' });
+  await delay(1000);
+  await capture('07_future.png', 'Кузбасс.Будущее.РФ (3 уровня, банк инициатив)');
+
+  // 8. Help page (#/help)
   await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/help' });
   await delay(1000);
-  await capture('05_help_normative.png', 'Help & Normative Docs');
+  await capture('08_help.png', 'Help Page (Методические и нормативные документы, без поддержки)');
 
-  // 4. Cabinet Tab 1: Анкета
+  // 9. Cabinet Tab 1: Анкета
   await sendCdp(ws, 'Page.navigate', { url: 'http://localhost:3000/#/cabinet' });
   await delay(1000);
   await sendCdp(ws, 'Runtime.evaluate', { expression: 'switchCabinetTab("ank")' });
   await delay(500);
-  await capture('06_cabinet_anketa.png', 'Cabinet Tab 1: Анкета руководителя');
+  await capture('09_cabinet_anketa.png', 'Cabinet Tab 1: Анкета руководителя');
 
-  // 5. Cabinet Tab 2: Пройти диагностику (Самооценка & Тест 20)
+  // 10. Cabinet Tab 2: Пройти диагностику
   await sendCdp(ws, 'Runtime.evaluate', { expression: 'switchCabinetTab("diag")' });
   await delay(500);
-  await capture('07_cabinet_diag_self.png', 'Cabinet Tab 2: Самооценка');
+  await capture('10_cabinet_diag.png', 'Cabinet Tab 2: Диагностика (самооценка и тест)');
 
-  await sendCdp(ws, 'Runtime.evaluate', { expression: 'switchDiagSubTab("test")' });
-  await delay(500);
-  await capture('08_cabinet_diag_test.png', 'Cabinet Tab 2: Комплексный тест 20');
-
-  // 6. Cabinet Tab 3: Моя траектория (ИПР)
+  // 11. Cabinet Tab 3: Моя траектория (ИПР)
   await sendCdp(ws, 'Runtime.evaluate', { expression: 'switchCabinetTab("ipr")' });
   await delay(500);
-  await capture('09_cabinet_ipr.png', 'Cabinet Tab 3: Моя траектория (ИПР)');
+  await capture('11_cabinet_ipr.png', 'Cabinet Tab 3: Моя траектория (ИПР)');
 
-  // 7. Cabinet Tab 4: Портфолио
+  // 12. Cabinet Tab 4: Портфолио
   await sendCdp(ws, 'Runtime.evaluate', { expression: 'switchCabinetTab("pf")' });
   await delay(500);
-  await capture('11_cabinet_portfolio.png', 'Cabinet Tab 4: Портфолио');
+  await capture('12_cabinet_portfolio.png', 'Cabinet Tab 4: Портфолио');
 
-  // 8. Cabinet Tab 5: Прогресс во времени (Было -> Стало)
+  // 13. Cabinet Tab 5: Прогресс во времени (Было -> Стало)
   await sendCdp(ws, 'Runtime.evaluate', { expression: 'switchCabinetTab("progress")' });
   await delay(600);
-  await capture('10_cabinet_progress_comparative.png', 'Cabinet Tab 5: Сравнение Было/Стало и график');
+  await capture('13_cabinet_progress.png', 'Cabinet Tab 5: Сравнение Было/Стало и график динамики');
 
   ws.close();
   chromeProc.kill();

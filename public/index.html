@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Региональная модель — Опережающая подготовка управленческих кадров Кузбасса</title>
+  <title>Управленческий навигатор Кузбасса — Региональная модель опережающей подготовки</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -14,12 +14,12 @@
     <a class="logo" href="#/home">
       <img src="images/logo_iro.png" alt="ИРО Кузбасса">
       <div class="logo-text">
-        <b>Региональная Модель</b>
-        <small>ГБОУ ДПО «ИРО Кузбасса»</small>
+        <b>Управленческий навигатор Кузбасса</b>
+        <small>в рамках проекта «Региональная модель...» · ГБОУ ДПО «ИРО Кузбасса»</small>
       </div>
     </a>
 
-    <!-- Role Switcher (Демо-инструмент) -->
+    <!-- Role Switcher (Демо-инструмент для комиссии) -->
     <div class="role-picker">
       <span>Роль:</span>
       <select id="demoRoleSelect">
@@ -33,422 +33,799 @@
     <button class="burger" id="burger" aria-label="меню">☰</button>
 
     <nav class="main" id="nav">
+      <a href="#/home" class="on">Главная</a>
       <a href="#/about">О проекте</a>
-      <a href="#/directions">Направления</a>
+      <a href="#/comp">Ключевые компетенции</a>
+      <a href="#/diag">Диагностика</a>
+      <a href="#/traj">Образовательная траектория</a>
+      <a href="#/dialog">Эффективный диалог</a>
+      <a href="#/future">Кузбасс.Будущее РФ</a>
       <a href="#/help">В помощь руководителю</a>
-      <a href="#/reserve">Кадровый резерв</a>
-      <a href="#/dialog">Диалог</a>
-      <a href="#/cabinet" class="btn-login" id="navLoginBtn">Личный кабинет</a>
-      <div id="userHeaderBadge" class="user-badge-header" style="display:none" onclick="location.hash='#/cabinet'"></div>
+      <a href="#/cabinet" class="user-badge" id="userHeaderBadge" style="display:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Кабинет</span>
+      </a>
+      <a href="#/cabinet" class="btn-login" id="navLoginBtn">Войти</a>
     </nav>
   </div>
 </header>
 
-<!-- ═══════════ ГЛАВНАЯ СТРАНИЦА (#/home) ═══════════ -->
-<section class="page" id="p-home">
-  <!-- Hero блок в стиле ГрифонКлуба -->
-  <div class="hero-wrapper">
-    <div class="wrap">
-      <div class="hero-grid">
-        <div class="hero-content">
-          <div class="hero-pill-tag">
-            <span>Экосистема лидерства</span> • <span>ГБОУ ДПО «ИРО Кузбасса»</span>
-          </div>
-          <h1>Добро пожаловать в Региональную Модель!</h1>
-          <div class="hero-subtitle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            <span>Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования Кузбасса</span>
-          </div>
-          <div class="hero-actions">
-            <button class="btn sand" onclick="goToCabinetDiag()">Пройти диагностику →</button>
-            <a href="#/about" class="btn outline-white">О проекте: Региональная Модель</a>
-          </div>
+<!-- ═══════════ 1. ГЛАВНАЯ (#/home) ═══════════ -->
+<section class="page on" id="p-home">
+  <!-- Hero Banner -->
+  <div class="hero-curved-container">
+    <div class="wrap hero-curved-inner">
+      <div class="hero-left-content">
+        <div class="hero-pill-tag">
+          ГБОУ ДПО «Институт развития образования Кузбасса»
+        </div>
+        
+        <h1>
+          Добро пожаловать на платформу «Управленческий навигатор Кузбасса» в рамках проекта «Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования в условиях демографических и социокультурных вызовов (на примере Кемеровской области — Кузбасса)»
+        </h1>
+        
+        <p class="hero-description">
+          Региональный проект, объединяющий руководителей и заместителей образовательных организаций, участников кадрового резерва для опережающего развития системы образования Кузбасса и реализации государственной политики.
+        </p>
+
+        <div class="hero-action-buttons">
+          <a class="btn sand" href="#/about">Узнать подробнее о проекте →</a>
+          <a class="btn outline-light" href="#/cabinet" onclick="goToCabinetDiag()">Пройти диагностику в кабинете</a>
+        </div>
+      </div>
+
+      <!-- Фото-витрина и вращающаяся печать -->
+      <div class="hero-right-media">
+        <div class="hero-card-photo main-card">
+          <img src="images/swiper-1.jpg" alt="Управленческий форум Кузбасса">
+        </div>
+        <div class="hero-card-photo second-card">
+          <img src="images/swiper-2.jpg" alt="Лидеры образования Кузбасса">
         </div>
 
-        <div class="hero-visual">
-          <div class="photo-card-vertical">
-            <img src="images/swiper-1.jpg" alt="Управленцы Кузбасса">
-          </div>
-          <div class="photo-card-vertical offset">
-            <img src="images/swiper-2.jpg" alt="Сессия Лиги директоров">
-          </div>
-
-          <!-- Вращающийся штамп-печать (как на ГрифонКлубе) -->
-          <div class="stamp-seal">
-            <svg class="text-ring" viewBox="0 0 100 100">
-              <path id="stampCurve" d="M 50 50 m -38 0 a 38 38 0 1 1 76 0 a 38 38 0 1 1 -76 0" fill="none"/>
-              <text font-size="8.8" font-weight="700" fill="#d6baa3" letter-spacing="1.8">
-                <textPath href="#stampCurve" startOffset="0%">
-                  • РЕГИОНАЛЬНАЯ МОДЕЛЬ • СИЛЬНЕЕ ВМЕСТЕ •
-                </textPath>
-              </text>
-            </svg>
-            <div class="stamp-center">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            </div>
-          </div>
+        <div class="stamp-seal">
+          <svg class="text-ring" viewBox="0 0 120 120">
+            <path id="stampCurve" d="M 60, 60 m -44, 0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0" fill="none"/>
+            <text><textPath href="#stampCurve">• РЕГИОНАЛЬНАЯ МОДЕЛЬ • СИЛЬНЕЕ ВМЕСТЕ </textPath></text>
+          </svg>
+          <div class="stamp-center">★</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Секция: Что такое Региональная Модель? -->
-  <div class="sec warm">
-    <div class="wrap">
-      <div class="about-grid">
-        <div class="about-text">
-          <h2>Что такое «Региональная Модель»?</h2>
-          <div class="about-lead">
-            Это профессиональное сообщество и целостная система опережающей подготовки действующих и начинающих руководителей образовательных организаций Кузбасса.
-          </div>
-          <p>
-            Здесь объединяются передовой управленческий опыт, аналитика данных ВСОКО и наставничество сильных директоров. Наша цель — предиктивно выявлять профессиональные дефициты каждого руководителя, выстраивать персональную программу развития (ИПР) и непрерывно сопровождать до устойчивого роста образовательных результатов.
-          </p>
-          <div style="margin-top:24px">
-            <a href="#/about" class="btn outline-dark">Подробнее о модели →</a>
-          </div>
-        </div>
-        <div class="about-photo">
-          <img src="images/banner-1.jpg" alt="Круглый стол директоров">
-        </div>
-      </div>
+  <div class="wrap">
+    <!-- Блок: Наша миссия -->
+    <div class="mission-strip">
+      <span class="lbl">♥ Наша миссия</span>
+      <p>
+        Наша миссия — создать условия для <b>осознанного профессионального роста руководителей</b>, формирования <b>сильного кадрового резерва</b> и <b>совместного поиска инновационных решений</b>, направленных на повышение качества, эффективности и конкурентоспособности образования Кузбасса.
+      </p>
+      <p class="p2">
+        Проект помогает каждому руководителю не просто закрывать профессиональные дефициты, а выстраивать свою уникальную «карту развития» и становиться архитектором образовательного будущего своего региона.
+      </p>
+    </div>
 
-      <!-- Региональные KPI Метрики -->
-      <div class="metrics-strip">
-        <div class="metric-card">
-          <b id="kpiUsers">271</b>
-          <span>Руководителей и резервистов в единой базе</span>
-        </div>
-        <div class="metric-card">
-          <b id="kpiMuni">33</b>
-          <span>Муниципалитета Кузбасса объединены в сеть</span>
-        </div>
-        <div class="metric-card">
-          <b id="kpiGrowth">+35 %</b>
-          <span>Рост управленческой результативности по методике «парного управления»</span>
-        </div>
-        <div class="metric-card">
-          <b id="kpiDiag">255+</b>
-          <span>Пройденных замеров компетенций с формированием ИПР</span>
-        </div>
+    <!-- Метрики проекта -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="num" id="kpiUsers">271+</div>
+        <div class="lbl">Руководителей и резервистов в единой базе</div>
+      </div>
+      <div class="metric-card">
+        <div class="num" id="kpiMuni">33 муниципалитета</div>
+        <div class="lbl">Муниципалитета Кузбасса объединены в сеть</div>
+      </div>
+      <div class="metric-card">
+        <div class="num" id="kpiGrowth">+35 %</div>
+        <div class="lbl">Рост управленческой результативности по методике «парного управления»</div>
+      </div>
+      <div class="metric-card">
+        <div class="num" id="kpiDiag">257</div>
+        <div class="lbl">Пройденных замеров компетенций с формированием ИПР</div>
       </div>
     </div>
-  </div>
 
-  <!-- Секция: 6 взаимосвязанных этапов модели (ИНФОГРАФИКА В КАРТИНКАХ) -->
-  <div class="sec light">
-    <div class="wrap">
-      <div class="sec-title-box">
-        <h2>Региональная модель в действии</h2>
-        <p>Шесть взаимосвязанных этапов непрерывного профессионального цикла руководителя образовательной организации</p>
-      </div>
-
-      <div class="stages-grid" id="stagesContainer">
-        <!-- Генерируется из data.js (REGIONAL_MODEL_STAGES) -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Секция: Благодаря участию в проекте вы сможете (стиль ГрифонКлуба) -->
-  <div class="sec warm">
-    <div class="wrap">
-      <div class="sec-title-box">
+    <!-- Блок: Благодаря участию в проекте вы сможете -->
+    <div class="sec warm">
+      <div style="text-align:center;max-width:760px;margin:0 auto 36px">
         <h2>Благодаря участию в проекте вы сможете</h2>
-        <p>Инструменты практической поддержки руководителей на каждом этапе карьеры</p>
+        <p style="font-size:15px">Пять возможностей, которые открывает проект каждому участнику</p>
       </div>
 
       <div class="benefits-grid">
-        <div class="benefit-card">
-          <div class="benefit-icon">✓</div>
-          <div class="benefit-text">Прокачать свои профессиональные и лидерские качества первого руководителя</div>
-        </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">✓</div>
-          <div class="benefit-text">Получить персонализированный маршрут (ИПР) под ваши индивидуальные дефициты</div>
-        </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">✓</div>
-          <div class="benefit-text">Поделиться успешным управленческим опытом и лучшими практиками с коллегами региона</div>
-        </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">✓</div>
-          <div class="benefit-text">Получить менторскую поддержку и супервизию у ведущих директоров и экспертов Кузбасса</div>
-        </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">✓</div>
-          <div class="benefit-text">Освоить прикладные онлайн-микромодули по закупкам 44-ФЗ, ВСОКО и кадровой политике</div>
-        </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">✓</div>
-          <div class="benefit-text">Отслеживать динамику управленческого роста на сравнительных графиках во времени</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Секция: Онлайн-микромодули опережающей подготовки -->
-  <div class="sec light">
-    <div class="wrap">
-      <div class="sec-title-box">
-        <h2>Онлайн-микромодули опережающей подготовки</h2>
-        <p>Короткие практико-ориентированные курсы (16–36 часов) для устранения адресных дефицитов</p>
-      </div>
-
-      <div class="micromodules-grid" id="homeMicromodulesList"></div>
-    </div>
-  </div>
-
-  <!-- Секция: Цитата руководителя -->
-  <div class="sec warm">
-    <div class="wrap">
-      <div class="quote-box">
-        <div class="quote-content">
-          <q>
-            «Современная школа меняется стремительно. Управленец сегодня обязан не просто реагировать на предписания, а опережать вызовы: владеть аналитикой ВСОКО, безупречно вести финансовую деятельность и бережно вести за собой педагогическую команду.»
-          </q>
-          <div class="quote-author">
-            <b>Забнева Эльвира Игоревна</b> · Доктор философских наук, ректор ГБОУ ДПО «ИРО Кузбасса»
+        <div class="benefit-item">
+          <div class="benefit-check">✓</div>
+          <div>
+            <h4>Прокачать качества</h4>
+            <p>Прокачать свои профессиональные и лидерские качества первого руководителя</p>
           </div>
         </div>
-        <div class="quote-photo">
-          <img src="images/review-1.jpg" alt="Ректор ИРО Кузбасса">
+        <div class="benefit-item">
+          <div class="benefit-check">✓</div>
+          <div>
+            <h4>Персональные рекомендации</h4>
+            <p>Получить персонифицированные рекомендации по развитию, сформированные под ваши задачи</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-check">✓</div>
+          <div>
+            <h4>Поделиться опытом</h4>
+            <p>Поделиться успешным управленческим опытом и лучшими практиками с коллегами региона</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-check">✓</div>
+          <div>
+            <h4>Экспертная поддержка</h4>
+            <p>Получить менторскую поддержку и супервизию у ведущих директоров и экспертов Кузбасса</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-check">✓</div>
+          <div>
+            <h4>Сообщество лидеров</h4>
+            <p>Принимать участие в образовательных событиях и совместно формировать векторы развития образования</p>
+          </div>
         </div>
       </div>
+      <div style="text-align:center;margin-top:24px">
+        <a class="btn sand" href="#/about">Подробнее о проекте →</a>
+      </div>
+    </div>
 
-      <!-- Блок: Партнеры и поддержка -->
-      <div class="partners-block">
-        <div class="partners-info">
-          <h3>Партнеры и научно-методическая поддержка</h3>
-          <p>Проект реализуется при поддержке Министерства образования Кузбасса и в сетевом взаимодействии с ведущими университетами и научными центрами региона.</p>
-        </div>
-        <div class="partners-logos">
-          <div class="partner-logo-item">Министерство образования Кузбасса</div>
-          <div class="partner-logo-item">ГБОУ ДПО «ИРО Кузбасса»</div>
-          <div class="partner-logo-item">КемГУ</div>
-          <div class="partner-logo-item">Лига директоров Кузбасса</div>
-        </div>
+    <!-- Инфографика 6 этапов -->
+    <div class="sec">
+      <div style="text-align:center;max-width:760px;margin:0 auto 36px">
+        <h2>Региональная модель в действии</h2>
+        <p style="font-size:15px">Шесть взаимосвязанных этапов непрерывного профессионального цикла руководителя образовательной организации</p>
       </div>
+      <div class="stages-grid" id="stagesContainer"></div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════ СТРАНИЦА: О ПРОЕКТЕ РЕГИОНАЛЬНАЯ МОДЕЛЬ (#/about) ═══════════ -->
+<!-- ═══════════ 2. О ПРОЕКТЕ (#/about) ═══════════ -->
 <section class="page" id="p-about" style="display:none">
   <div class="wrap" style="padding-top:48px;padding-bottom:60px">
-    <div class="sec-title-box" style="text-align:left;max-width:100%">
-      <h2>О проекте: Региональная Модель</h2>
-      <p style="font-size:16.5px">Опережающая подготовка и непрерывное развитие управленческих кадров системы образования Кемеровской области — Кузбасса</p>
+    <div style="margin-bottom:32px">
+      <h2>О проекте «Региональная модель опережающей подготовки...»</h2>
+      <p style="font-size:15.5px;max-width:960px;line-height:1.7">
+        <b>Что такое проект?</b> Это научно обоснованная система сопровождения управленцев в сфере образования на всех этапах его карьеры: от прогноза кадровой потребности и диагностики до портфолио-аттестации и непрерывного развития. Модель объединяет четыре ключевых элемента: <b>прогнозирование кадровой потребности региона</b>, <b>практико-ориентированное модульное обучение</b>, <b>аттестацию через личное портфолио</b> вместо формальных процедур и <b>индивидуальный трек развития</b>.
+      </p>
     </div>
 
-    <div class="about-grid" style="margin-bottom:40px">
-      <div class="about-text">
-        <div class="about-lead">
-          Миссия модели — сформировать в Кузбассе саморазвивающуюся управленческую экосистему, гарантирующую высокое качество управления в каждой школе независимо от её масштаба и удаленности.
+    <!-- Карточки метрик (период реализации убран по ТЗ) -->
+    <div class="metrics-grid" style="margin-bottom:40px">
+      <div class="metric-card">
+        <div class="num">33</div>
+        <div class="lbl">муниципалитета Кемеровской области — Кузбасса охвачено</div>
+      </div>
+      <div class="metric-card">
+        <div class="num">267 / 251</div>
+        <div class="lbl">кандидатов в резерв / прошли диагностику (94 %)</div>
+      </div>
+      <div class="metric-card">
+        <div class="num">47 + 31</div>
+        <div class="lbl">стажировочных площадок и опорных площадок сети</div>
+      </div>
+      <div class="metric-card">
+        <div class="num">+35 %</div>
+        <div class="lbl">эффективность «парного управления» (пилот, Новокузнецк)</div>
+      </div>
+    </div>
+
+    <!-- Схема модели: Цель -> Задачи -> Миссия -->
+    <div class="sec">
+      <h2>Схема модели</h2>
+      <p style="font-size:14px;color:var(--ink-secondary);margin-bottom:16px">Описать и показать схематично: цель → задачи → миссия</p>
+
+      <div class="schema">
+        <div class="schema-box goal">
+          <b style="color:var(--accent-sand-deep);text-transform:uppercase;letter-spacing:0.04em">ЦЕЛЬ:</b> 
+          разработка, научное обоснование, апробация и тиражирование региональной модели опережающей подготовки и непрерывного профессионального развития управленческих кадров системы образования, обеспечивающей преодоление демографических и социокультурных вызовов.
         </div>
-        <p>
-          В отличие от традиционных курсов повышения квалификации, проходящих раз в три года, Региональная модель работает в логике непрерывного цикла: <b>диагностика дефицитов → адресная отработка в микромодулях → наставничество опытного директора → сравнительный замер динамики</b>.
+
+        <div class="schema-arrow">↓</div>
+
+        <div>
+          <b style="font-size:13px;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-muted);display:block;margin-bottom:12px">
+            Задачи проекта:
+          </b>
+          <div class="tasks-grid">
+            <div class="task-item"><span class="task-num">1</span><span>Теоретико-методологические основания предиктивной диагностики дефицитов</span></div>
+            <div class="task-item"><span class="task-num">2</span><span>Диагностический инструментарий по 5 направлениям компетенций</span></div>
+            <div class="task-item"><span class="task-num">3</span><span>Научные принципы перехода к портфолио-оценке результатов</span></div>
+            <div class="task-item"><span class="task-num">4</span><span>Модульные ДПП ПК с кейсами и симуляционными заданиями</span></div>
+            <div class="task-item"><span class="task-num">5</span><span>Региональная система аттестации на основе портфолио</span></div>
+            <div class="task-item"><span class="task-num">6</span><span>Сеть опорных площадок — ресурсных центров практик</span></div>
+            <div class="task-item"><span class="task-num">7</span><span>Цифровая платформа «Управленческий навигатор Кузбасса» (200+ кейсов)</span></div>
+            <div class="task-item"><span class="task-num">8</span><span>Сборник и пакет нормативных документов для тиражирования в субъектах РФ</span></div>
+          </div>
+        </div>
+
+        <div class="schema-arrow">↓</div>
+
+        <div class="schema-box mission">
+          <b style="text-transform:uppercase;letter-spacing:0.04em">МИССИЯ:</b> 
+          создать условия для осознанного профессионального роста руководителей, формирования сильного кадрового резерва и совместного поиска инновационных решений, направленных на повышение качества, эффективности и конкурентоспособности образования Кузбасса.
+        </div>
+      </div>
+
+      <!-- Жизненный цикл руководителя (Отбор - Диагностика...) -->
+      <div style="margin-top:36px">
+        <h3>Единый жизненный цикл руководителя образовательной организации</h3>
+        <div class="lifecycle-flow">
+          <div class="lifecycle-step"><b>1. Отбор</b><span>кадровый резерв, конкурсы</span></div>
+          <div class="lifecycle-step"><b>2. Диагностика</b><span>предиктивная, 5 направлений</span></div>
+          <div class="lifecycle-step"><b>3. Подготовка</b><span>модульные ДПП, наставничество</span></div>
+          <div class="lifecycle-step"><b>4. Назначение</b><span>парное управление</span></div>
+          <div class="lifecycle-step"><b>5. Аттестация</b><span>портфолио + динамика результатов</span></div>
+          <div class="lifecycle-step"><b>6. Сопровождение</b><span>непрерывное развитие</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Уникальность проекта -->
+    <div class="sec">
+      <h2>💡 Уникальность проекта</h2>
+      <div class="cards-grid g5" style="margin-top:20px">
+        <div class="card">
+          <div style="font-size:24px;margin-bottom:8px">🔹</div>
+          <h4>Экосистема</h4>
+          <p style="font-size:13px">Не разовое обучение, а непрерывная экосистема профессионального развития руководителя.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:24px;margin-bottom:8px">🔹</div>
+          <h4>Персонализация</h4>
+          <p style="font-size:13px">Каждый руководитель получает точную траекторию под свои дефициты.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:24px;margin-bottom:8px">🔹</div>
+          <h4>Практика</h4>
+          <p style="font-size:13px">Полученные знания сразу применяются в проектах развития ОО и ВСОКО.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:24px;margin-bottom:8px">🔹</div>
+          <h4>Сообщество</h4>
+          <p style="font-size:13px">Поддержка наставников из Лиги директоров и взаимопомощь коллег региона.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:24px;margin-bottom:8px">🔹</div>
+          <h4>Данные</h4>
+          <p style="font-size:13px">Объективная предиктивная диагностика вместо субъективных экспертных оценок.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ожидаемые результаты к 2030 году и Что получает руководитель -->
+    <div class="form-grid" style="margin-top:20px">
+      <div class="card" style="border-top:4px solid var(--success)">
+        <h3>📈 Ожидаемые результаты к 2030 году</h3>
+        <ul style="list-style:none;padding:0;margin:16px 0;line-height:2;font-size:14px">
+          <li>✅ 20 % управленцев ежегодно проходят комплексную оценку</li>
+          <li>✅ Индивидуальные программы развития (ИПР) для каждого участника</li>
+          <li>✅ 31 муниципальная площадка для обмена опытом (онлайн + офлайн)</li>
+          <li>✅ Банк лучших управленческих практик Кузбасса</li>
+          <li>✅ Снижение профессиональных дефицитов на 40–50 %</li>
+          <li>✅ Увеличение доли молодых руководителей до 10 %</li>
+          <li>✅ Живое профессиональное сообщество лидеров образования</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-top:4px solid var(--accent-sand-deep)">
+        <h3>🎁 Что получает руководитель</h3>
+        <ul style="list-style:none;padding:0;margin:16px 0;line-height:2;font-size:14px">
+          <li>🎯 Индивидуальную программу развития</li>
+          <li>🤝 Поддержку опытного наставника Лиги</li>
+          <li>🏆 Возможность войти в кадровый резерв региона</li>
+          <li>📊 Регулярную обратную связь о прогрессе («Было → Стало»)</li>
+          <li>🌐 Доступ к лучшим практикам Кузбасса и России</li>
+        </ul>
+        <div style="margin-top:16px;background:var(--surface-warm);padding:14px;border-radius:var(--radius-sm);font-size:13px;line-height:1.6">
+          <b>«Портрет лидера образования Кузбасса 2030»</b> — это инвестиция в будущее системы образования региона через развитие тех, кто создаёт это будущее сегодня.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 3. КЛЮЧЕВЫЕ КОМПЕТЕНЦИИ (#/comp) ═══════════ -->
+<section class="page" id="p-comp" style="display:none">
+  <div class="wrap" style="padding-top:48px;padding-bottom:60px">
+    <div style="margin-bottom:32px">
+      <h2>Ключевые компетенции руководителя ОО</h2>
+      <p style="font-size:15px">Пять базовых групп компетенций регионального стандарта управленческой деятельности.</p>
+    </div>
+
+    <!-- 5 компетенций (только описание что входит, без модулей и лабораторий, без уровней сформированности) -->
+    <div class="cards-grid g3" id="compContainer"></div>
+
+    <!-- Дифференциация по категориям руководителей -->
+    <div class="card" style="margin-top:32px;background:var(--surface-warm)">
+      <h3>Дифференциация требований по уровням управления</h3>
+      <p style="font-size:13.5px;line-height:1.7;color:var(--ink-secondary)">
+        • <b>Руководители МОУО:</b> стратегическое планирование, межведомственное взаимодействие, оптимизация сети ОО.<br>
+        • <b>Руководители школ (ОО):</b> качество образования, ВСОКО, кадровый менеджмент, результаты ГИА/ВПР, ФХД.<br>
+        • <b>Руководители ДО:</b> ФХД, реализация ФОП ДО, взаимодействие с родительским сообществом.<br>
+        • <b>Руководители ОДО:</b> стратегия, ресурсное обеспечение, сетевые программы, взаимодействие с социумом.<br>
+        • <b>Кандидаты в кадровый резерв:</b> нормативно-правовое обеспечение, основы управления ОО, организаторские способности, лидерские качества и командное взаимодействие.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 4. ДИАГНОСТИКА (#/diag) ═══════════ -->
+<section class="page" id="p-diag" style="display:none">
+  <div class="wrap" style="padding-top:48px;padding-bottom:60px">
+    <div style="margin-bottom:32px">
+      <h2>Стандартизированная диагностика</h2>
+      <p style="font-size:15px">Единая предиктивная система выявления профессиональных дефицитов руководителей образовательных организаций Кузбасса.</p>
+    </div>
+
+    <!-- Верхние 4 блока (оставляем!) -->
+    <div class="cards-grid g4" style="margin-bottom:36px">
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">📋</div>
+        <h4>Стандартизированные инструменты</h4>
+        <p style="font-size:13px">Единые для всех муниципальных образований: анкеты, тесты, опросники, управленческие кейсы и симуляции по пяти направлениям.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">⏱️</div>
+        <h4>Самостоятельная процедура</h4>
+        <p style="font-size:13px">Удобный онлайн-контент платформы «Управленческий навигатор Кузбасса» для самостоятельного заполнения в удобное время.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">⚙️</div>
+        <h4>Алгоритм обработки</h4>
+        <p style="font-size:13px">Автоматизированная система анализа данных выдаёт детальный отчёт о сильных сторонах и зонах профессионального развития.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">🎯</div>
+        <h4>Индивидуальные рекомендации</h4>
+        <p style="font-size:13px">Персональные советы: модульные программы повышения квалификации, переподготовка, тренинги, конкурсы, гранты, саморазвитие.</p>
+      </div>
+    </div>
+
+    <!-- Заголовок: Инструменты диагностики (надпись оставляем, открытые блоки убраны в кабинет) -->
+    <div class="card" style="margin-bottom:36px;border-left:4px solid var(--hero-bg)">
+      <h3>Инструменты диагностики</h3>
+      <p style="font-size:14.5px;line-height:1.7;margin:12px 0 20px">
+        Диагностические процедуры (экспресс-самооценка по 5 направлениям и стандартизированный тест на 20 заданий с автоматическим нормативным разбором) интегрированы в <b>Личный кабинет руководителя</b>.
+        По результатам прохождения система автоматически собирает вашу <b>Индивидуальную программу развития (ИПР)</b>, назначает точечные микромодули и фиксирует точку на графике сравнительного прогресса («Было → Стало»).
+      </p>
+      <div>
+        <a class="btn sand" href="#/cabinet" onclick="goToCabinetDiag()">Перейти в личный кабинет для прохождения диагностики →</a>
+      </div>
+    </div>
+
+    <!-- Шкала оценки результатов стандартизированной диагностики -->
+    <div>
+      <h3>Шкала оценки результатов стандартизированной диагностики</h3>
+      <div class="cards-grid g4" style="margin-top:16px">
+        <div class="card" style="border-top:4px solid var(--success)">
+          <div style="font-size:20px;font-weight:800;color:var(--success)">81–100 %</div>
+          <b style="display:block;margin:6px 0 4px">Низкий уровень дефицитов</b>
+          <p style="font-size:12.5px;color:var(--ink-secondary)">Высокая сформированность. Готов транслировать опыт, выступать наставником Лиги.</p>
+        </div>
+        <div class="card" style="border-top:4px solid #0d9488">
+          <div style="font-size:20px;font-weight:800;color:#0d9488">70–80 %</div>
+          <b style="display:block;margin:6px 0 4px">Выше среднего уровня</b>
+          <p style="font-size:12.5px;color:var(--ink-secondary)">Продвинутый уровень. Выполняются задания базового и частично повышенного уровня.</p>
+        </div>
+        <div class="card" style="border-top:4px solid var(--warning)">
+          <div style="font-size:20px;font-weight:800;color:var(--warning)">50–70 %</div>
+          <b style="display:block;margin:6px 0 4px">Средний уровень дефицитов</b>
+          <p style="font-size:12.5px;color:var(--ink-secondary)">Базовый уровень. Требуется включение в индивидуальную программу развития (ИПР).</p>
+        </div>
+        <div class="card" style="border-top:4px solid var(--danger)">
+          <div style="font-size:20px;font-weight:800;color:var(--danger)">До 50 %</div>
+          <b style="display:block;margin:6px 0 4px">Высокий уровень дефицитов</b>
+          <p style="font-size:12.5px;color:var(--ink-secondary)">Первоочередное включение в ИПР, микромодули и наставническое сопровождение.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 5. ОБРАЗОВАТЕЛЬНАЯ ТРАЕКТОРИЯ (#/traj) ═══════════ -->
+<section class="page" id="p-traj" style="display:none">
+  <div class="wrap" style="padding-top:48px;padding-bottom:60px">
+    <div style="margin-bottom:32px">
+      <h2>Образовательная траектория</h2>
+      <p style="font-size:15px">Модульная система непрерывного развития: от выявления дефицитов к их практическому устранению.</p>
+    </div>
+
+    <!-- 4 трека (описания оставляем, материалы убираем; блок 4 переименован) -->
+    <div class="cards-grid g4" style="margin-bottom:40px">
+      <div class="card">
+        <span class="badge b-i" style="margin-bottom:8px">Трек 1</span>
+        <h4>Курсы ДПО и переподготовка</h4>
+        <p style="font-size:13px;line-height:1.6">
+          Стратегический менеджмент, финансово-хозяйственная деятельность, управление персоналом и командообразование, управление качеством образования, коммуникации и работа с общественностью, антикризисное управление. Практико-ориентированный подход с учётом оценки портфолио.
         </p>
-        <p>
-          Центральная управленческая инновация проекта — технология <b>«парного управления»</b> (опытный директор-наставник + резервист или молодой руководитель), позволившая сократить период адаптации вновь назначенных руководителей с 18 месяцев до одного квартала.
+      </div>
+
+      <div class="card">
+        <span class="badge b-i" style="margin-bottom:8px">Трек 2</span>
+        <h4>Практико-ориентированные модули</h4>
+        <p style="font-size:13px;line-height:1.6">
+          Отработка конкретных навыков с быстрым применением результата: микромодули, видеоразборы кейсов, конспекты-шпаргалки, тренажёры и чек-листы по направлениям стандартов (закупки 44-ФЗ, ВСОКО, наставничество, медиация).
         </p>
       </div>
-      <div class="about-photo">
-        <img src="images/banner-2.jpg" alt="Управленческая команда">
+
+      <div class="card">
+        <span class="badge b-i" style="margin-bottom:8px">Трек 3</span>
+        <h4>Вебинары и экспертные сессии</h4>
+        <p style="font-size:13px;line-height:1.6">
+          Тематические интенсивы, круглые столы, вебинары (не реже 1 раза в квартал): лидерские компетенции, карьерное планирование, ФХД, управление изменениями, наставничество, ресурсы, оценка качества образования.
+        </p>
+      </div>
+
+      <div class="card" style="border-left:3px solid var(--hero-bg)">
+        <span class="badge b-g" style="margin-bottom:8px">Трек 4</span>
+        <h4>Сеть из 31 опорной площадки — ресурсных центров управленческих практик</h4>
+        <p style="font-size:13px;line-height:1.6">
+          Стажировочные очные сессии (не менее 2 в квартал), обмен лучшими практиками, сетевые лаборатории по 5 направлениям (стратегическая, финансовая, кадровая, лаборатория качества и коммуникаций) в муниципальных образованиях региона.
+        </p>
       </div>
     </div>
 
-    <div class="card" style="margin-top:24px">
-      <h3>Ключевые принципы Региональной Модели</h3>
-      <div class="benefits-grid" style="margin-top:16px">
-        <div class="benefit-card">
-          <div class="benefit-icon">1</div>
-          <div class="benefit-text"><b>Доказательность:</b> решения принимаются на объективных данных ВСОКО, ВПР и независимой оценки</div>
+    <!-- Как строится индивидуальная траектория (ИПР) -->
+    <div class="sec">
+      <h2>Как строится индивидуальная траектория (ИПР)</h2>
+      <p style="font-size:14.5px;color:var(--ink-secondary);margin-bottom:16px">Пошаговый цикл профессионального развития руководителя</p>
+
+      <div class="lifecycle-flow">
+        <div class="lifecycle-step"><b>1. Диагностика</b><span>самооценка, тесты, кейсы</span></div>
+        <div class="lifecycle-step"><b>2. Уровень дефицитов</b><span>шкала 0–100%, отчёт о зонах развития</span></div>
+        <div class="lifecycle-step"><b>3. ИПР</b><span>персональный подбор модулей и форм</span></div>
+        <div class="lifecycle-step"><b>4. Обучение действием</b><span>кейсы, симуляции, стажировки</span></div>
+        <div class="lifecycle-step"><b>5. Портфолио</b><span>реальные кейсы как вклад в аттестацию</span></div>
+        <div class="lifecycle-step"><b>6. Повторная диагностика</b><span>сравнение результатов («Было / Стало»)</span></div>
+      </div>
+
+      <!-- 4 формы ИПР -->
+      <div class="cards-grid g4" style="margin-top:24px">
+        <div class="card">
+          <h4>Повышение квалификации</h4>
+          <p style="font-size:13px">По ключевым управленческим дисциплинам в соответствии с выявленными дефицитами.</p>
         </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">2</div>
-          <div class="benefit-text"><b>Адресность:</b> программа развития (ИПР) проектируется строго под выявленные дефициты конкретного человека</div>
+        <div class="card">
+          <h4>Профессиональная переподготовка</h4>
+          <p style="font-size:13px">Для формирования недостающих компетенций нового уровня.</p>
         </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">3</div>
-          <div class="benefit-text"><b>Практикоориентированность:</b> отработка реальных региональных кейсов вместо сухой теории</div>
+        <div class="card">
+          <h4>Целевое самообразование</h4>
+          <p style="font-size:13px">В соответствии со сформированным образовательным маршрутом.</p>
         </div>
+        <div class="card">
+          <h4>Наставничество</h4>
+          <p style="font-size:13px">Регулярное взаимодействие с действующим руководителем-наставником.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;text-align:center">
+        <a class="btn sand" href="#/cabinet" onclick="switchCabinetTab('ipr')">Открыть конструктор ИПР в личном кабинете →</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════ СТРАНИЦА: НАПРАВЛЕНИЯ (#/directions) ═══════════ -->
-<section class="page" id="p-directions" style="display:none">
-  <div class="wrap" style="padding-top:48px;padding-bottom:60px">
-    <div class="sec-title-box" style="text-align:left;max-width:100%">
-      <h2>Направления развития</h2>
-      <p style="font-size:16.5px">Пять ключевых направлений регионального стандарта управленческой деятельности</p>
-    </div>
-
-    <div class="stages-grid" id="directionsList">
-      <!-- Генерируется из data.js (DIRECTIONS) -->
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ СТРАНИЦА: В ПОМОЩЬ РУКОВОДИТЕЛЮ (#/help) ═══════════ -->
-<section class="page" id="p-help" style="display:none">
-  <div class="wrap" style="padding-top:48px;padding-bottom:60px">
-    <div class="sec-title-box" style="text-align:left;max-width:100%">
-      <h2>В помощь руководителю</h2>
-      <p style="font-size:16.5px">Нормативно-правовая база, банк управленческих кейсов и типовые регламенты</p>
-    </div>
-
-    <!-- Табы: Нормативные акты / Банк кейсов -->
-    <div class="cab-nav-tabs" style="margin-bottom:24px">
-      <button class="cab-tab-btn on" onclick="switchHelpTab('docs')">Нормативно-правовые акты</button>
-      <button class="cab-tab-btn" onclick="switchHelpTab('cases')">Банк кейсов (200+)</button>
-    </div>
-
-    <div id="helpTabDocs" class="card">
-      <div id="normLibContainer"></div>
-    </div>
-
-    <div id="helpTabCases" class="card" style="display:none">
-      <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn sm sand case-filter-btn on" data-cat="all">Все направления</button>
-          <button class="btn sm outline-dark case-filter-btn" data-cat="ФХД">ФХД и закупки</button>
-          <button class="btn sm outline-dark case-filter-btn" data-cat="персонал">Кадры и команда</button>
-          <button class="btn sm outline-dark case-filter-btn" data-cat="качество">Качество и ВСОКО</button>
-          <button class="btn sm outline-dark case-filter-btn" data-cat="стратегия">Стратегия развития</button>
-          <button class="btn sm outline-dark case-filter-btn" data-cat="коммуникации">Коммуникации</button>
-        </div>
-        <div style="min-width:260px">
-          <input type="text" class="inp" id="caseSearchInput" placeholder="Поиск по банку кейсов...">
-        </div>
-      </div>
-      <div class="stages-grid" id="casesContainer"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ СТРАНИЦА: КАДРОВЫЙ РЕЗЕРВ (#/reserve) ═══════════ -->
-<section class="page" id="p-reserve" style="display:none">
-  <div class="wrap" style="padding-top:48px;padding-bottom:60px">
-    <div class="sec-title-box" style="text-align:left;max-width:100%">
-      <h2>Кадровый резерв Кузбасса</h2>
-      <p style="font-size:16.5px">Региональный банк проектных инициатив и кадровый лифт системы образования</p>
-    </div>
-
-    <div class="about-grid" style="margin-bottom:30px">
-      <div class="card" style="margin:0">
-        <h3>Предложить проектную инициативу</h3>
-        <p style="font-size:13.5px">Инициативы резервистов проходят экспертизу Лиги директоров и рекомендуются к внедрению в ОО региона.</p>
-        <div class="f-grp">
-          <label class="fl">Наименование проектной идеи</label>
-          <input class="inp" id="ideaTitle" placeholder="например: Школьный инкубатор молодых директоров">
-        </div>
-        <div class="f-grp">
-          <label class="fl">Направление</label>
-          <select class="inp" id="ideaCat">
-            <option>Наставничество и кадры</option>
-            <option>Цифровизация образования</option>
-            <option>Экономика и ресурсы ОО</option>
-            <option>Качество образования и ВСОКО</option>
-            <option>Школа и социум</option>
-          </select>
-        </div>
-        <div class="f-grp">
-          <label class="fl">Суть инициативы</label>
-          <textarea class="inp" id="ideaDesc" rows="3" placeholder="Опишите предлагаемое управленческое решение..."></textarea>
-        </div>
-        <div class="f-grp">
-          <label class="fl">Ожидаемый региональный эффект</label>
-          <input class="inp" id="ideaEffect" placeholder="например: Сокращение адаптации на 40%">
-        </div>
-        <button class="btn sand" id="ideaSend">Опубликовать инициативу</button>
-      </div>
-
-      <div class="card" style="margin:0;background:var(--surface-subtle)">
-        <h3>Ступени кадрового резерва Кузбасса</h3>
-        <div style="margin-top:16px;display:flex;flex-direction:column;gap:14px">
-          <div style="border-left:3px solid var(--hero-bg);padding-left:14px">
-            <b style="color:var(--hero-bg)">I Ступень: Перспективный резерв</b>
-            <p style="margin:2px 0 0;font-size:13px">Учителя-методисты и руководители ШМО с лидерским потенциалом. Входная диагностика и микромодули.</p>
-          </div>
-          <div style="border-left:3px solid var(--accent-sand-deep);padding-left:14px">
-            <b style="color:var(--accent-sand-deep)">II Ступень: Оперативный резерв</b>
-            <p style="margin:2px 0 0;font-size:13px">Заместители директоров ОО. Практикум «парного управления», разработка проектов развития.</p>
-          </div>
-          <div style="border-left:3px solid var(--success);padding-left:14px">
-            <b style="color:var(--success)">III Ступень: Готовность к назначению</b>
-            <p style="margin:2px 0 0;font-size:13px">Подтверждённый прирост компетенций на контрольном срезе, аттестационное портфолио.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Банк проектных инициатив кадрового резерва</h3>
-      <div id="reserveIdeasList" style="margin-top:16px"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ СТРАНИЦА: ЭФФЕКТИВНЫЙ ДИАЛОГ (#/dialog) ═══════════ -->
+<!-- ═══════════ 6. ЭФФЕКТИВНЫЙ ДИАЛОГ (#/dialog) ═══════════ -->
 <section class="page" id="p-dialog" style="display:none">
   <div class="wrap" style="padding-top:48px;padding-bottom:60px">
-    <div class="sec-title-box" style="text-align:left;max-width:100%">
-      <h2>Эффективный диалог</h2>
-      <p style="font-size:16.5px">Прямая экспертная линия: задайте вопрос экспертам Лиги директоров и кафедр ИРО Кузбасса</p>
+    <div style="margin-bottom:32px">
+      <h2>Эффективный диалог (вопрос-ответ)</h2>
+      <p style="font-size:15px;max-width:960px;line-height:1.6">
+        Поле для вопросов, предложений и консультаций: участники проекта пишут свои вопросы — команда и эксперты отвечают в формате очных и онлайн-встреч «Эффективный диалог» (не реже 1 раза в месяц) и тематических образовательных событий (не реже 1 раза в квартал).
+      </p>
     </div>
 
-    <div class="form-grid" style="margin-bottom:30px">
-      <div class="card" style="margin:0">
-        <h3>Задать вопрос экспертам Лиги</h3>
-        <div class="f-grp" style="margin-top:12px">
+    <div class="form-grid" style="margin-bottom:32px">
+      <!-- Слева: Форма отправки вопроса -->
+      <div class="card">
+        <h3>Задать вопрос / внести предложение</h3>
+        <p style="margin-bottom:16px">Официальный ответ эксперта будет подготовлен и опубликован после рассмотрения.</p>
+
+        <div class="f-grp">
           <label class="fl">Направление вопроса</label>
           <select class="inp" id="qCat">
             <option>Стратегическое управление</option>
             <option>Финансово-хозяйственная деятельность</option>
             <option>Управление персоналом</option>
-            <option>Управление качеством образования</option>
-            <option>Коммуникации и партнёрства</option>
+            <option>Управление качеством (ВСОКО)</option>
+            <option>Коммуникации и медиация</option>
           </select>
         </div>
+
         <div class="f-grp">
-          <label class="fl">Текст вопроса или кейса</label>
-          <textarea class="inp" id="qText" rows="4" placeholder="Опишите вашу управленческую ситуацию..."></textarea>
+          <label class="fl">Ваш вопрос или предложение</label>
+          <textarea class="inp" id="qText" rows="4" placeholder="Например: как правильно оформить надбавку за наставничество в локальном Положении об оплате труда?"></textarea>
         </div>
-        <button class="btn sand" id="qSend">Отправить вопрос экспертам</button>
+
+        <div class="f-grp">
+          <label class="fl">Имя и должность (необязательно)</label>
+          <input class="inp" id="qAuthor" placeholder="Иванова А. А., директор МБОУ «СОШ № 1»">
+        </div>
+
+        <button class="btn sand" id="qSend" style="margin-top:10px">Отправить вопрос экспертам</button>
       </div>
 
-      <div class="card" style="margin:0;background:var(--surface-subtle)">
-        <h3>Экспертный совет Лиги</h3>
-        <p style="font-size:13.5px;line-height:1.6">
-          Ответы готовят ведущие эксперты кафедры управления образованием ИРО Кузбасса, опытные директора опорных школ региона и юристы в сфере образования.
+      <!-- Справа: Кто отвечает -->
+      <div class="card" style="background:var(--hero-bg);color:#fff">
+        <h3 style="color:#fff">Кто отвечает</h3>
+        <p style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.7;margin:12px 0">
+          Региональная Лига экспертов и наставников: члены федерального «Клуба директоров», победители и финалисты всероссийских конкурсов президентской платформы «Россия — страна возможностей», опытные руководители ОО и ведущие преподаватели ГБОУ ДПО «ИРО Кузбасса».
         </p>
-        <div style="font-size:13px;color:var(--ink-secondary);margin-top:10px">
-          • Среднее время ответа: <b>до 48 часов</b><br>
-          • Официальный статус экспертных разъяснений<br>
-          • Публикация ответов в общем банке знаний
+        <div style="background:rgba(255,255,255,0.08);padding:16px;border-radius:var(--radius-sm);margin-top:16px;font-size:13px;line-height:1.7">
+          • Ответы готовятся в течение 3 рабочих дней<br>
+          • Правовая экспертиза сложных управленческих и финансовых ситуаций<br>
+          • Публикация ответов в открытом региональном банке знаний
         </div>
       </div>
     </div>
 
+    <!-- Лента вопросов участников -->
     <div class="card">
-      <h3>Вопросы и официальные экспертные ответы</h3>
+      <h3>Лента вопросов участников проекта</h3>
       <div id="dialogueFeed" style="margin-top:16px"></div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════ СТРАНИЦА: ЛИЧНЫЙ КАБИНЕТ (#/cabinet) ═══════════ -->
+<!-- ═══════════ 7. КУЗБАСС.БУДУЩЕЕ РФ (#/future) ═══════════ -->
+<section class="page" id="p-future" style="display:none">
+  <div class="wrap" style="padding-top:48px;padding-bottom:60px">
+    <div style="margin-bottom:32px">
+      <h2>КУЗБАСС.БУДУЩЕЕ.РФ <span>· кадровый резерв системы образования</span></h2>
+      <p style="font-size:15px;max-width:960px;line-height:1.6">
+        Онлайн-ресурс и проект по формированию, сопровождению, подготовке и использованию кадрового резерва системы образования Кемеровской области — Кузбасса с учётом проектов и конкурсов АНО «Россия — страна возможностей». Площадка для сбора, запуска и продвижения идей и проектов кандидатов в муниципальный и региональный кадровый резерв.
+      </p>
+    </div>
+
+    <!-- 4 метрики кадрового резерва -->
+    <div class="metrics-grid" style="margin-bottom:36px">
+      <div class="metric-card">
+        <div class="num">4</div>
+        <div class="lbl">отбора кандидатов в кадровый резерв проведено</div>
+      </div>
+      <div class="metric-card">
+        <div class="num">267</div>
+        <div class="lbl">анкет подано на предварительный отбор</div>
+      </div>
+      <div class="metric-card">
+        <div class="num">94 %</div>
+        <div class="lbl">кандидатов прошли диагностику (251 чел.)</div>
+      </div>
+      <div class="metric-card">
+        <div class="num">68 / 27</div>
+        <div class="lbl">экспертов и наставников Лиги / территорий региона</div>
+      </div>
+    </div>
+
+    <!-- Трёхуровневая модель работы с кадровым резервом -->
+    <div class="sec">
+      <h2>Трёхуровневая модель работы с кадровым резервом</h2>
+      <div class="lifecycle-flow" style="margin-top:16px">
+        <div class="lifecycle-step" style="border-top:3px solid var(--accent-sand-deep)">
+          <b>Уровень 1: Отбор и диагностика</b>
+          <span>тестирование, индивидуальные рекомендации по компетенциям</span>
+        </div>
+        <div class="lifecycle-step" style="border-top:3px solid var(--accent-sand-deep)">
+          <b>Уровень 2: Подготовка</b>
+          <span>ИПР, модульные ДПП, переподготовка, самообразование, наставник</span>
+        </div>
+        <div class="lifecycle-step" style="border-top:3px solid var(--accent-sand-deep)">
+          <b>Уровень 3: Сопровождение</b>
+          <span>сопровождение в должности: парное управление, опорные площадки, сообщество</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Возможности онлайн-ресурса «Кузбасс.Будущее.РФ» (6 карточек) -->
+    <div class="sec">
+      <h2>Возможности онлайн-ресурса «Кузбасс.Будущее.РФ»</h2>
+      <div class="cards-grid g3" style="margin-top:16px">
+        <div class="card">
+          <div style="font-size:22px;margin-bottom:6px">💡</div>
+          <h4>Идеи и проекты</h4>
+          <p style="font-size:13px">Сбор, запуск и продвижение идей и проектов кандидатов в муниципальный и региональный кадровый резерв.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:22px;margin-bottom:6px">🔎</div>
+          <h4>Выявление и отбор</h4>
+          <p style="font-size:13px">Выявление, отбор и мотивация кадров, обладающих проектным и управленческим лидерским потенциалом.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:22px;margin-bottom:6px">🗺️</div>
+          <h4>Индивидуальные маршруты</h4>
+          <p style="font-size:13px">Формирование индивидуальных маршрутов развития и интеграция с системой диагностики дефицитов.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:22px;margin-bottom:6px">🧪</div>
+          <h4>Банк тестовых заданий</h4>
+          <p style="font-size:13px">Тесты, ситуационные кейсы с развёрнутым решением — для резерва и руководителей ОО по профстандарту.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:22px;margin-bottom:6px">📡</div>
+          <h4>Дистанционное сопровождение</h4>
+          <p style="font-size:13px">Сопровождение управленческих кадров образовательных организаций региона в онлайн-формате.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:22px;margin-bottom:6px">🔗</div>
+          <h4>Связка с проектом</h4>
+          <p style="font-size:13px">Интеграция с диагностикой «Управленческого навигатора»: данные отбора становятся стартовой точкой роста.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Форма подачи проектной инициативы и Банк идей с голосованием -->
+    <div class="form-grid" style="margin-top:32px">
+      <div class="card">
+        <h3>Предложить проектную инициативу</h3>
+        <p style="margin-bottom:16px">Инициативы проходят открытое голосование резервистов и руководителей Кузбасса.</p>
+
+        <div class="f-grp"><label class="fl">Наименование проекта</label><input class="inp" id="ideaTitle" placeholder="Краткое название инициативы..."></div>
+        <div class="f-grp"><label class="fl">Категория</label>
+          <select class="inp" id="ideaCat">
+            <option>Наставничество</option>
+            <option>Цифровизация</option>
+            <option>Управление качеством</option>
+            <option>Бережливая школа</option>
+            <option>Кадровый резерв</option>
+          </select>
+        </div>
+        <div class="f-grp"><label class="fl">Описание проекта</label><textarea class="inp" id="ideaDesc" rows="3" placeholder="Суть управленческого решения..."></textarea></div>
+        <div class="f-grp"><label class="fl">Ожидаемый региональный эффект</label><input class="inp" id="ideaEffect" placeholder="Конкретный измеримый результат..."></textarea></div>
+
+        <button class="btn sand" id="ideaSend" style="margin-top:10px">Опубликовать в банке инициатив</button>
+      </div>
+
+      <div class="card">
+        <h3>Банк региональных инициатив</h3>
+        <p style="font-size:13px;color:var(--ink-secondary);margin-bottom:12px">Открытое голосование сообщества резерва:</p>
+        <div id="reserveIdeasList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 8. В ПОМОЩЬ РУКОВОДИТЕЛЮ (#/help) ═══════════ -->
+<section class="page" id="p-help" style="display:none">
+  <div class="wrap" style="padding-top:48px;padding-bottom:60px">
+    <div style="margin-bottom:32px">
+      <h2>В помощь руководителю</h2>
+      <p style="font-size:15px;max-width:960px">
+        Методические, нормативные и практические материалы модели: все, что нужно руководителю для подготовки к аттестации, формирования портфолио и ежедневной управленческой работы.
+      </p>
+    </div>
+
+    <!-- 2 ключевых блока: Методические материалы и Нормативные документы модели -->
+    <div class="form-grid" style="margin-bottom:36px">
+      <!-- Блок: Методические материалы -->
+      <div class="card">
+        <h3>📚 Методические материалы</h3>
+        <div style="margin-top:16px">
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">Методический сборник «Управленческий навигатор Кузбасса»</span>
+              <span class="doc-desc">Объём 12 п. л. — ключевые алгоритмы региональной модели опережающей подготовки.</span>
+            </div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6"/><path d="M12 9v6"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">Банк управленческих кейсов и симуляций (200+)</span>
+              <span class="doc-desc">Реальные ситуации по 5 направлениям: стратегия, ФХД, персонал, качество, коммуникации.</span>
+            </div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">Банк лучших управленческих практик Кузбасса</span>
+              <span class="doc-desc">Готовые управленческие решения опорных школ региона для адаптации.</span>
+            </div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">Методические рекомендации по формированию управленческого портфолио</span>
+              <span class="doc-desc">Алгоритм сбора артефактов, критерии и показатели оценки для аттестационной комиссии.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Блок: Нормативные документы модели -->
+      <div class="card">
+        <h3>⚖️ Нормативные документы модели</h3>
+        <div style="margin-top:16px">
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">Положение о региональной системе аттестации руководителей ОО</span>
+              <span class="doc-desc">Цели, задачи, участники, сроки, права и обязанности сторон при аттестации по портфолио.</span>
+            </div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">Регламент процедур региональной системы аттестации</span>
+              <span class="doc-desc">Порядок прохождения: от подачи заявки и диагностики до экспертной оценки.</span>
+            </div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">Положение об опорных площадках (ресурсных центрах практик)</span>
+              <span class="doc-desc">Критерии отбора, порядок деятельности сети из 31 опорной площадки в муниципалитетах.</span>
+            </div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">Положение о наставничестве и «парном управлении»</span>
+              <span class="doc-desc">Технология передачи управленческого опыта: опытный руководитель + кандидат резерва.</span>
+            </div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">Инструмент анализа динамики образовательных результатов</span>
+              <span class="doc-desc">Методика оценки вклада руководителя: объективность ВСОКО, успеваемость, ГИА, ВПР.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Интерактивный банк кейсов (200+) с фильтрами и поиском -->
+    <div class="sec">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <h3>Каталог управленческих кейсов и симуляций</h3>
+        <input class="inp" id="caseSearchInput" placeholder="Поиск по кейсам (название, ключевые слова)..." style="max-width:320px">
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="btn sm sand case-filter-btn on" data-cat="all">Все</button>
+        <button class="btn sm outline-dark case-filter-btn" data-cat="ФХД">ФХД и закупки</button>
+        <button class="btn sm outline-dark case-filter-btn" data-cat="Кадры">Кадры и парное</button>
+        <button class="btn sm outline-dark case-filter-btn" data-cat="Качество">ВСОКО</button>
+        <button class="btn sm outline-dark case-filter-btn" data-cat="Конфликты">Конфликты и медиация</button>
+      </div>
+
+      <div class="cards-grid g3" id="casesContainer"></div>
+    </div>
+
+    <!-- Федеральная нормативно-правовая база с прямыми ссылками -->
+    <div class="sec" style="margin-top:20px">
+      <h3>Федеральная нормативно-правовая база руководителя</h3>
+      <p style="font-size:13.5px;color:var(--ink-secondary);margin-bottom:16px">Прямые ссылки на официальные редакции законов РФ и приказов Минпросвещения:</p>
+      <div class="card" id="normLibContainer"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 9. ЛИЧНЫЙ КАБИНЕТ (#/cabinet) ═══════════ -->
 <section class="page" id="p-cabinet" style="display:none">
   <div class="wrap" style="padding-top:48px;padding-bottom:60px">
     
-    <!-- Карточка пользователя и переключатель 5 вкладок -->
+    <!-- Карточка пользователя и 5 вкладок -->
     <div class="cabinet-hero-card">
       <div class="cab-user-header">
         <div>
           <h2 id="cabWho">Иванова Анна Андреевна</h2>
-          <div style="font-size:13.5px;color:var(--ink-secondary)" id="cabDetailsLine">Директор, МБОУ «СОШ № 1 г. Кемерово»</div>
+          <div style="font-size:13.5px;color:var(--ink-secondary)" id="cabDetailsLine">Директор высшей категории, МБОУ «СОШ № 1 г. Кемерово»</div>
         </div>
         <div style="display:flex;align-items:center;gap:12px">
           <span class="user-role-badge" id="cabRoleBadge">Директор ОО</span>
@@ -456,7 +833,7 @@
         </div>
       </div>
 
-      <!-- 5 Вкладок Кабинета по новым требованиям -->
+      <!-- 5 Вкладок Личного Кабинета -->
       <div class="cab-nav-tabs" id="cabTabs">
         <button class="cab-tab-btn on" data-ctab="ank">1. Анкета</button>
         <button class="cab-tab-btn" data-ctab="diag">2. Пройти диагностику</button>
@@ -535,7 +912,7 @@
           Диагностика позволяет выявить слабые стороны по 5 направлениям стандарта. По итогам система автоматически пересчитает вашу индивидуальную программу развития (ИПР) и предложит точечные онлайн-микромодули.
         </p>
 
-        <!-- Подтабы диагностики: Самооценка / Тест -->
+        <!-- Подтабы: Самооценка / Тест -->
         <div style="display:flex;gap:10px;margin-bottom:20px">
           <button class="btn sm sand" id="diagSubTabSelfBtn" onclick="switchDiagSubTab('self')">Экспресс-самооценка (5 направлений)</button>
           <button class="btn sm outline-dark" id="diagSubTabTestBtn" onclick="switchDiagSubTab('test')">Стандартизированный тест (20 заданий)</button>
@@ -552,44 +929,44 @@
             <button class="btn sand" id="saCalc">Зафиксировать срез и пересчитать ИПР</button>
             <button class="btn outline-dark" id="saReset">Сбросить</button>
           </div>
-          <div id="saRes" class="card" style="display:none;margin-top:20px;background:var(--surface-subtle)"></div>
+          <div class="diag-result-card" id="saRes"></div>
         </div>
 
-        <!-- 2. Тест 20 заданий -->
+        <!-- 2. Комплексный тест -->
         <div id="diagSubTest" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface-warm);padding:10px 16px;border-radius:var(--radius-sm);margin-bottom:20px;border:1px solid var(--border)">
-            <span style="font-size:13px;font-weight:700">Прогресс ответа: <span id="testAnsweredCount">0</span> из 20 заданий</span>
-            <div style="width:180px;height:7px;background:rgba(0,0,0,0.1);border-radius:4px;overflow:hidden">
-              <div id="testProgressFill" style="width:0%;height:7px;background:var(--hero-bg);border-radius:4px;transition:width 0.2s"></div>
+          <div class="test-progress-bar-wrap">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;margin-bottom:6px">
+              <span>Прогресс ответа: <span id="testAnsweredCount">0</span> из 20 заданий</span>
             </div>
+            <div class="test-progress-bar"><div class="fill" id="testProgressFill"></div></div>
           </div>
 
           <div id="testList"></div>
 
-          <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
-            <button class="btn sand" id="testCalc">Завершить тест и обновить ИПР</button>
+          <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn sand" id="testCalc">Завершить тест и проверить результаты</button>
             <button class="btn outline-dark" id="testReset">Сбросить ответы</button>
           </div>
-          <div id="testRes" class="card" style="display:none;margin-top:20px;background:var(--surface-subtle)"></div>
+          <div class="diag-result-card" id="testRes"></div>
         </div>
       </div>
     </div>
 
-    <!-- ── Вкладка 3: Моя траектория (Конструктор ИПР) (#ct-ipr) ── -->
+    <!-- ── Вкладка 3: Моя траектория (ИПР) (#ct-ipr) ── -->
     <div class="cab-pane" id="ct-ipr">
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:18px">
           <div>
-            <h3 style="margin:0">Конструктор индивидуальной программы развития (ИПР)</h3>
-            <p style="margin:4px 0 0;font-size:13.5px">Сформирован автоматически на основе выявленных дефицитов для адресного устранения пробелов</p>
+            <h3>Конструктор индивидуальной программы развития (ИПР)</h3>
+            <p style="margin:0">Сформирован автоматически на основе выявленных дефицитов для адресного устранения пробелов</p>
           </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div style="display:flex;gap:10px">
             <button class="btn sm sand" onclick="goToCabinetDiag()">Пройти повторный замер (проверить результат)</button>
             <button class="btn sm outline-dark" onclick="window.print()">Распечатать ИПР (PDF)</button>
           </div>
         </div>
 
-        <div id="cabIprList"></div>
+        <div id="cabIprList" style="margin-top:20px"></div>
       </div>
     </div>
 
@@ -597,10 +974,10 @@
     <div class="cab-pane" id="ct-pf">
       <div class="card">
         <h3>Управленческое портфолио руководителя</h3>
-        <p style="margin-bottom:18px">Подтверждающие документы программ развития, динамики ВСОКО и результатов аттестации.</p>
+        <p style="margin-bottom:20px">Подтверждающие документы программ развития, динамики ВСОКО и результатов аттестации.</p>
 
-        <form id="pfUploadForm" style="background:var(--surface-subtle);padding:20px;border-radius:var(--radius-md);border:1px solid var(--border);margin-bottom:24px">
-          <h4 style="margin:0 0 14px 0">Прикрепить новый документ в портфолио</h4>
+        <form id="pfUploadForm" class="upload-box" style="margin-bottom:24px">
+          <h4 style="margin-bottom:12px">Прикрепить новый документ в портфолио</h4>
           <div class="form-grid">
             <div class="f-grp">
               <label class="fl">Наименование документа</label>
@@ -614,7 +991,6 @@
                 <option value="results_dynamics">Динамика результатов (ВСОКО/ГИА)</option>
                 <option value="prof_development">Профессиональное развитие и ДПО</option>
                 <option value="expert_mentoring">Экспертная и наставническая деятельность</option>
-                <option value="analytical_reports">Аналитические справки</option>
               </select>
             </div>
           </div>
@@ -624,9 +1000,9 @@
           </div>
           <div class="f-grp">
             <label class="fl">Файл документа (PDF, DOCX, XLSX)</label>
-            <input type="file" class="inp" id="pfFile" accept=".pdf,.doc,.docx,.xls,.xlsx">
+            <input class="inp" type="file" id="pfFile">
           </div>
-          <button class="btn sand sm" type="submit">Загрузить в портфолио</button>
+          <button class="btn sand" type="submit">Загрузить в портфолио</button>
         </form>
 
         <div id="cabPortfolioList"></div>
@@ -641,7 +1017,7 @@
           Наглядное сравнение результатов замеров во времени: выявили дефициты → прорешали ошибки и освоили микромодули → прошли повторный замер и зафиксировали прирост.
         </p>
 
-        <!-- Блок сравнительного среза Было / Стало -->
+        <!-- Сравнительный блок Было / Стало -->
         <div class="comparison-hero" id="compHeroBlock">
           <div class="comp-card-item">
             <span class="tag">Первичный замер</span>
@@ -650,8 +1026,8 @@
           </div>
           <div class="comp-card-item">
             <span class="tag">Текущий / Контрольный срез</span>
-            <div class="val" id="compScoreCurrent">88 %</div>
-            <div class="comp-delta" id="compDelta">+40 % абсолютный прирост</div>
+            <div class="val" id="compScoreCurrent">95 %</div>
+            <div class="comp-delta" id="compDelta">+47 % прирост после проработки</div>
           </div>
           <div class="comp-card-item" style="background:var(--hero-bg);color:#fff">
             <span class="tag" style="color:var(--accent-sand)">Статус готовности</span>
@@ -660,7 +1036,7 @@
           </div>
         </div>
 
-        <div class="form-grid">
+        <div class="form-grid" style="margin-top:24px">
           <div>
             <h4>Динамический график замеров</h4>
             <div id="cabProgressChart" style="margin-top:12px"></div>
@@ -684,24 +1060,26 @@
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <img src="images/logo_iro.png" alt="ИРО Кузбасса" style="height:44px;width:auto">
           <div>
-            <b style="font-family:var(--font-serif);color:#fff;font-size:17px">Региональная Модель</b>
+            <b style="font-family:var(--font-serif);color:#fff;font-size:17px">Управленческий навигатор Кузбасса</b>
             <div style="font-size:12px;color:rgba(255,255,255,0.6)">ГБОУ ДПО «ИРО Кузбасса»</div>
           </div>
         </div>
         <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
-          Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования Кемеровской области — Кузбасса.
+          Цифровая платформа региональной модели опережающей подготовки и непрерывного развития управленческих кадров системы образования Кемеровской области — Кузбасса.
         </p>
       </div>
 
       <div class="footer-col">
         <h4>Разделы платформы</h4>
         <ul>
-          <li><a href="#/about">О проекте: Региональная Модель</a></li>
-          <li><a href="#/directions">Направления развития</a></li>
-          <li><a href="#/help">В помощь руководителю</a></li>
-          <li><a href="#/reserve">Кадровый резерв Кузбасса</a></li>
+          <li><a href="#/about">О проекте</a></li>
+          <li><a href="#/comp">Ключевые компетенции</a></li>
+          <li><a href="#/diag">Диагностика</a></li>
+          <li><a href="#/traj">Образовательная траектория</a></li>
           <li><a href="#/dialog">Эффективный диалог</a></li>
-          <li><a href="#/cabinet">Личный кабинет руководителя</a></li>
+          <li><a href="#/future">Кузбасс.Будущее РФ</a></li>
+          <li><a href="#/help">В помощь руководителю</a></li>
+          <li><a href="#/cabinet">Личный кабинет</a></li>
         </ul>
       </div>
 

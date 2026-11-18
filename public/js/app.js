@@ -487,11 +487,13 @@ function getRoleTitle(role) {
 }
 
 // ── Routing ──
-const ROUTES = ['home', 'about', 'directions', 'help', 'reserve', 'dialog', 'cabinet'];
+const ROUTES = ['home', 'about', 'comp', 'diag', 'traj', 'dialog', 'future', 'help', 'cabinet'];
 
 function route() {
   let hash = (location.hash || '#/home').replace('#/', '');
   if (hash === 'login') hash = 'cabinet';
+  if (hash === 'directions') hash = 'comp';
+  if (hash === 'reserve') hash = 'future';
   if (!ROUTES.includes(hash)) hash = 'home';
   state.activeRoute = hash;
 
@@ -516,9 +518,14 @@ function route() {
 
   window.scrollTo(0, 0);
 
+  if (state.activeRoute === 'comp') renderCompetencies();
   if (state.activeRoute === 'dialog') loadDialogueFeed();
-  if (state.activeRoute === 'reserve') loadReserveIdeas();
+  if (state.activeRoute === 'future') loadReserveIdeas();
   if (state.activeRoute === 'cabinet') loadCabinetData();
+  if (state.activeRoute === 'help') {
+    renderCasesAndSimulations();
+    renderNormativeLibrary();
+  }
 }
 
 window.addEventListener('hashchange', route);
@@ -638,55 +645,47 @@ function renderHomeMicromodules() {
   `).join('');
 }
 
-// ── Render Directions Page (#/directions) ──
-function renderDirections() {
-  const box = document.getElementById('directionsList');
+// ── Render Competencies Page (#/comp) ──
+function renderCompetencies() {
+  const box = document.getElementById('compContainer') || document.getElementById('directionsList');
   if (!box || typeof DIRECTIONS === 'undefined') return;
 
   box.innerHTML = DIRECTIONS.map(d => `
-    <div class="card" style="margin-bottom:24px">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:48px;height:48px;border-radius:12px;background:var(--hero-bg);color:var(--accent-sand);display:flex;align-items:center;justify-content:center;padding:10px">
+    <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+      <div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="width:44px;height:44px;border-radius:10px;background:var(--hero-bg);color:var(--accent-sand);display:flex;align-items:center;justify-content:center;padding:9px;flex-shrink:0">
             ${d.icon}
           </div>
           <div>
-            <div style="font-size:12px;font-weight:700;color:var(--accent-sand-deep);letter-spacing:0.06em;text-transform:uppercase">
-              Направление ${d.id + 1} · ${d.code}
+            <div style="font-size:11px;font-weight:700;color:var(--accent-sand-deep);letter-spacing:0.06em;text-transform:uppercase">
+              Компетенция ${d.id + 1} · ${d.code}
             </div>
-            <h3 style="margin:2px 0 0">${escapeHtml(d.title)}</h3>
+            <h3 style="margin:2px 0 0;font-size:17px">${escapeHtml(d.title)}</h3>
           </div>
         </div>
-        <button class="btn sm sand" onclick="goToCabinetDiag()">Пройти диагностику по направлению →</button>
-      </div>
 
-      <p style="margin:16px 0 12px;font-size:14px;line-height:1.6">${escapeHtml(d.desc)}</p>
-
-      <div style="background:var(--surface-subtle);border-left:3px solid var(--hero-bg);padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px;font-style:italic;color:var(--ink-secondary);margin-bottom:16px">
-        ${escapeHtml(d.selfQuote)}
-      </div>
-
-      <div style="border-top:1px solid var(--border);padding-top:14px">
-        <b style="font-size:12.5px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-muted);display:block;margin-bottom:10px">
-          Практико-ориентированные онлайн-микромодули (16–24 ч):
-        </b>
-        <div class="micromodules-grid">
-          ${(d.micromodules || []).map(m => `
-            <div class="micromodule-item">
-              <span class="badge b-i">${escapeHtml(m.format)}</span>
-              <h4 style="margin:8px 0 6px;font-size:14px">${escapeHtml(m.title)}</h4>
-              <div class="meta">
-                <span>⏱ ${m.hours} ак. ч.</span>
-                <span>•</span>
-                <span>Сертификат ИРО Кузбасса</span>
-              </div>
-            </div>
-          `).join('')}
+        <div style="font-size:12px;font-weight:600;color:var(--ink-muted);margin-bottom:10px;line-height:1.4">
+          ${escapeHtml(d.subtitle)}
         </div>
+
+        <p style="margin:0 0 14px;font-size:13.5px;line-height:1.6;color:var(--ink-secondary)">
+          ${escapeHtml(d.desc)}
+        </p>
+
+        <div style="background:var(--surface-subtle);border-left:3px solid var(--hero-bg);padding:10px 14px;border-radius:0 6px 6px 0;font-size:12.5px;font-style:italic;color:var(--ink-secondary);margin-bottom:16px;line-height:1.5">
+          ${escapeHtml(d.selfQuote)}
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:auto">
+        <button class="btn sm sand full" onclick="goToCabinetDiag()">Пройти диагностику в личном кабинете →</button>
       </div>
     </div>
   `).join('');
 }
+
+const renderDirections = renderCompetencies;
 
 // ── Self Assessment (Tab 2 inside Cabinet) ──
 function renderSelfAssessment() {
