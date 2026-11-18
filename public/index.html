@@ -29,8 +29,8 @@
     <nav class="main" id="nav">
       <a href="#/about">О проекте</a>
       <a href="#/comp">Направления</a>
-      <a href="#/traj">Образовательная траектория</a>
-      <a href="#/dialog">Эффективный диалог</a>
+      <a href="#/traj">Траектория</a>
+      <a href="#/dialog">Диалог</a>
       <a href="#/future">Кадровый резерв</a>
       <a href="#/help">В помощь руководителю</a>
       <a href="#/login" class="btn-login" id="navLoginBtn">Кабинет</a>
@@ -188,21 +188,15 @@
           </p>
         </div>
         <div>
-          <div class="map-box">
-            <svg class="pin" width="40" height="40" viewBox="0 0 24 24" fill="none">
-              <path d="M12 22s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" fill="#1e3a8a"/>
-              <circle cx="12" cy="10.6" r="2.8" fill="#fff"/>
-            </svg>
-            <svg width="100%" height="100%" viewBox="0 0 600 200" preserveAspectRatio="none" style="position:absolute;inset:0">
-              <g stroke="#cbd5e1" stroke-width="1.5" fill="none">
-                <path d="M0 60 H600"/><path d="M0 130 H600"/><path d="M120 0 V200"/><path d="M300 0 V200"/><path d="M470 0 V200"/>
-              </g>
-              <g stroke="#94a3b8" stroke-width="4" fill="none">
-                <path d="M0 95 H600"/><path d="M385 0 V200"/>
-              </g>
-              <rect x="340" y="72" width="60" height="38" rx="4" fill="#e2e8f0" stroke="#94a3b8"/>
-            </svg>
-            <span class="lbl">г. Кемерово, ул. Заузелкова, 3</span>
+          <div class="map-embed">
+            <iframe id="map2gisFrame" title="ИРО Кузбасса на карте 2ГИС" loading="lazy"
+              src="https://widgets.2gis.com/widget?type=firmsonmap&options=%7B%22pos%22%3A%7B%22lat%22%3A55.333028%2C%22lon%22%3A86.127478%2C%22zoom%22%3A16%7D%2C%22firm%22%3A704215722754267%2C%22widgets%22%3A%7B%22zoomButtons%22%3Atrue%7D%7D"></iframe>
+            <a class="map-2gis-link" href="https://2gis.ru/kemerovo/firm/704215722754267" target="_blank" rel="noopener">Открыть в 2ГИС</a>
+          </div>
+          <div class="map-fallback" id="mapFallback" hidden>
+            <b>ИРО Кузбасса на карте 2ГИС</b>
+            <p>г. Кемерово, ул. Заузелкова, 3 · 8 (3842) 56-69-86<br>Если карта не открылась в вашем браузере — посмотрите точку в самом 2ГИС.</p>
+            <a class="btn primary" href="https://2gis.ru/kemerovo/firm/704215722754267" target="_blank" rel="noopener">Открыть в 2ГИС</a>
           </div>
         </div>
       </div>
@@ -968,7 +962,9 @@
         <div class="grid g2">
           <div class="card">
             <h3>История прохождений (дата, результат)</h3>
-            <table class="data-table" id="cabDiagHistoryTable"></table>
+            <div class="table-scroll">
+              <table class="data-table" id="cabDiagHistoryTable"></table>
+            </div>
           </div>
           <div class="card">
             <h3>Сравнительный прогресс во времени</h3>

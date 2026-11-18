@@ -1505,6 +1505,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const iprForm = document.getElementById('iprForm');
   if (iprForm) iprForm.onsubmit = addIprItem;
 
+  // Карта 2ГИС: если виджет не загрузился (CDN недоступен у посетителя),
+  // показываем карточку-фолбэк со ссылкой на карточку организации в 2ГИС
+  const mapFrame = document.getElementById('map2gisFrame');
+  if (mapFrame) {
+    let mapLoaded = false;
+    mapFrame.addEventListener('load', () => { mapLoaded = true; });
+    setTimeout(() => {
+      if (!mapLoaded) {
+        mapFrame.closest('.map-embed').style.display = 'none';
+        const fb = document.getElementById('mapFallback');
+        if (fb) fb.hidden = false;
+      }
+    }, 8000);
+  }
+
   const qSendBtn = document.getElementById('qSend');
   if (qSendBtn) qSendBtn.onclick = sendDialogueQuestion;
 
