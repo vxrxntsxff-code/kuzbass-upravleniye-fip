@@ -1,7 +1,7 @@
 const express = require('express');
-const cors = require('cors');
 const path = require('node:path');
 const fs = require('node:fs');
+const crypto = require('node:crypto');
 const multer = require('multer');
 const { db } = require('./db');
 
@@ -12,55 +12,130 @@ const PORT = process.env.PORT || 3000;
 const uploadDir = path.join(__dirname, '..', 'uploads');
 fs.mkdirSync(uploadDir, { recursive: true });
 
+// ── Password hashing (scrypt; поддержана миграция с старых открыых паролей) ──
+function hashPassword(pw) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(String(pw), salt, 64).toString('hex');
+  return `scrypt:${salt}:${hash}`;
+}
+
+function verifyPassword(pw, stored) {
+  if (stored === undefined || stored === null) return false;
+  if (stored.startsWith('scrypt:')) {
+    const [, salt, hash] = stored.split(':');
+    const expected = Buffer.from(hash, 'hex');
+    const check = crypto.scryptSync(String(pw), salt, 64, { length: expected.length });
+    return expected.length > 0 && crypto.timingSafeEqual(check, expected);
+  }
+  // Legacy: открытый пароль из демо-БД — сверяем и повышаем до хеша при входе
+  return stored === pw;
+}
+
+// ── Upload middleware: только документы портфолио ──
+const ALLOWED_UPLOAD_EXT = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
+    const ext = path.extname(file.originalname || '').toLowerCase().replace(/[^a-z0-9.]/g, '');
     cb(null, file.fieldname + '-' + uniqueSuffix + ext);
   }
 });
-const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 } });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: function (req, file, cb) {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    if (!ALLOWED_UPLOAD_EXT.includes(ext)) {
+      return cb(new Error('Допустимые форматы файла: PDF, DOC, DOCX, XLS, XLSX'));
+    }
+    cb(null, true);
+  }
+});
 
-app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '200kb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '..', 'public')));
-app.use('/uploads', express.static(uploadDir));
+// ── Auth helpers: сессии по токену вместо доверия заголовку x-user-id ──
+function getToken(req) {
+  return req.headers['x-auth-token'] ||
+    String(req.headers.authorization || '').replace(/^Bearer\s+/i, '') ||
+    req.query.token ||
+    null;
+}
 
-// Helper: authenticate user from header or query
 function getUser(req) {
-  const userId = req.headers['x-user-id'] || req.query.user_id;
-  if (!userId) return null;
-  return db.prepare('SELECT * FROM users WHERE id = ?').get(userId) || null;
+  const token = getToken(req);
+  if (!token) return null;
+  return db.prepare(`
+    SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ?
+  `).get(token) || null;
+}
+
+function requireAuth(req, res) {
+  const user = getUser(req);
+  if (!user) {
+    res.status(401).json({ error: 'Не авторизован' });
+    return null;
+  }
+  return user;
+}
+
+// Простая защита от перебора паролей (в памяти процесса)
+const loginAttempts = new Map();
+function loginRateLimit(req, res, next) {
+  const key = req.ip || 'unknown';
+  const now = Date.now();
+  const rec = loginAttempts.get(key) || { count: 0, start: now };
+  if (now - rec.start > 5 * 60 * 1000) { rec.count = 0; rec.start = now; }
+  rec.count += 1;
+  loginAttempts.set(key, rec);
+  if (rec.count > 20) {
+    return res.status(429).json({ error: 'Слишком много попыток входа. Подождите несколько минут.' });
+  }
+  next();
 }
 
 // ── Auth API ──
-app.post('/api/auth/login', (req, res) => {
-  const { login, password } = req.body;
+app.post('/api/auth/login', loginRateLimit, (req, res) => {
+  const login = String(req.body.login || '').trim();
+  const password = req.body.password === undefined || req.body.password === null ? '' : String(req.body.password);
   if (!login) {
     return res.status(400).json({ error: 'Укажите логин' });
   }
-
-  // Find user by login
-  let user = db.prepare('SELECT * FROM users WHERE login = ?').get(login);
-  
-  // If demo login doesn't exist, create automatically for smooth demo
-  if (!user) {
-    const info = db.prepare(`
-      INSERT INTO users (login, password, role, fio, workplace, position, consent_pd)
-      VALUES (?, ?, 'director', ?, 'Образовательная организация Кузбасса', 'Руководитель', 1)
-    `).run(login, password || 'demo123', login);
-    user = db.prepare('SELECT * FROM users WHERE id = ?').get(info.lastInsertRowid);
+  if (login.length > 64 || password.length > 128) {
+    return res.status(400).json({ error: 'Слишком длинный логин или пароль' });
   }
 
-  // Exclude password in return
-  const { password: _, ...safeUser } = user;
-  res.json({ success: true, user: safeUser });
+  let user = db.prepare('SELECT * FROM users WHERE login = ?').get(login);
+
+  if (!user) {
+    // Демо-режим: произвольный новый логин мгновенно получает чистый кабинет
+    const info = db.prepare(`
+      INSERT INTO users (login, password, password_hash, role, fio, workplace, position, consent_pd)
+      VALUES (?, '', ?, 'director', ?, 'Образовательная организация Кузбасса', 'Руководитель', 1)
+    `).run(login, hashPassword(password || 'demo123'), login);
+    user = db.prepare('SELECT * FROM users WHERE id = ?').get(info.lastInsertRowid);
+  } else {
+    const ok = user.password_hash
+      ? verifyPassword(password, user.password_hash)
+      : verifyPassword(password, user.password);
+    if (!ok) {
+      return res.status(401).json({ error: 'Неверный пароль' });
+    }
+    // Повышаем legacy-пароль до scrypt-хеша
+    if (!user.password_hash) {
+      db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(password), user.id);
+    }
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  db.prepare('INSERT INTO sessions (token, user_id) VALUES (?, ?)').run(token, user.id);
+
+  const { password: _, password_hash: __, ...safeUser } = user;
+  res.json({ success: true, user: safeUser, token });
 });
 
 app.post('/api/auth/register', (req, res) => {
@@ -68,51 +143,74 @@ app.post('/api/auth/register', (req, res) => {
   if (!login || !fio) {
     return res.status(400).json({ error: 'Логин и ФИО обязательны' });
   }
+  const ALLOWED_ROLES = ['director', 'deputy', 'reserve'];
 
   try {
     const info = db.prepare(`
-      INSERT INTO users (login, password, role, fio, workplace, position, phone, email, consent_pd)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+      INSERT INTO users (login, password, password_hash, role, fio, workplace, position, phone, email, consent_pd)
+      VALUES (?, '', ?, ?, ?, ?, ?, ?, ?, 1)
     `).run(
-      login,
-      password || 'demo123',
-      role || 'director',
-      fio,
+      String(login).trim(),
+      hashPassword(password || 'demo123'),
+      ALLOWED_ROLES.includes(role) ? role : 'director',
+      String(fio).trim(),
       workplace || 'МБОУ «СОШ»',
       position || 'Руководитель',
       phone || '',
       email || ''
     );
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(info.lastInsertRowid);
-    const { password: _, ...safeUser } = user;
-    res.json({ success: true, user: safeUser });
+    const token = crypto.randomBytes(32).toString('hex');
+    db.prepare('INSERT INTO sessions (token, user_id) VALUES (?, ?)').run(token, user.id);
+    const { password: _, password_hash: __, ...safeUser } = user;
+    res.json({ success: true, user: safeUser, token });
   } catch (err) {
     if (err.message && err.message.includes('UNIQUE constraint failed')) {
       return res.status(400).json({ error: 'Пользователь с таким логином уже существует' });
     }
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Ошибка регистрации' });
   }
 });
 
 app.get('/api/auth/me', (req, res) => {
-  const user = getUser(req);
-  if (!user) {
-    return res.status(401).json({ error: 'Не авторизован' });
-  }
-  const { password: _, ...safeUser } = user;
+  const user = requireAuth(req, res);
+  if (!user) return;
+  const { password: _, password_hash: __, ...safeUser } = user;
   res.json({ user: safeUser });
 });
 
+app.post('/api/auth/logout', (req, res) => {
+  const token = getToken(req);
+  if (token) {
+    db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+  }
+  res.json({ success: true });
+});
+
+// ── Static frontend files (после определения getUser) ──
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// Загруженные документы портфолио — только для авторизованных пользователей
+app.use('/uploads', (req, res, next) => {
+  if (!getUser(req)) {
+    return res.status(401).json({ error: 'Не авторизован' });
+  }
+  next();
+}, express.static(uploadDir));
+
 // ── Profile API ──
+// node:sqlite не принимает undefined — нормализуем отсутствующие поля в NULL
+const nn = v => (v === undefined ? null : v);
+
 app.put('/api/user/profile', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+  const user = requireAuth(req, res);
+  if (!user) return;
 
   const {
     fio, birth_date, address, phone, email, citizenship,
     education_level, institution, workplace, position,
     experience_total, experience_ped, experience_mgmt,
-    share_experience, consent_pd, role
+    share_experience, consent_pd
   } = req.body;
 
   db.prepare(`
@@ -131,43 +229,44 @@ app.put('/api/user/profile', (req, res) => {
       experience_ped = COALESCE(?, experience_ped),
       experience_mgmt = COALESCE(?, experience_mgmt),
       share_experience = COALESCE(?, share_experience),
-      consent_pd = COALESCE(?, consent_pd),
-      role = COALESCE(?, role)
+      consent_pd = COALESCE(?, consent_pd)
     WHERE id = ?
   `).run(
-    fio, birth_date, address, phone, email, citizenship,
-    education_level, institution, workplace, position,
-    experience_total, experience_ped, experience_mgmt,
-    share_experience, consent_pd !== undefined ? (consent_pd ? 1 : 0) : null,
-    role,
+    nn(fio), nn(birth_date), nn(address), nn(phone), nn(email), nn(citizenship),
+    nn(education_level), nn(institution), nn(workplace), nn(position),
+    nn(experience_total), nn(experience_ped), nn(experience_mgmt),
+    nn(share_experience), consent_pd !== undefined ? (consent_pd ? 1 : 0) : null,
     user.id
   );
 
   const updated = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
-  const { password: _, ...safeUser } = updated;
+  const { password: _, password_hash: __, ...safeUser } = updated;
   res.json({ success: true, user: safeUser });
 });
 
 // ── Diagnostics API ──
 app.get('/api/user/diagnostics', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+  const user = requireAuth(req, res);
+  if (!user) return;
 
   const results = db.prepare(`
-    SELECT * FROM diagnostic_results 
-    WHERE user_id = ? 
+    SELECT * FROM diagnostic_results
+    WHERE user_id = ?
     ORDER BY created_at ASC
   `).all(user.id);
 
   res.json({ results });
 });
 
+const DEFICIT_LEVELS = ['low', 'above_average', 'medium', 'high'];
+
 app.post('/api/user/diagnostics', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+  const user = requireAuth(req, res);
+  if (!user) return;
 
   const { type, score_percent, deficit_level, summary_text, details } = req.body;
-  if (score_percent === undefined || !type) {
+  const score = Number(score_percent);
+  if (!type || !Number.isFinite(score) || score < 0 || score > 100) {
     return res.status(400).json({ error: 'Некорректные данные диагностики' });
   }
 
@@ -176,14 +275,14 @@ app.post('/api/user/diagnostics', (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?)
   `).run(
     user.id,
-    type,
-    score_percent,
-    deficit_level || 'medium',
-    summary_text || '',
-    details ? JSON.stringify(details) : null
+    String(type).slice(0, 64),
+    Math.round(score),
+    DEFICIT_LEVELS.includes(deficit_level) ? deficit_level : 'medium',
+    String(summary_text || '').slice(0, 500),
+    details ? JSON.stringify(details).slice(0, 20000) : null
   );
 
-  // If details contain scores for the 5 competencies, auto-generate IPR items for lowest
+  // Если в деталях есть баллы по 5 компетенциям — автогенерация ИПР по дефицитам
   if (details && Array.isArray(details.competencyScores)) {
     const COMP_MODULES = [
       { name: 'Стратегическое управление', module: 'Модуль ДПО «Стратегическое управление и проектная деятельность» (72 ч)', format: 'Стратегическая лаборатория + онлайн-курс', result: 'Проект программы развития ОО' },
@@ -193,10 +292,10 @@ app.post('/api/user/diagnostics', (req, res) => {
       { name: 'Коммуникации', module: 'Модуль «Коммуникации и работа с общественностью» (36 ч)', format: 'Симулятор «Кризис в родительском чате»', result: 'Медиаплан и регламент кризисных коммуникаций ОО' }
     ];
 
-    details.competencyScores.forEach((score, index) => {
-      if (score <= 2 && COMP_MODULES[index]) {
+    details.competencyScores.slice(0, 5).forEach((scoreVal, index) => {
+      const s = Number(scoreVal);
+      if (Number.isFinite(s) && s <= 2 && COMP_MODULES[index]) {
         const item = COMP_MODULES[index];
-        // Check if item already exists in IPR
         const existing = db.prepare('SELECT id FROM ipr_items WHERE user_id = ? AND competency = ?').get(user.id, item.name);
         if (!existing) {
           db.prepare(`
@@ -205,7 +304,7 @@ app.post('/api/user/diagnostics', (req, res) => {
           `).run(
             user.id,
             item.name,
-            score * 25,
+            Math.round(s * 25),
             item.module,
             item.format,
             item.result,
@@ -223,41 +322,47 @@ app.post('/api/user/diagnostics', (req, res) => {
 
 // ── IPR (Individual Plan) API ──
 app.get('/api/user/ipr', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+  const user = requireAuth(req, res);
+  if (!user) return;
 
   const items = db.prepare('SELECT * FROM ipr_items WHERE user_id = ? ORDER BY id DESC').all(user.id);
   res.json({ items });
 });
 
 app.post('/api/user/ipr', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+  const user = requireAuth(req, res);
+  if (!user) return;
 
   const { competency, deficit_score, recommended_module, action_format, target_result, deadline, mentor_name } = req.body;
   const info = db.prepare(`
     INSERT INTO ipr_items (user_id, competency, deficit_score, recommended_module, action_format, target_result, deadline, mentor_name, status)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'planned')
   `).run(
-    user.id,
-    competency || 'Стратегическое управление',
-    deficit_score || 50,
-    recommended_module || 'Модульная программа ДПО',
-    action_format || 'Лаборатория опорной площадки',
-    target_result || 'Разработка локального нормативного акта',
-    deadline || '2027-03-31',
-    mentor_name || 'Наставник Лиги экспертов'
+    String(competency || 'Стратегическое управление').slice(0, 200),
+    Math.max(0, Math.min(100, Number(deficit_score) || 50)),
+    String(recommended_module || 'Модульная программа ДПО').slice(0, 300),
+    String(action_format || 'Лаборатория опорной площадки').slice(0, 300),
+    String(target_result || 'Разработка локального нормативного акта').slice(0, 300),
+    String(deadline || '2027-03-31').slice(0, 64),
+    String(mentor_name || 'Наставник Лиги экспертов').slice(0, 200)
   );
 
   const created = db.prepare('SELECT * FROM ipr_items WHERE id = ?').get(info.lastInsertRowid);
   res.json({ success: true, item: created });
 });
 
+const IPR_STATUSES = ['planned', 'in_progress', 'completed'];
+
 app.put('/api/user/ipr/:id', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+  const user = requireAuth(req, res);
+  if (!user) return;
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id' });
 
   const { status, target_result, deadline, mentor_name } = req.body;
+  const safeStatus = IPR_STATUSES.includes(status) ? status : null;
+
   db.prepare(`
     UPDATE ipr_items SET
       status = COALESCE(?, status),
@@ -265,66 +370,79 @@ app.put('/api/user/ipr/:id', (req, res) => {
       deadline = COALESCE(?, deadline),
       mentor_name = COALESCE(?, mentor_name)
     WHERE id = ? AND user_id = ?
-  `).run(status, target_result, deadline, mentor_name, req.params.id, user.id);
+  `).run(safeStatus, nn(target_result), nn(deadline), nn(mentor_name), id, user.id);
 
-  const updated = db.prepare('SELECT * FROM ipr_items WHERE id = ?').get(req.params.id);
+  const updated = db.prepare('SELECT * FROM ipr_items WHERE id = ? AND user_id = ?').get(id, user.id);
   res.json({ success: true, item: updated });
 });
 
 app.delete('/api/user/ipr/:id', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+  const user = requireAuth(req, res);
+  if (!user) return;
 
-  db.prepare('DELETE FROM ipr_items WHERE id = ? AND user_id = ?').run(req.params.id, user.id);
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id' });
+
+  db.prepare('DELETE FROM ipr_items WHERE id = ? AND user_id = ?').run(id, user.id);
   res.json({ success: true });
 });
 
 // ── Portfolio API ──
 app.get('/api/user/portfolio', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+  const user = requireAuth(req, res);
+  if (!user) return;
 
   const items = db.prepare('SELECT * FROM portfolio_items WHERE user_id = ? ORDER BY id DESC').all(user.id);
   res.json({ items });
 });
 
-app.post('/api/user/portfolio', upload.single('document'), (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+app.post('/api/user/portfolio', (req, res) => {
+  upload.single('document')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    try {
+      const user = requireAuth(req, res);
+      if (!user) return;
 
-  const { category, title, description } = req.body;
-  if (!title || !category) {
-    return res.status(400).json({ error: 'Укажите название и категорию документа' });
-  }
+      const { category, title, description } = req.body;
+      if (!title || !category) {
+        return res.status(400).json({ error: 'Укажите название и категорию документа' });
+      }
 
-  let filePath = null;
-  let fileName = null;
-  if (req.file) {
-    filePath = '/uploads/' + req.file.filename;
-    fileName = req.file.originalname;
-  }
+      let filePath = null;
+      let fileName = null;
+      if (req.file) {
+        filePath = '/uploads/' + req.file.filename;
+        fileName = req.file.originalname.slice(0, 255);
+      }
 
-  const info = db.prepare(`
-    INSERT INTO portfolio_items (user_id, category, title, description, file_path, file_name, verification_status)
-    VALUES (?, ?, ?, ?, ?, ?, 'pending')
-  `).run(
-    user.id,
-    category,
-    title,
-    description || '',
-    filePath,
-    fileName
-  );
+      const info = db.prepare(`
+        INSERT INTO portfolio_items (user_id, category, title, description, file_path, file_name, verification_status)
+        VALUES (?, ?, ?, ?, ?, ?, 'pending')
+      `).run(
+        user.id,
+        String(category).slice(0, 64),
+        String(title).slice(0, 300),
+        String(description || '').slice(0, 2000),
+        filePath,
+        fileName
+      );
 
-  const item = db.prepare('SELECT * FROM portfolio_items WHERE id = ?').get(info.lastInsertRowid);
-  res.json({ success: true, item });
+      const item = db.prepare('SELECT * FROM portfolio_items WHERE id = ?').get(info.lastInsertRowid);
+      res.json({ success: true, item });
+    } catch (e) {
+      res.status(500).json({ error: 'Ошибка сохранения документа' });
+    }
+  });
 });
 
 app.delete('/api/user/portfolio/:id', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Не авторизован' });
+  const user = requireAuth(req, res);
+  if (!user) return;
 
-  const item = db.prepare('SELECT * FROM portfolio_items WHERE id = ? AND user_id = ?').get(req.params.id, user.id);
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id' });
+
+  const item = db.prepare('SELECT * FROM portfolio_items WHERE id = ? AND user_id = ?').get(id, user.id);
   if (item && item.file_path) {
     const fullDiskPath = path.join(__dirname, '..', item.file_path);
     if (fs.existsSync(fullDiskPath)) {
@@ -332,16 +450,25 @@ app.delete('/api/user/portfolio/:id', (req, res) => {
     }
   }
 
-  db.prepare('DELETE FROM portfolio_items WHERE id = ? AND user_id = ?').run(req.params.id, user.id);
+  db.prepare('DELETE FROM portfolio_items WHERE id = ? AND user_id = ?').run(id, user.id);
   res.json({ success: true });
 });
 
 // ── Dialogue Q&A API ──
+const DIALOGUE_CATEGORIES = [
+  'Стратегическое управление',
+  'Финансово-хозяйственная деятельность',
+  'Управление персоналом',
+  'Управление качеством образования',
+  'Коммуникации',
+  'Предложение по развитию проекта'
+];
+
 app.get('/api/dialogue', (req, res) => {
   const category = req.query.category;
   let questions;
   if (category && category !== 'Все') {
-    questions = db.prepare('SELECT * FROM dialogue_questions WHERE category = ? ORDER BY id DESC').all(category);
+    questions = db.prepare('SELECT * FROM dialogue_questions WHERE category = ? ORDER BY id DESC').all(String(category).slice(0, 128));
   } else {
     questions = db.prepare('SELECT * FROM dialogue_questions ORDER BY id DESC').all();
   }
@@ -351,32 +478,44 @@ app.get('/api/dialogue', (req, res) => {
 app.post('/api/dialogue', (req, res) => {
   const user = getUser(req);
   const { category, question_text, author_name, author_role } = req.body;
-  if (!question_text) {
+  const text = String(question_text || '').trim();
+  if (!text) {
     return res.status(400).json({ error: 'Введите текст вопроса' });
   }
+  if (text.length > 2000) {
+    return res.status(400).json({ error: 'Текст вопроса слишком длинный (до 2000 символов)' });
+  }
 
-  const finalName = author_name || (user ? user.fio : 'Участник проекта');
-  const finalRole = author_role || (user ? `${user.position}, ${user.workplace}` : 'Руководитель ОО');
+  const finalName = String(author_name || (user ? user.fio : 'Участник проекта')).slice(0, 200);
+  const finalRole = String(author_role || (user ? `${user.position}, ${user.workplace}` : 'Руководитель ОО')).slice(0, 200);
+  const finalCategory = DIALOGUE_CATEGORIES.includes(category) ? category : 'Стратегическое управление';
 
   const info = db.prepare(`
     INSERT INTO dialogue_questions (user_id, author_name, author_role, category, question_text, status)
     VALUES (?, ?, ?, ?, ?, 'new')
-  `).run(
-    user ? user.id : null,
-    finalName,
-    finalRole,
-    category || 'Стратегическое управление',
-    question_text
-  );
+  `).run(user ? user.id : null, finalName, finalRole, finalCategory, text);
 
   const question = db.prepare('SELECT * FROM dialogue_questions WHERE id = ?').get(info.lastInsertRowid);
   res.json({ success: true, question });
 });
 
+// Отвечать могут только эксперты Лиги и администраторы
 app.put('/api/dialogue/:id/answer', (req, res) => {
-  const { answer_text, expert_name } = req.body;
-  if (!answer_text) {
+  const user = requireAuth(req, res);
+  if (!user) return;
+  if (!['expert', 'admin'].includes(user.role)) {
+    return res.status(403).json({ error: 'Публиковать ответы могут только эксперты Лиги' });
+  }
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id' });
+
+  const answerText = String(req.body.answer_text || '').trim();
+  if (!answerText) {
     return res.status(400).json({ error: 'Введите текст ответа' });
+  }
+  if (answerText.length > 5000) {
+    return res.status(400).json({ error: 'Текст ответа слишком длинный (до 5000 символов)' });
   }
 
   db.prepare(`
@@ -386,9 +525,9 @@ app.put('/api/dialogue/:id/answer', (req, res) => {
       status = 'answered',
       answered_at = CURRENT_TIMESTAMP
     WHERE id = ?
-  `).run(answer_text, expert_name || 'Эксперт Лиги ИРО Кузбасса', req.params.id);
+  `).run(answerText, String(req.body.expert_name || user.fio).slice(0, 200), id);
 
-  const updated = db.prepare('SELECT * FROM dialogue_questions WHERE id = ?').get(req.params.id);
+  const updated = db.prepare('SELECT * FROM dialogue_questions WHERE id = ?').get(id);
   res.json({ success: true, question: updated });
 });
 
@@ -397,7 +536,6 @@ app.get('/api/reserve/ideas', (req, res) => {
   const user = getUser(req);
   const ideas = db.prepare('SELECT * FROM reserve_ideas ORDER BY votes_count DESC, id DESC').all();
 
-  // If user authenticated, check their voted ideas
   let userVotes = [];
   if (user) {
     userVotes = db.prepare('SELECT idea_id FROM idea_votes WHERE user_id = ?').all(user.id).map(r => r.idea_id);
@@ -414,12 +552,17 @@ app.get('/api/reserve/ideas', (req, res) => {
 app.post('/api/reserve/ideas', (req, res) => {
   const user = getUser(req);
   const { title, category, description, expected_effect, author_name, workplace } = req.body;
-  if (!title || !description) {
+  const safeTitle = String(title || '').trim();
+  const safeDesc = String(description || '').trim();
+  if (!safeTitle || !safeDesc) {
     return res.status(400).json({ error: 'Заполните название и описание идеи' });
   }
+  if (safeTitle.length > 300 || safeDesc.length > 4000) {
+    return res.status(400).json({ error: 'Название или описание слишком длинные' });
+  }
 
-  const finalAuthor = author_name || (user ? user.fio : 'Кандидат кадрового резерва');
-  const finalWorkplace = workplace || (user ? user.workplace : 'ОО Кузбасса');
+  const finalAuthor = String(author_name || (user ? user.fio : 'Кандидат кадрового резерва')).slice(0, 200);
+  const finalWorkplace = String(workplace || (user ? user.workplace : 'ОО Кузбасса')).slice(0, 200);
 
   const info = db.prepare(`
     INSERT INTO reserve_ideas (user_id, author_name, workplace, title, category, description, expected_effect, votes_count)
@@ -428,13 +571,13 @@ app.post('/api/reserve/ideas', (req, res) => {
     user ? user.id : null,
     finalAuthor,
     finalWorkplace,
-    title,
-    category || 'Инновации в образовании',
-    description,
-    expected_effect || ''
+    safeTitle,
+    String(category || 'Инновации в образовании').slice(0, 128),
+    safeDesc,
+    String(expected_effect || '').slice(0, 500)
   );
 
-  // Auto-vote for own idea if user logged in
+  // Автор голосует за собственную идею первым
   if (user) {
     try {
       db.prepare('INSERT INTO idea_votes (idea_id, user_id) VALUES (?, ?)').run(info.lastInsertRowid, user.id);
@@ -446,23 +589,26 @@ app.post('/api/reserve/ideas', (req, res) => {
 });
 
 app.post('/api/reserve/ideas/:id/vote', (req, res) => {
-  const user = getUser(req);
-  if (!user) return res.status(401).json({ error: 'Для голосования войдите в систему' });
+  const user = requireAuth(req, res);
+  if (!user) return;
 
-  const ideaId = req.params.id;
+  const ideaId = parseInt(req.params.id, 10);
+  if (!ideaId) return res.status(400).json({ error: 'Некорректный id идеи' });
+
+  const idea = db.prepare('SELECT id FROM reserve_ideas WHERE id = ?').get(ideaId);
+  if (!idea) return res.status(404).json({ error: 'Идея не найдена' });
+
   const existingVote = db.prepare('SELECT id FROM idea_votes WHERE idea_id = ? AND user_id = ?').get(ideaId, user.id);
 
   if (existingVote) {
-    // Unvote
     db.prepare('DELETE FROM idea_votes WHERE id = ?').run(existingVote.id);
     db.prepare('UPDATE reserve_ideas SET votes_count = MAX(0, votes_count - 1) WHERE id = ?').run(ideaId);
     return res.json({ success: true, voted: false });
-  } else {
-    // Vote
-    db.prepare('INSERT INTO idea_votes (idea_id, user_id) VALUES (?, ?)').run(ideaId, user.id);
-    db.prepare('UPDATE reserve_ideas SET votes_count = votes_count + 1 WHERE id = ?').run(ideaId);
-    return res.json({ success: true, voted: true });
   }
+
+  db.prepare('INSERT INTO idea_votes (idea_id, user_id) VALUES (?, ?)').run(ideaId, user.id);
+  db.prepare('UPDATE reserve_ideas SET votes_count = votes_count + 1 WHERE id = ?').run(ideaId);
+  res.json({ success: true, voted: true });
 });
 
 // ── Summary Stats API ──
@@ -482,8 +628,17 @@ app.get('/api/stats/summary', (req, res) => {
   });
 });
 
-// Fallback to SPA index.html for any unrecognized frontend route
+// Ошибки multer и прочие — JSON вместо HTML-страницы
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({ error: err.message || 'Внутренняя ошибка сервера' });
+});
+
+// Fallback: неизвестные API-маршруты — 404 JSON, остальные пути — SPA index.html
 app.use((req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Метод API не найден' });
+  }
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 

@@ -9,6 +9,7 @@ const db = new DatabaseSync(dbPath);
 
 // Enable foreign keys and WAL mode
 db.exec('PRAGMA foreign_keys = ON;');
+db.exec('PRAGMA journal_mode = WAL;');
 
 function initSchema() {
   db.exec(`
@@ -118,7 +119,24 @@ function initSchema() {
     );
   `);
 
+  migrateSchema();
   seedInitialData();
+}
+
+// Миграция существующей БД: хеш пароля и таблица сессий
+function migrateSchema() {
+  const userCols = db.prepare('PRAGMA table_info(users)').all().map(c => c.name);
+  if (!userCols.includes('password_hash')) {
+    db.exec('ALTER TABLE users ADD COLUMN password_hash TEXT');
+  }
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      token TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
 }
 
 function seedInitialData() {

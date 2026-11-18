@@ -658,7 +658,10 @@
     <!-- Cabinet View -->
     <div class="sec" id="cabWrap" style="display:none">
       <div class="cabinet-header">
-        <h3 id="cabWho">Участник проекта</h3>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <h3 id="cabWho">Участник проекта</h3>
+          <button class="btn sm outline" id="logoutBtn" style="display:none">Выйти из кабинета</button>
+        </div>
         <div class="user-info-line">Данные синхронизированы с региональной базой ФИП РАО</div>
 
         <!-- Readiness Widget for Director / Candidate -->
@@ -719,7 +722,11 @@
               <div class="f-grp"><label class="fl">Должность</label><input class="inp" id="a_position"></div>
             </div>
             <div class="f-row">
-              <div class="f-grp"><label class="fl">Стаж: общий / педагогический / управленческий (лет)</label><input class="inp" id="a_experience_total"></div>
+              <div class="f-grp"><label class="fl">Стаж: общий (лет)</label><input class="inp" id="a_experience_total" inputmode="numeric"></div>
+              <div class="f-grp"><label class="fl">Стаж: педагогический (лет)</label><input class="inp" id="a_experience_ped" inputmode="numeric"></div>
+            </div>
+            <div class="f-row">
+              <div class="f-grp"><label class="fl">Стаж: управленческий (лет)</label><input class="inp" id="a_experience_mgmt" inputmode="numeric"></div>
               <div class="f-grp"><label class="fl">Каким опытом готовы делиться</label><input class="inp" id="a_share_experience"></div>
             </div>
 
@@ -795,7 +802,7 @@
             </div>
             <div class="f-grp">
               <label class="fl">Файл документа (PDF, DOCX, XLSX)</label>
-              <input type="file" class="inp" id="pfFile">
+              <input type="file" class="inp" id="pfFile" accept=".pdf,.doc,.docx,.xls,.xlsx">
             </div>
             <button class="btn primary sm" type="submit">Загрузить в портфолио</button>
           </form>

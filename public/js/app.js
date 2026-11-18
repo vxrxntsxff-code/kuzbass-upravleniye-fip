@@ -2,6 +2,7 @@
 
 const state = {
   currentUser: null,
+  sessionToken: null,
   activeRoute: 'home',
   saScores: [null, null, null, null, null],
   testAnswers: {},
@@ -11,6 +12,9 @@ const state = {
   dialogueQuestions: [],
   reserveIdeas: []
 };
+
+// Пароли демо-учетных записей для переключателя ролей
+const DEMO_PASSWORDS = { director: 'demo123', deputy: 'demo123', reserve: 'demo123', expert: 'expert123' };
 
 // ── Toast Helper ──
 function showToast(message, isError = false) {
@@ -168,7 +172,10 @@ async function mockApi(endpoint, options = {}) {
   if (endpoint === '/api/auth/login') {
     const login = body.login || 'director';
     const u = OFFLINE_SEED.users[login] || Object.values(OFFLINE_SEED.users).find(x => x.login === login) || OFFLINE_SEED.users.director;
-    return { success: true, user: u };
+    return { success: true, user: u, token: 'offline-demo' };
+  }
+  if (endpoint === '/api/auth/logout') {
+    return { success: true };
   }
   if (endpoint === '/api/user/profile') {
     state.currentUser = { ...state.currentUser, ...body };
@@ -233,16 +240,17 @@ async function mockApi(endpoint, options = {}) {
     setLocalState('portfolio', pf);
     return { success: true };
   }
-  if (endpoint === '/api/dialogue/questions') {
+  if (endpoint === '/api/dialogue') {
     let dlg = getLocalState('dialogue', OFFLINE_SEED.dialogue);
     if (method === 'POST') {
       const newQ = {
         id: Date.now(),
-        author_name: state.currentUser ? state.currentUser.fio : 'Участник',
+        author_name: body.author_name || (state.currentUser ? state.currentUser.fio : 'Участник'),
         author_role: state.currentUser ? state.currentUser.role_title : 'Педагог',
         author_workplace: state.currentUser ? state.currentUser.workplace : 'Кузбасс',
+        category: body.category || 'Стратегическое управление',
         question_text: body.question_text,
-        status: 'open',
+        status: 'new',
         answer_text: null,
         expert_name: null,
         created_at: new Date().toISOString()
@@ -253,8 +261,8 @@ async function mockApi(endpoint, options = {}) {
     }
     return { questions: dlg };
   }
-  if (endpoint.includes('/answer') && method === 'POST') {
-    const id = +endpoint.split('/')[4];
+  if (endpoint.includes('/answer') && method === 'PUT') {
+    const id = +endpoint.split('/')[3];
     let dlg = getLocalState('dialogue', OFFLINE_SEED.dialogue);
     dlg = dlg.map(q => q.id === id ? {
       ...q,
@@ -315,8 +323,8 @@ async function api(endpoint, options = {}) {
   }
 
   options.headers = options.headers || {};
-  if (state.currentUser && state.currentUser.id) {
-    options.headers['x-user-id'] = state.currentUser.id;
+  if (state.sessionToken) {
+    options.headers['x-auth-token'] = state.sessionToken;
   }
   if (!(options.body instanceof FormData)) {
     options.headers['Content-Type'] = 'application/json';
@@ -324,27 +332,48 @@ async function api(endpoint, options = {}) {
 
   try {
     const res = await fetch(endpoint, options);
-    const data = await res.json();
+    let data = {};
+    try { data = await res.json(); } catch (_) {}
     if (!res.ok) {
+      if (res.status === 401 && endpoint !== '/api/auth/login') {
+        // Сессия истекла/недействительна — разлогиниваем
+        clearSession();
+        showToast('Сессия истекла. Войдите в кабинет заново.', true);
+      }
       throw new Error(data.error || 'Ошибка при запросе к серверу');
     }
     return data;
   } catch (err) {
-    console.warn('Backend API unreachable, using local mode:', err.message);
-    return mockApi(endpoint, options);
+    if (err.name === 'TypeError') {
+      // Сеть недоступна — офлайн-режим с локальными данными
+      console.warn('Backend API unreachable, using local mode:', err.message);
+      return mockApi(endpoint, options);
+    }
+    throw err;
   }
 }
 
 // ── Auth Handling ──
+function clearSession() {
+  state.sessionToken = null;
+  state.currentUser = null;
+  localStorage.removeItem('kuzbass_token');
+  localStorage.removeItem('kuzbass_user');
+  updateAuthUI();
+}
+
 async function initAuth() {
+  const savedToken = localStorage.getItem('kuzbass_token');
   const savedUser = localStorage.getItem('kuzbass_user');
-  if (savedUser) {
+  if (savedToken && savedUser) {
     try {
+      state.sessionToken = savedToken;
       state.currentUser = JSON.parse(savedUser);
       const res = await api('/api/auth/me');
       state.currentUser = res.user;
       localStorage.setItem('kuzbass_user', JSON.stringify(res.user));
     } catch (_) {
+      // Неверный токен — тихий вход под демо-директором (для гладкого демо)
       await loginAs('director', 'demo123', true);
     }
   } else {
@@ -360,7 +389,9 @@ async function loginAs(login, password, silent = false) {
       body: JSON.stringify({ login, password })
     });
     state.currentUser = data.user;
+    state.sessionToken = data.token || null;
     localStorage.setItem('kuzbass_user', JSON.stringify(data.user));
+    if (data.token) localStorage.setItem('kuzbass_token', data.token);
     updateAuthUI();
     loadCabinetData();
     if (!silent) showToast(`Вход выполнен: ${data.user.fio}`);
@@ -368,6 +399,15 @@ async function loginAs(login, password, silent = false) {
   } catch (err) {
     if (!silent) showToast(err.message, true);
   }
+}
+
+async function logout() {
+  try {
+    await api('/api/auth/logout', { method: 'POST' });
+  } catch (_) {}
+  clearSession();
+  showToast('Вы вышли из личного кабинета');
+  location.hash = '#/login';
 }
 
 function updateAuthUI() {
@@ -382,12 +422,14 @@ function updateAuthUI() {
     if (headerBtn) headerBtn.style.display = 'none';
     if (userBadge) {
       userBadge.style.display = 'flex';
-      userBadge.innerHTML = `<span>${state.currentUser.fio.split(' ')[0] || state.currentUser.login}</span> <span class="badge b-i">${getRoleTitle(state.currentUser.role)}</span>`;
+      userBadge.innerHTML = `<span>${escapeHtml(state.currentUser.fio.split(' ')[0] || state.currentUser.login)}</span> <span class="badge b-i">${getRoleTitle(state.currentUser.role)}</span>`;
     }
     if (loginWrap) loginWrap.style.display = 'none';
     if (cabWrap) cabWrap.style.display = 'block';
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
     if (cabWho) {
-      cabWho.innerHTML = `${state.currentUser.fio} · <span style="font-weight:400;color:var(--ink-muted)">${state.currentUser.position || 'Руководитель'}, ${state.currentUser.workplace || 'ОО Кузбасса'}</span> · <span class="badge b-g">${getRoleTitle(state.currentUser.role)}</span>`;
+      cabWho.innerHTML = `${escapeHtml(state.currentUser.fio)} · <span style="font-weight:400;color:var(--ink-muted)">${escapeHtml(state.currentUser.position || 'Руководитель')}, ${escapeHtml(state.currentUser.workplace || 'ОО Кузбасса')}</span> · <span class="badge b-g">${getRoleTitle(state.currentUser.role)}</span>`;
     }
     if (demoRoleSelect) {
       demoRoleSelect.value = state.currentUser.login;
@@ -398,6 +440,8 @@ function updateAuthUI() {
     if (userBadge) userBadge.style.display = 'none';
     if (loginWrap) loginWrap.style.display = 'grid';
     if (cabWrap) cabWrap.style.display = 'none';
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'none';
   }
 }
 
@@ -599,6 +643,26 @@ function updateTestProgress() {
 }
 
 // ── Comprehensive Test ──
+// Детерминированное перемешивание вариантов ответа: в исходных данных верный
+// ответ у 17 из 20 вопросов стоял вторым — тест проходился угадыванием.
+function shuffleTestOptions() {
+  TEST_QUESTIONS.forEach((t, qi) => {
+    let seed = (qi * 2654435761 + 1) % 2147483647;
+    if (seed <= 0) seed = 1;
+    const rnd = () => {
+      seed = (seed * 48271) % 2147483647;
+      return seed / 2147483647;
+    };
+    const idx = t.o.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [idx[i], idx[j]] = [idx[j], idx[i]];
+    }
+    t.oShown = idx.map(i => t.o[i]);
+    t.cShown = idx.indexOf(t.c);
+  });
+}
+
 function renderTest() {
   const box = document.getElementById('testList');
   if (!box) return;
@@ -613,7 +677,7 @@ function renderTest() {
       `;
     }
 
-    const options = t.o.map((opt, optIndex) => `
+    const options = (t.oShown || t.o).map((opt, optIndex) => `
       <label class="test-option">
         <input type="radio" name="test_q_${i}" value="${optIndex}" ${state.testAnswers[i] === optIndex ? 'checked' : ''}>
         <span>${opt}</span>
@@ -653,7 +717,7 @@ async function submitTest() {
 
   TEST_QUESTIONS.forEach((t, i) => {
     const userChoice = state.testAnswers[i];
-    const isCorrect = userChoice === t.c;
+    const isCorrect = userChoice === t.cShown;
     if (isCorrect) {
       correctCount++;
       dirScores[t.d]++;
@@ -666,7 +730,7 @@ async function submitTest() {
       expBox.style.border = `1px solid ${isCorrect ? '#a7f3d0' : '#fecaca'}`;
       expBox.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
       expBox.innerHTML = `
-        <b>${isCorrect ? '✔ Верный ответ.' : `✘ Неверно. Правильно: «${t.o[t.c]}».`}</b>
+        <b>${isCorrect ? '✔ Верный ответ.' : `✘ Неверно. Правильно: «${(t.oShown || t.o)[t.cShown]}».`}</b>
         <div style="margin-top:6px;color:var(--ink-secondary);font-size:12.5px">${t.e}</div>
       `;
     }
@@ -852,7 +916,7 @@ async function loadDialogueFeed() {
         <div class="card" style="margin-bottom:12px">
           <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px">${escapeHtml(q.question_text)}</div>
           <div style="font-size:12px;color:var(--ink-muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px">
-            <span class="badge b-i">${q.category}</span>
+            <span class="badge b-i">${escapeHtml(q.category)}</span>
             <span>${escapeHtml(q.author_name)} (${escapeHtml(q.author_role || 'Руководитель')})</span>
             <span class="badge ${isAnswered ? 'b-g' : 'b-a'}">${isAnswered ? 'Ответ дан' : 'В работе'}</span>
           </div>
@@ -1136,14 +1200,14 @@ function renderProgressChart(history) {
     <svg viewBox="0 0 ${W} ${H}" width="100%" height="auto">
       <g stroke="var(--border)" stroke-width="1">
         <line x1="${padLeft}" y1="${padTop}" x2="${W - padRight + 10}" y2="${padTop}"/>
-        <line x1="${padLeft}" y1="${padTop + innerH * 0.33}" x2="${W - padRight + 10}" y2="${padTop + innerH * 0.33}"/>
-        <line x1="${padLeft}" y1="${padTop + innerH * 0.66}" x2="${W - padRight + 10}" y2="${padTop + innerH * 0.66}"/>
+        <line x1="${padLeft}" y1="${padTop + innerH * 0.30}" x2="${W - padRight + 10}" y2="${padTop + innerH * 0.30}"/>
+        <line x1="${padLeft}" y1="${padTop + innerH * 0.50}" x2="${W - padRight + 10}" y2="${padTop + innerH * 0.50}"/>
         <line x1="${padLeft}" y1="${padTop + innerH}" x2="${W - padRight + 10}" y2="${padTop + innerH}"/>
       </g>
       <g font-size="9" fill="var(--ink-muted)" text-anchor="end">
         <text x="${padLeft - 6}" y="${padTop + 3}">100%</text>
-        <text x="${padLeft - 6}" y="${padTop + innerH * 0.33 + 3}">70%</text>
-        <text x="${padLeft - 6}" y="${padTop + innerH * 0.66 + 3}">50%</text>
+        <text x="${padLeft - 6}" y="${padTop + innerH * 0.30 + 3}">70%</text>
+        <text x="${padLeft - 6}" y="${padTop + innerH * 0.50 + 3}">50%</text>
         <text x="${padLeft - 6}" y="${padTop + innerH + 3}">0%</text>
       </g>
       <polyline points="${polylineStr}" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1187,7 +1251,7 @@ function renderCabinetIpr(items) {
             <option value="in_progress" ${it.status === 'in_progress' ? 'selected' : ''}>В процессе</option>
             <option value="completed" ${it.status === 'completed' ? 'selected' : ''}>Освоено ✓</option>
           </select>
-          <div style="font-size:11.5px;color:var(--ink-muted);margin-top:6px">Срок: ${it.deadline || '2027 г.'}</div>
+          <div style="font-size:11.5px;color:var(--ink-muted);margin-top:6px">Срок: ${escapeHtml(it.deadline || '2027 г.')}</div>
         </div>
       </div>
     </div>
@@ -1240,7 +1304,7 @@ function renderCabinetPortfolio(items) {
             <span class="badge ${doc.verification_status === 'approved' ? 'b-g' : (doc.verification_status === 'revision' ? 'b-r' : 'b-a')}">
               ${doc.verification_status === 'approved' ? 'Одобрено аттестационной комиссией' : (doc.verification_status === 'revision' ? 'На доработке' : 'На проверке')}
             </span>
-            ${doc.file_path ? `<a href="${doc.file_path}" target="_blank" style="margin-left:10px;font-size:12px;font-weight:600">Скачать файл 📎</a>` : ''}
+            ${doc.file_path ? `<a href="${escapeHtml(doc.file_path)}${state.sessionToken && state.sessionToken !== 'offline-demo' ? '?token=' + encodeURIComponent(state.sessionToken) : ''}" target="_blank" style="margin-left:10px;font-size:12px;font-weight:600">Скачать файл 📎</a>` : ''}
           </div>
         </div>
       </div>
@@ -1334,6 +1398,8 @@ async function saveProfileForm(e) {
     workplace: document.getElementById('a_workplace').value.trim(),
     position: document.getElementById('a_position').value.trim(),
     experience_total: document.getElementById('a_experience_total').value.trim(),
+    experience_ped: document.getElementById('a_experience_ped').value.trim(),
+    experience_mgmt: document.getElementById('a_experience_mgmt').value.trim(),
     share_experience: document.getElementById('a_share_experience').value.trim(),
     consent_pd: 1
   };
@@ -1377,6 +1443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   renderCompetencies();
   renderSelfAssessment();
+  shuffleTestOptions();
   renderTest();
   renderCasesAndSimulations();
   renderNormativeLibrary();
@@ -1455,9 +1522,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const demoRoleSelect = document.getElementById('demoRoleSelect');
   if (demoRoleSelect) {
     demoRoleSelect.onchange = async (e) => {
-      await loginAs(e.target.value, 'demo123');
+      await loginAs(e.target.value, DEMO_PASSWORDS[e.target.value] || 'demo123');
     };
   }
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) logoutBtn.onclick = logout;
 
   await initAuth();
   route();
