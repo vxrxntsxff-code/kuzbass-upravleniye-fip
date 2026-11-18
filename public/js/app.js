@@ -447,7 +447,7 @@ function updateAuthUI() {
     if (headerBtn) headerBtn.style.display = 'none';
     if (userBadge) {
       userBadge.style.display = 'flex';
-      userBadge.innerHTML = `<span>${escapeHtml(state.currentUser.fio.split(' ')[0] || state.currentUser.login)}</span><span class="badge b-t">кабинет</span>`;
+      userBadge.innerHTML = `<span>${escapeHtml(state.currentUser.fio.split(' ')[0] || state.currentUser.login)}</span>`;
     }
     if (loginWrap) loginWrap.style.display = 'none';
     if (cabWrap) cabWrap.style.display = 'block';
@@ -1462,6 +1462,19 @@ function escapeHtml(str) {
 
 // ── Startup ──
 document.addEventListener('DOMContentLoaded', async () => {
+  // Цветовые темы: swatch-кнопки в шапке, выбор запоминается
+  const THEME_KEY = 'kuz_theme';
+  const themeBtns = document.querySelectorAll('.swatch');
+  const applyTheme = (t) => {
+    document.documentElement.dataset.theme = t;
+    try { localStorage.setItem(THEME_KEY, t); } catch (_) {}
+    themeBtns.forEach(b => b.classList.toggle('on', b.dataset.theme === t));
+  };
+  let themeSaved = 'classic';
+  try { themeSaved = localStorage.getItem(THEME_KEY) || 'classic'; } catch (_) {}
+  applyTheme(['classic', 'sky', 'petrol'].includes(themeSaved) ? themeSaved : 'classic');
+  themeBtns.forEach(b => { b.onclick = () => applyTheme(b.dataset.theme); });
+
   const burger = document.getElementById('burger');
   const headerEl = document.querySelector('header.top');
   if (burger) {

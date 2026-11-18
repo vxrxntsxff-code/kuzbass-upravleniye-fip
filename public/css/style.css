@@ -5,34 +5,35 @@
    ═════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --canvas: #f1f4f3;            /* светлый фон с холодной зеленью */
-  --cream-deep: #e7eceb;
+  --canvas: #edf3f8;            /* светло-голубой — цвета фасада ИРО */
+  --cream-deep: #e3ecf4;
   --surface: #ffffff;
-  --surface-subtle: #f7faf9;
+  --surface-subtle: #f5f9fc;
 
-  --ink: #10262b;               /* тёмный петроль — основной текст */
-  --ink-secondary: #2f444a;
-  --ink-muted: #5d7178;
-  --ink-faint: #8ba0a4;
+  --ink: #152c40;               /* тёмно-синий текст */
+  --ink-secondary: #33506b;
+  --ink-muted: #647c92;
+  --ink-faint: #93a9bd;
 
-  --navy: #12333a;              /* шапка, hero, тёмные блоки — глубокий петроль */
-  --navy-deep: #0c262c;
-  --navy-soft: #1c4550;
+  --navy: #16324f;              /* шапка, hero, тёмные блоки */
+  --navy-deep: #0f2438;
+  --navy-soft: #24466b;
 
-  --gold: #c2703d;              /* медный акцент — кнопки, маркеры */
-  --gold-deep: #a85c2e;
-  --gold-tint: #f8e9de;
-  --gold-tint-deep: #eed3bd;
-  --gold-bright: #e2a878;       /* светлый медный для текста на тёмном */
+  --gold: #3a7fc1;              /* фирменный голубой — кнопки, маркеры */
+  --gold-deep: #2d6ca2;
+  --gold-bright: #9cc7ea;       /* светлый голубой для текста на тёмном */
+  --gold-hover: #4a8fce;
+  --gold-tint: #e4eef8;
+  --gold-tint-deep: #cbdeee;
 
-  --border: #dbe3e0;
-  --border-strong: #c2cdc8;
-  --border-focus: #10262b;
+  --border: #d8e3ec;
+  --border-strong: #c0d1de;
+  --border-focus: #152c40;
 
-  --accent: #12333a;            /* акцент = петроль */
-  --accent-blue: #2f7d6e;       /* изумруд — ссылки */
-  --accent-blue-hover: #25655a;
-  --accent-tint: #e8f3ef;
+  --accent: #16324f;            /* акцент = navy */
+  --accent-blue: #2d6ca2;       /* ссылки */
+  --accent-blue-hover: #2458a8;
+  --accent-tint: #e4eef8;
 
   --success: #3e7d5a;
   --success-tint: #e7f2ea;
@@ -47,13 +48,87 @@
   --radius-xl: 34px;
   --radius-pill: 999px;
 
+  --shadow-subtle: 0 1px 3px rgba(21, 44, 64, 0.06);
+  --shadow-sm: 0 2px 8px rgba(21, 44, 64, 0.07);
+  --shadow-md: 0 6px 18px rgba(21, 44, 64, 0.09);
+  --shadow-lg: 0 14px 34px rgba(21, 44, 64, 0.12);
+
+  --font-body: "Montserrat", "Segoe UI", Arial, sans-serif;
+  --font-serif: "Prata", "Georgia", "Times New Roman", serif";
+}
+
+/* Тема «Небо» — светлая, чистый белый фон и открытый синий */
+html[data-theme="sky"] {
+  --canvas: #f6f8fa;
+  --cream-deep: #eef2f6;
+  --surface-subtle: #f8fafc;
+
+  --ink: #1a2b3c;
+  --ink-secondary: #3c5570;
+  --ink-muted: #68809a;
+  --ink-faint: #98aec2;
+
+  --navy: #1b4a8a;
+  --navy-deep: #123a70;
+  --navy-soft: #2a5fa0;
+
+  --gold: #4a90d9;
+  --gold-deep: #3a76b8;
+  --gold-bright: #b3d3f2;
+  --gold-hover: #5d9fe0;
+  --gold-tint: #e6eff9;
+  --gold-tint-deep: #cddff0;
+
+  --border: #dde5ec;
+  --border-strong: #c3d2df;
+  --border-focus: #1a2b3c;
+
+  --accent: #1b4a8a;
+  --accent-blue: #3a76b8;
+  --accent-blue-hover: #2f63a0;
+  --accent-tint: #e6eff8;
+
+  --shadow-subtle: 0 1px 3px rgba(26, 43, 60, 0.06);
+  --shadow-sm: 0 2px 8px rgba(26, 43, 60, 0.07);
+  --shadow-md: 0 6px 18px rgba(26, 43, 60, 0.09);
+  --shadow-lg: 0 14px 34px rgba(26, 43, 60, 0.12);
+}
+
+/* Тема «Петроль» — тёмный зелёно-синий с медью */
+html[data-theme="petrol"] {
+  --canvas: #f1f4f3;
+  --cream-deep: #e7eceb;
+  --surface-subtle: #f7faf9;
+
+  --ink: #10262b;
+  --ink-secondary: #2f444a;
+  --ink-muted: #5d7178;
+  --ink-faint: #8ba0a4;
+
+  --navy: #12333a;
+  --navy-deep: #0c262c;
+  --navy-soft: #1c4550;
+
+  --gold: #c2703d;
+  --gold-deep: #a85c2e;
+  --gold-bright: #e2a878;
+  --gold-hover: #d0804e;
+  --gold-tint: #f8e9de;
+  --gold-tint-deep: #eed3bd;
+
+  --border: #dbe3e0;
+  --border-strong: #c2cdc8;
+  --border-focus: #10262b;
+
+  --accent: #12333a;
+  --accent-blue: #2f7d6e;
+  --accent-blue-hover: #25655a;
+  --accent-tint: #e8f3ef;
+
   --shadow-subtle: 0 1px 3px rgba(16, 38, 43, 0.06);
   --shadow-sm: 0 2px 8px rgba(16, 38, 43, 0.07);
   --shadow-md: 0 6px 18px rgba(16, 38, 43, 0.09);
   --shadow-lg: 0 14px 34px rgba(16, 38, 43, 0.12);
-
-  --font-body: "Montserrat", "Segoe UI", Arial, sans-serif;
-  --font-serif: "Prata", "Georgia", "Times New Roman", serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -191,6 +266,37 @@ header.top {
   text-transform: uppercase;
 }
 
+/* ── Переключатель цветовой темы ── */
+.theme-swatches {
+  align-items: center;
+  gap: 6px;
+}
+/* видимость по брейкпоинтам: шапка — на десктопе, меню — на мобиле, кабинет — всегда */
+.swatch-header, .swatch-menu { display: none; }
+.swatch-cabinet { display: flex; margin: 0; }
+@media (min-width: 1201px) {
+  .swatch-header { display: flex; margin: 0 4px 0 auto; }
+}
+.swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 0 1px rgba(16, 38, 43, 0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.swatch:hover { transform: scale(1.15); }
+.swatch.on {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--gold);
+  transform: scale(1.1);
+}
+.swatch-classic { background: linear-gradient(135deg, #16324f, #3a7fc1); }
+.swatch-sky { background: linear-gradient(135deg, #1b4a8a, #7fb0e0); }
+.swatch-petrol { background: linear-gradient(135deg, #12333a, #c2703d); }
+
 /* Role Selector Badge (в кабинете — на светлой карточке) */
 .role-picker {
   display: flex;
@@ -259,7 +365,7 @@ nav.main a.on {
   margin-left: 6px;
 }
 .btn-login:hover {
-  background: #d0804e !important;
+  background: var(--gold-hover) !important;
   color: var(--navy-deep) !important;
 }
 
@@ -444,8 +550,8 @@ nav.main a.on {
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--gold-bright);
-  background: rgba(194, 112, 61, 0.16);
-  border: 1px solid rgba(194, 112, 61, 0.45);
+  background: color-mix(in srgb, var(--gold) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
   border-radius: var(--radius-pill);
   padding: 6px 14px;
   margin-bottom: 20px;
@@ -687,7 +793,7 @@ nav.main a.on {
   border-color: var(--gold);
 }
 .btn.primary:hover {
-  background: #d0804e;
+  background: var(--gold-hover);
   border-color: #d0804e;
   text-decoration: none;
 }
@@ -697,7 +803,7 @@ nav.main a.on {
   border-color: currentColor;
 }
 .btn.outline:hover {
-  background: rgba(194, 112, 61, 0.14);
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
   text-decoration: none;
 }
 .hero-box .btn.outline {
@@ -1128,7 +1234,7 @@ label.fl {
 .inp:focus {
   outline: none;
   border-color: var(--gold-deep);
-  box-shadow: 0 0 0 3px rgba(194, 112, 61, 0.3);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 30%, transparent);
 }
 textarea.inp {
   min-height: 84px;
@@ -1310,6 +1416,15 @@ table.data-table td {
   font-size: 13px;
   color: #6b5432;
   line-height: 1.6;
+}
+
+/* ── Подзаголовок блока внутри секции ── */
+.block-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 21px;
+  color: var(--ink);
+  display: block;
 }
 
 /* ── Card accents ── */
@@ -1589,6 +1704,14 @@ header.top.scrolled {
   .logo b { font-size: 13.5px; }
   .logo small { font-size: 8.5px; letter-spacing: 0.06em; }
   .burger { padding: 8px 12px; }
+  /* свотчи в шапке на телефоне убираем — живут в бургер-меню и кабинете */
+  nav.main .swatch-menu { display: flex; }
+  nav.main .swatch-menu {
+    margin: 10px 0 0;
+    padding: 12px 6px 2px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  nav.main .swatch { width: 24px; height: 24px; }
   nav.main { top: 58px; border-radius: 0 0 20px 20px; }
   nav.main a { font-size: 13.5px; padding: 12px 16px; border-radius: var(--radius-sm); }
   .user-badge-header {
@@ -1661,9 +1784,12 @@ header.top.scrolled {
   .doc-row .doc-content { min-width: 0; }
   .doc-row .badge { max-width: 100%; white-space: normal; line-height: 1.35; }
 
-  /* Фото-полоса */
+  /* Фото-полоса: пропорции вместо жёсткой обрезки */
   .photo-strip { gap: 12px; margin-top: 18px; }
-  .photo-strip img { height: 180px; }
+  .photo-strip img { height: auto; aspect-ratio: 2 / 1; }
+  .card-photo img { height: auto; aspect-ratio: 16 / 7; }
+  .page-photo img { height: auto; aspect-ratio: 16 / 6; }
+  .hero-photo img { min-height: 0; height: auto; aspect-ratio: 16 / 9; }
 
   /* Миссия, цитата, карточки */
   .mission-box { padding: 20px 18px; margin-top: 18px; border-radius: 20px; }

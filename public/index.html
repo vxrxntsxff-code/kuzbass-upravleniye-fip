@@ -35,7 +35,18 @@
       <a href="#/help">В помощь руководителю</a>
       <a href="#/login" class="btn-login" id="navLoginBtn">Кабинет</a>
       <div id="userHeaderBadge" class="user-badge-header" style="display:none" onclick="location.hash='#/login'"></div>
+      <div class="theme-swatches swatch-menu" role="group" aria-label="Цветовая тема">
+        <button class="swatch swatch-classic" data-theme="classic" title="Тема «ИРО классика»" aria-label="Тема ИРО классика"></button>
+        <button class="swatch swatch-sky" data-theme="sky" title="Тема «Небо»" aria-label="Тема Небо"></button>
+        <button class="swatch swatch-petrol" data-theme="petrol" title="Тема «Петроль»" aria-label="Тема Петроль"></button>
+      </div>
     </nav>
+
+    <div class="theme-swatches swatch-header" role="group" aria-label="Цветовая тема">
+      <button class="swatch swatch-classic on" data-theme="classic" title="Тема «ИРО классика»" aria-label="Тема ИРО классика"></button>
+      <button class="swatch swatch-sky" data-theme="sky" title="Тема «Небо»" aria-label="Тема Небо"></button>
+      <button class="swatch swatch-petrol" data-theme="petrol" title="Тема «Петроль»" aria-label="Тема Петроль"></button>
+    </div>
   </div>
 </header>
 
@@ -177,11 +188,14 @@
       <div class="grid g2">
         <div class="card">
           <h3>Команда проекта</h3>
-          <p style="font-size:13.8px;line-height:1.8;margin-top:8px">
+          <p style="font-size:13.8px;line-height:1.9;margin-top:8px">
             Адрес: г. Кемерово, ул. Заузелкова, 3<br>
-            Телефон: <b>8 (3842) 56-69-86</b><br>
-            Почта: <b>ouk@kuz-edu.ru</b><br>
-            Группа ВКонтакте · Канал Max · Техническая поддержка
+            Телефон: <a href="tel:+78442566986"><b>8 (3842) 56-69-86</b></a><br>
+            Почта: <a href="mailto:ouk@kuz-edu.ru"><b>ouk@kuz-edu.ru</b></a><br>
+            <a href="https://vk.com/kripkipro" target="_blank" rel="noopener">Группа ВКонтакте</a> · <a href="https://t.me/kripkipro" target="_blank" rel="noopener">Telegram</a> · <a href="https://max.ru" target="_blank" rel="noopener">Канал Max</a>
+          </p>
+          <p style="margin-top:12px;font-size:12.5px;color:var(--ink-muted)">
+            Техническая поддержка: <a href="mailto:ouk@kuz-edu.ru?subject=Техническая поддержка">ouk@kuz-edu.ru</a> · Приёмная института: <a href="tel:+73842311586">+7 (3842) 31-15-86</a>, <a href="mailto:ipk@kuz-edu.ru">ipk@kuz-edu.ru</a>
           </p>
           <p style="margin-top:12px;font-size:12.5px;color:var(--ink-muted)">
             Приёмная института: +7 (3842) 31-15-86, ipk@kuz-edu.ru
@@ -482,7 +496,8 @@
         <div class="st"><b>5. Портфолио</b><span>решённые кейсы как вклад в аттестацию</span></div>
         <div class="st"><b>6. Повторная диагностика</b><span>сравнение результатов во времени</span></div>
       </div>
-      <div class="grid g4" style="margin-top:16px">
+      <h3 class="block-title" style="margin:34px 0 14px">Форматы развития внутри маршрута</h3>
+      <div class="grid g4">
         <div class="card"><h3>Повышение квалификации</h3><p>По ключевым управленческим дисциплинам в соответствии с выявленными дефицитами</p></div>
         <div class="card"><h3>Профессиональная переподготовка</h3><p>Для формирования недостающих управленческих компетенций</p></div>
         <div class="card"><h3>Целевое самообразование</h3><p>В соответствии со сформированным образовательным маршрутом</p></div>
@@ -714,21 +729,31 @@
     <div class="sec" id="cabWrap" style="display:none">
       <div class="cabinet-header">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
-          <h3 id="cabWho">Участник проекта</h3>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <div class="role-picker">
-              <span>Демо-роль:</span>
-              <select id="demoRoleSelect">
-                <option value="director">Директор ОО</option>
-                <option value="deputy">Заместитель по УВР</option>
-                <option value="reserve">Кадровый резерв</option>
-                <option value="expert">Эксперт Лиги</option>
-              </select>
+          <div style="min-width:0">
+            <h3 id="cabWho">Участник проекта</h3>
+            <div class="user-info-line">Данные анкеты, диагностики и портфолио сохраняются в вашем личном кабинете</div>
+          </div>
+          <button class="btn sm outline" id="logoutBtn">Выйти</button>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="role-picker">
+            <span>Демо-роль:</span>
+            <select id="demoRoleSelect">
+              <option value="director">Директор ОО</option>
+              <option value="deputy">Заместитель по УВР</option>
+              <option value="reserve">Кадровый резерв</option>
+              <option value="expert">Эксперт Лиги</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px">
+            <span style="font-size:11px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em">Тема:</span>
+            <div class="theme-swatches swatch-cabinet" style="margin:0" role="group" aria-label="Цветовая тема">
+              <button class="swatch swatch-classic" data-theme="classic" title="Тема «ИРО классика»" aria-label="Тема ИРО классика"></button>
+              <button class="swatch swatch-sky" data-theme="sky" title="Тема «Небо»" aria-label="Тема Небо"></button>
+              <button class="swatch swatch-petrol" data-theme="petrol" title="Тема «Петроль»" aria-label="Тема Петроль"></button>
             </div>
-            <button class="btn sm outline" id="logoutBtn">Выйти</button>
           </div>
         </div>
-        <div class="user-info-line">Данные анкеты, диагностики и портфолио сохраняются в вашем личном кабинете</div>
 
         <!-- Readiness Widget -->
         <div id="cabReadinessWidget" style="margin-top:14px;background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
@@ -1011,10 +1036,10 @@
         <h4>Контакты</h4>
         <p>
           г. Кемерово, ул. Заузелкова, 3<br>
-          8 (3842) 56-69-86 · ouk@kuz-edu.ru<br>
-          Приёмная: +7 (3842) 31-15-86, ipk@kuz-edu.ru
+          <a href="tel:+78442566986">8 (3842) 56-69-86</a> · <a href="mailto:ouk@kuz-edu.ru">ouk@kuz-edu.ru</a><br>
+          Приёмная: <a href="tel:+73842311586">+7 (3842) 31-15-86</a>, <a href="mailto:ipk@kuz-edu.ru">ipk@kuz-edu.ru</a>
         </p>
-        <p>Группа ВКонтакте · Канал Max</p>
+        <p><a href="https://vk.com/kripkipro" target="_blank" rel="noopener">ВКонтакте</a> · <a href="https://t.me/kripkipro" target="_blank" rel="noopener">Telegram</a> · <a href="https://max.ru" target="_blank" rel="noopener">Max</a></p>
       </div>
     </div>
     <div class="ft-bottom">
