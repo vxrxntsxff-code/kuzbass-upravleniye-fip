@@ -118,13 +118,32 @@ function initSchema() {
       FOREIGN KEY (idea_id) REFERENCES reserve_ideas(id) ON DELETE CASCADE,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS site_content (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      description TEXT,
+      category TEXT DEFAULT 'general',
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS library_documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      category TEXT NOT NULL, -- 'methodological' or 'normative'
+      description TEXT,
+      url TEXT,
+      file_path TEXT,
+      order_num INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   migrateSchema();
   seedInitialData();
 }
 
-// Миграция существующей БД: хеш пароля и таблица сессий
+// Миграция существующей БД: хеш пароля, таблица сессий, админ-таблицы и учетная запись admin
 function migrateSchema() {
   const userCols = db.prepare('PRAGMA table_info(users)').all().map(c => c.name);
   if (!userCols.includes('password_hash')) {
@@ -137,7 +156,52 @@ function migrateSchema() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS site_content (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      description TEXT,
+      category TEXT DEFAULT 'general',
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS library_documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      category TEXT NOT NULL,
+      description TEXT,
+      url TEXT,
+      file_path TEXT,
+      order_num INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
+
+  // Убеждаемся, что администратор существует в уже существующей БД
+  try {
+    const userCount = db.prepare('SELECT COUNT(*) as cnt FROM users').get().cnt;
+    if (userCount > 0) {
+      const adminUser = db.prepare('SELECT id FROM users WHERE login = ?').get('admin');
+      if (!adminUser) {
+        db.prepare(`
+          INSERT INTO users (
+            login, password, role, fio, birth_date, address, phone, email, 
+            education_level, institution, workplace, position,
+            experience_total, experience_ped, experience_mgmt, share_experience, consent_pd
+          ) VALUES (
+            'admin', 'admin123', 'admin', 'Администратор платформы ИРО', '1980-01-01',
+            'г. Кемерово, ул. Заузелкова, 3', '+7 (3842) 37-80-33', 'admin@kuz-edu.ru',
+            'Высшее', 'ГБОУ ДПО «ИРО Кузбасса»', 'ГБОУ ДПО «ИРО Кузбасса»', 'Администратор платформы',
+            '20', '15', '10', 'Администрирование платформы', 1
+          )
+        `).run();
+      }
+    }
+  } catch (_) {}
+
+  // Заполняем дефолтный контент при отсутствии
+  seedSiteContent();
+  seedLibraryDocuments();
 }
 
 function seedInitialData() {
@@ -222,7 +286,7 @@ function seedInitialData() {
     'Вербицкая Ирина Валерьевна',
     '1976-03-18',
     'г. Кемерово, ул. Заузелкова, 3',
-    '+7 (3842) 56-69-86',
+    '+7 (3842) 37-80-33',
     'ouk@kuz-edu.ru',
     'Высшее (аспирантура, к.п.н.)',
     'ГБОУ ДПО «ИРО Кузбасса»',
@@ -232,6 +296,26 @@ function seedInitialData() {
     '24',
     '15',
     'Моделирование образовательных систем, аудит управленческих практик, парное управление',
+    1
+  );
+
+  insertUser.run(
+    'admin',
+    'admin123',
+    'admin',
+    'Администратор платформы ИРО',
+    '1980-01-01',
+    'г. Кемерово, ул. Заузелкова, 3',
+    '+7 (3842) 37-80-33',
+    'admin@kuz-edu.ru',
+    'Высшее',
+    'ГБОУ ДПО «ИРО Кузбасса»',
+    'ГБОУ ДПО «ИРО Кузбасса»',
+    'Администратор платформы',
+    '20',
+    '15',
+    '10',
+    'Администрирование и методическое сопровождение платформы',
     1
   );
 
@@ -421,6 +505,42 @@ function seedInitialData() {
     'Погружение в реальный операционный контекст, развитие неявных управленческих навыков.',
     42
   );
+}
+
+function seedSiteContent() {
+  const count = db.prepare('SELECT COUNT(*) as cnt FROM site_content').get().cnt;
+  if (count > 0) return;
+
+  const insert = db.prepare('INSERT OR REPLACE INTO site_content (key, value, description, category) VALUES (?, ?, ?, ?)');
+
+  insert.run('hero_title', '«Управленческий навигатор Кузбасса»', 'Главный заголовок платформы на баннере главной страницы', 'home');
+  insert.run('hero_subtitle', 'Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования', 'Подзаголовок платформы на главной странице', 'home');
+  insert.run('mission_text', 'создать условия для осознанного профессионального роста руководителей, формирования сильного кадрового резерва и совместного поиска инновационных решений, направленных на повышение качества, эффективности и конкурентоспособности образования Кузбасса.', 'Текст миссии в блоке на главной и в разделе «О проекте»', 'about');
+  insert.run('about_goal', 'создать и внедрить научно обоснованную региональную модель опережающей подготовки и непрерывного развития управленческих кадров системы образования Кемеровской области — Кузбасса на период до 2030 года.', 'Главная цель проекта в разделе «О проекте»', 'about');
+  insert.run('photo_iro', 'img/photo_iro.jpg', 'Фотография фасада здания ИРО Кузбасса (Заузелкова, 3)', 'images');
+  insert.run('photo_strat_session', 'img/photo_strat_session.jpeg', 'Фотография стратегической сессии руководителей', 'images');
+  insert.run('photo_ecosistema', 'img/photo_ecosistema.jpg', 'Изображение региональной образовательной экосистемы', 'images');
+  insert.run('photo_kniga_direktora', 'img/photo_kniga_direktora.png', 'Обложка книги/руководства руководителя', 'images');
+}
+
+function seedLibraryDocuments() {
+  const count = db.prepare('SELECT COUNT(*) as cnt FROM library_documents').get().cnt;
+  if (count > 0) return;
+
+  const insert = db.prepare('INSERT INTO library_documents (title, category, description, url, order_num) VALUES (?, ?, ?, ?, ?)');
+
+  // Методические материалы
+  insert.run('Методический сборник «Управленческий навигатор Кузбасса»', 'methodological', 'Итоговый сборник модели: методики, разборы кейсов, рабочие листы руководителя', 'https://kuz-edu.ru', 1);
+  insert.run('Банк управленческих кейсов и симуляционных заданий (200+)', 'methodological', 'Реальные ситуации по пяти направлениям: стратегия, ФХД, персонал, качество, коммуникации', 'https://kuz-edu.ru', 2);
+  insert.run('Банк лучших управленческих практик Кузбасса', 'methodological', 'Готовые управленческие решения с возможностью адаптации под свою организацию', 'https://kuz-edu.ru', 3);
+  insert.run('Методические рекомендации по формированию управленческого портфолио', 'methodological', 'Алгоритм сбора данных, критерии и показатели оценки, подготовка к портфолио-аттестации', 'https://kuz-edu.ru', 4);
+
+  // Нормативная база
+  insert.run('Федеральный закон «Об образовании в РФ» № 273-ФЗ', 'normative', 'Базовый законодательный акт в образовании с актуальными изменениями 2026 года', 'http://pravo.gov.ru/proxy/ips/?docbody=&nd=102162745', 5);
+  insert.run('Закон Кемеровской области — Кузбасса от 05.07.2013 № 86-ОЗ', 'normative', 'Закон «Об образовании» в редакции от 1 июля 2026 г.', 'https://kuz-edu.ru', 6);
+  insert.run('Приказ Минпросвещения России от 24.02.2025 № 138 (ФГОС СОО)', 'normative', 'Федеральный государственный образовательный стандарт среднего общего образования', 'http://publication.pravo.gov.ru/', 7);
+  insert.run('Приказ Минтруда России от 21.03.2025 № 137н', 'normative', 'Профстандарт «Руководитель профессиональной образовательной организации»', 'http://publication.pravo.gov.ru/', 8);
+  insert.run('Приказ Минобрнауки России от 24.03.2025 № 266 (Порядок ДПП)', 'normative', 'Новый порядок организации программ ДПО, вступил в силу с 01.09.2025', 'http://publication.pravo.gov.ru/', 9);
 }
 
 initSchema();

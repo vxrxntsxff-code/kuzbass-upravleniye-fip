@@ -55,6 +55,31 @@ const upload = multer({
   }
 });
 
+// Загрузка изображений для админ-панели
+const imageStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const imgDir = path.join(uploadDir, 'images');
+    fs.mkdirSync(imgDir, { recursive: true });
+    cb(null, imgDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname || '').toLowerCase().replace(/[^a-z0-9.]/g, '');
+    cb(null, 'img-' + uniqueSuffix + ext);
+  }
+});
+const uploadImage = multer({
+  storage: imageStorage,
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter: function (req, file, cb) {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    if (!['.jpg', '.jpeg', '.png', '.webp', '.svg'].includes(ext)) {
+      return cb(new Error('Допустимы только форматы изображений: JPG, PNG, WEBP, SVG'));
+    }
+    cb(null, true);
+  }
+});
+
 app.use(express.json({ limit: '200kb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -78,6 +103,16 @@ function requireAuth(req, res) {
   const user = getUser(req);
   if (!user) {
     res.status(401).json({ error: 'Не авторизован' });
+    return null;
+  }
+  return user;
+}
+
+function requireAdmin(req, res) {
+  const user = requireAuth(req, res);
+  if (!user) return null;
+  if (user.role !== 'admin') {
+    res.status(403).json({ error: 'Требуются права администратора' });
     return null;
   }
   return user;
@@ -190,8 +225,12 @@ app.post('/api/auth/logout', (req, res) => {
 // ── Static frontend files (после определения getUser) ──
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// Загруженные документы портфолио — только для авторизованных пользователей
+// Загруженные документы портфолио — только для авторизованных пользователей;
+// публичные изображения сайта (/uploads/images/...) доступны всем посетителям
 app.use('/uploads', (req, res, next) => {
+  if (req.path.startsWith('/images/')) {
+    return next();
+  }
   if (!getUser(req)) {
     return res.status(401).json({ error: 'Не авторизован' });
   }
@@ -611,6 +650,181 @@ app.post('/api/reserve/ideas/:id/vote', (req, res) => {
   db.prepare('INSERT INTO idea_votes (idea_id, user_id) VALUES (?, ?)').run(ideaId, user.id);
   db.prepare('UPDATE reserve_ideas SET votes_count = votes_count + 1 WHERE id = ?').run(ideaId);
   res.json({ success: true, voted: true });
+});
+
+// ── Admin: Site Content API (тексты и изображения) ──
+app.get('/api/content', (req, res) => {
+  try {
+    const rows = db.prepare('SELECT key, value, description, category FROM site_content').all();
+    const content = {};
+    rows.forEach(r => { content[r.key] = r.value; });
+    res.json({ success: true, content, items: rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/admin/content', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const updates = req.body.items || req.body;
+  if (!updates || typeof updates !== 'object') {
+    return res.status(400).json({ error: 'Некорректный формат данных' });
+  }
+
+  const upsert = db.prepare(`
+    INSERT INTO site_content (key, value, description, category, updated_at)
+    VALUES (?, ?, COALESCE((SELECT description FROM site_content WHERE key = ?), ''), 'general', CURRENT_TIMESTAMP)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+  `);
+
+  for (const [key, value] of Object.entries(updates)) {
+    if (typeof key === 'string' && typeof value === 'string') {
+      upsert.run(key, value, key);
+    }
+  }
+
+  const rows = db.prepare('SELECT key, value, description, category FROM site_content').all();
+  const content = {};
+  rows.forEach(r => { content[r.key] = r.value; });
+  res.json({ success: true, content, items: rows });
+});
+
+app.post('/api/admin/upload-image', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  uploadImage.single('image')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: 'Файл изображения не передан' });
+
+    const publicUrl = '/uploads/images/' + req.file.filename;
+    res.json({ success: true, url: publicUrl, filename: req.file.filename });
+  });
+});
+
+// ── Admin: Library Documents API (библиотека «В помощь руководителю») ──
+app.get('/api/documents', (req, res) => {
+  try {
+    const documents = db.prepare('SELECT * FROM library_documents ORDER BY category, order_num, id').all();
+    res.json({ success: true, documents });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/documents', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const { title, category, description, url, file_path, order_num } = req.body;
+  const safeTitle = String(title || '').trim();
+  if (!safeTitle) {
+    return res.status(400).json({ error: 'Укажите название документа' });
+  }
+
+  const cat = category === 'normative' ? 'normative' : 'methodological';
+  const info = db.prepare(`
+    INSERT INTO library_documents (title, category, description, url, file_path, order_num)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(
+    safeTitle.slice(0, 300),
+    cat,
+    String(description || '').slice(0, 1000),
+    String(url || '').slice(0, 500),
+    String(file_path || '').slice(0, 500),
+    parseInt(order_num, 10) || 0
+  );
+
+  const doc = db.prepare('SELECT * FROM library_documents WHERE id = ?').get(info.lastInsertRowid);
+  res.json({ success: true, document: doc });
+});
+
+app.put('/api/admin/documents/:id', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id документа' });
+
+  const existing = db.prepare('SELECT * FROM library_documents WHERE id = ?').get(id);
+  if (!existing) return res.status(404).json({ error: 'Документ не найден' });
+
+  const { title, category, description, url, file_path, order_num } = req.body;
+  db.prepare(`
+    UPDATE library_documents
+    SET title = COALESCE(?, title),
+        category = COALESCE(?, category),
+        description = COALESCE(?, description),
+        url = COALESCE(?, url),
+        file_path = COALESCE(?, file_path),
+        order_num = COALESCE(?, order_num)
+    WHERE id = ?
+  `).run(
+    title !== undefined ? String(title).trim().slice(0, 300) : null,
+    category !== undefined ? (category === 'normative' ? 'normative' : 'methodological') : null,
+    description !== undefined ? String(description).slice(0, 1000) : null,
+    url !== undefined ? String(url).slice(0, 500) : null,
+    file_path !== undefined ? String(file_path).slice(0, 500) : null,
+    order_num !== undefined ? parseInt(order_num, 10) || 0 : null,
+    id
+  );
+
+  const updated = db.prepare('SELECT * FROM library_documents WHERE id = ?').get(id);
+  res.json({ success: true, document: updated });
+});
+
+app.delete('/api/admin/documents/:id', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id документа' });
+
+  db.prepare('DELETE FROM library_documents WHERE id = ?').run(id);
+  res.json({ success: true });
+});
+
+// ── Admin: Dialogue Moderation API ──
+app.delete('/api/admin/dialogue/:id', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id вопроса' });
+
+  db.prepare('DELETE FROM dialogue_questions WHERE id = ?').run(id);
+  res.json({ success: true });
+});
+
+app.put('/api/admin/dialogue/:id', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id вопроса' });
+
+  const { question_text, answer_text, status, category } = req.body;
+  db.prepare(`
+    UPDATE dialogue_questions
+    SET question_text = COALESCE(?, question_text),
+        answer_text = COALESCE(?, answer_text),
+        status = COALESCE(?, status),
+        category = COALESCE(?, category),
+        answered_at = CASE WHEN ? IS NOT NULL THEN CURRENT_TIMESTAMP ELSE answered_at END
+    WHERE id = ?
+  `).run(
+    question_text !== undefined ? String(question_text).slice(0, 2000) : null,
+    answer_text !== undefined ? String(answer_text).slice(0, 3000) : null,
+    status || null,
+    category || null,
+    answer_text || null,
+    id
+  );
+
+  const question = db.prepare('SELECT * FROM dialogue_questions WHERE id = ?').get(id);
+  res.json({ success: true, question });
 });
 
 // ── Summary Stats API ──

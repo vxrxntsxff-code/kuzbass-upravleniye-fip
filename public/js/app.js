@@ -14,7 +14,7 @@ const state = {
 };
 
 // Пароли демо-учетных записей для переключателя ролей
-const DEMO_PASSWORDS = { director: 'demo123', deputy: 'demo123', reserve: 'demo123', expert: 'expert123' };
+const DEMO_PASSWORDS = { director: 'demo123', deputy: 'demo123', reserve: 'demo123', expert: 'expert123', admin: 'admin123' };
 
 // ── Toast Helper ──
 function showToast(message, isError = false) {
@@ -65,11 +65,20 @@ const OFFLINE_SEED = {
     expert: {
       id: 4, login: 'expert', role: 'expert', role_title: 'Эксперт Лиги',
       fio: 'Вербицкая Ирина Валерьевна', birth_date: '1976-03-18', address: 'г. Кемерово, ул. Заузелкова, 3',
-      phone: '+7 (3842) 56-69-86', email: 'ouk@kuz-edu.ru', citizenship: 'Российская Федерация',
+      phone: '+7 (3842) 37-80-33', email: 'ouk@kuz-edu.ru', citizenship: 'Российская Федерация',
       education_level: 'Высшее (аспирантура, к.п.н.)', institution: 'ГБОУ ДПО «ИРО Кузбасса»',
       workplace: 'ГБОУ ДПО «ИРО Кузбасса»', position: 'Заведующий отделом подготовки управленческих кадров, эксперт Лиги',
       experience_total: '26', experience_ped: '24', experience_mgmt: '15',
       share_experience: 'Моделирование образовательных систем, аудит управленческих практик, парное управление', consent_pd: 1
+    },
+    admin: {
+      id: 5, login: 'admin', role: 'admin', role_title: 'Администратор платформы',
+      fio: 'Администратор платформы ИРО', birth_date: '1980-01-01', address: 'г. Кемерово, ул. Заузелкова, 3',
+      phone: '+7 (3842) 37-80-33', email: 'admin@kuz-edu.ru', citizenship: 'Российская Федерация',
+      education_level: 'Высшее', institution: 'ГБОУ ДПО «ИРО Кузбасса»',
+      workplace: 'ГБОУ ДПО «ИРО Кузбасса»', position: 'Администратор платформы',
+      experience_total: '20', experience_ped: '15', experience_mgmt: '10',
+      share_experience: 'Администрирование и методическое сопровождение платформы', consent_pd: 1
     }
   },
   ipr: [
@@ -337,6 +346,64 @@ async function mockApi(endpoint, options = {}) {
     setLocalState('ideas', ideas);
     return { success: true };
   }
+  if (endpoint === '/api/content') {
+    const c = getLocalState('content', {
+      hero_title: '«Управленческий навигатор Кузбасса»',
+      hero_subtitle: 'Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования',
+      mission_text: 'создать условия для осознанного профессионального роста руководителей, формирования сильного кадрового резерва и совместного поиска инновационных решений, направленных на повышение качества, эффективности и конкурентоспособности образования Кузбасса.',
+      about_goal: 'создать и внедрить научно обоснованную региональную модель опережающей подготовки и непрерывного развития управленческих кадров системы образования Кемеровской области — Кузбасса на период до 2030 года.',
+      photo_iro: 'img/photo_iro.jpg',
+      photo_strat_session: 'img/photo_strat_session.jpeg',
+      photo_ecosistema: 'img/photo_ecosistema.jpg',
+      photo_kniga_direktora: 'img/photo_kniga_direktora.png'
+    });
+    return { success: true, content: c };
+  }
+  if (endpoint === '/api/admin/content' && method === 'PUT') {
+    const cur = getLocalState('content', {});
+    const updated = { ...cur, ...(body.items || body) };
+    setLocalState('content', updated);
+    return { success: true, content: updated };
+  }
+  if (endpoint === '/api/admin/upload-image' && method === 'POST') {
+    return { success: true, url: 'img/photo_iro.jpg', filename: 'photo_iro.jpg' };
+  }
+  if (endpoint === '/api/documents') {
+    const defaultDocs = [
+      { id: 1, title: 'Методический сборник «Управленческий навигатор Кузбасса»', category: 'methodological', description: 'Итоговый сборник модели: методики, разборы кейсов, рабочие листы руководителя', url: 'https://kuz-edu.ru' },
+      { id: 2, title: 'Банк управленческих кейсов и симуляционных заданий (200+)', category: 'methodological', description: 'Реальные ситуации по пяти направлениям', url: 'https://kuz-edu.ru' },
+      { id: 3, title: 'Банк лучших управленческих практик Кузбасса', category: 'methodological', description: 'Готовые управленческие решения для образовательных организаций', url: 'https://kuz-edu.ru' },
+      { id: 4, title: 'Методические рекомендации по формированию портфолио', category: 'methodological', description: 'Алгоритм сбора и критерии оценки управленческого портфолио', url: 'https://kuz-edu.ru' },
+      { id: 5, title: 'Федеральный закон «Об образовании в РФ» № 273-ФЗ', category: 'normative', description: 'Базовый законодательный акт с актуальными изменениями 2026 года', url: 'http://pravo.gov.ru' },
+      { id: 6, title: 'Закон Кемеровской области — Кузбасса от 05.07.2013 № 86-ОЗ', category: 'normative', description: 'Закон «Об образовании» в редакции от 1 июля 2026 г.', url: 'https://kuz-edu.ru' },
+      { id: 7, title: 'Приказ Минпросвещения России от 24.02.2025 № 138 (ФГОС СОО)', category: 'normative', description: 'Федеральный государственный образовательный стандарт среднего общего образования', url: 'http://publication.pravo.gov.ru/' },
+      { id: 8, title: 'Приказ Минтруда России от 21.03.2025 № 137н', category: 'normative', description: 'Профстандарт «Руководитель профессиональной образовательной организации»', url: 'http://publication.pravo.gov.ru/' },
+      { id: 9, title: 'Приказ Минобрнауки России от 24.03.2025 № 266 (Порядок ДПП)', category: 'normative', description: 'Новый порядок организации программ ДПО (с 01.09.2025)', url: 'http://publication.pravo.gov.ru/' }
+    ];
+    const docs = getLocalState('documents', defaultDocs);
+    return { success: true, documents: docs };
+  }
+  if (endpoint === '/api/admin/documents' && method === 'POST') {
+    let docs = getLocalState('documents', []);
+    const newDoc = { id: Date.now(), ...body };
+    docs.push(newDoc);
+    setLocalState('documents', docs);
+    return { success: true, document: newDoc };
+  }
+  if (endpoint.startsWith('/api/admin/documents/') && method === 'DELETE') {
+    const id = +endpoint.split('/').pop();
+    let docs = getLocalState('documents', []);
+    docs = docs.filter(d => d.id !== id);
+    setLocalState('documents', docs);
+    return { success: true };
+  }
+  if (endpoint.startsWith('/api/admin/dialogue/') && method === 'DELETE') {
+    const id = +endpoint.split('/').pop();
+    let dlg = getLocalState('dialogue', OFFLINE_SEED.dialogue);
+    dlg = dlg.filter(q => q.id !== id);
+    setLocalState('dialogue', dlg);
+    return { success: true };
+  }
 
   return { success: true };
 }
@@ -437,6 +504,7 @@ async function logout() {
 
 function updateAuthUI() {
   const headerBtn = document.getElementById('navLoginBtn');
+  const navAdminBtn = document.getElementById('navAdminBtn');
   const userBadge = document.getElementById('userHeaderBadge');
   const loginWrap = document.getElementById('loginWrap');
   const cabWrap = document.getElementById('cabWrap');
@@ -445,6 +513,7 @@ function updateAuthUI() {
 
   if (state.currentUser) {
     if (headerBtn) headerBtn.style.display = 'none';
+    if (navAdminBtn) navAdminBtn.style.display = state.currentUser.role === 'admin' ? 'inline-flex' : 'none';
     if (userBadge) {
       userBadge.style.display = 'flex';
       userBadge.innerHTML = `<span>${escapeHtml(state.currentUser.fio.split(' ')[0] || state.currentUser.login)}</span>`;
@@ -457,11 +526,12 @@ function updateAuthUI() {
       cabWho.innerHTML = `${escapeHtml(state.currentUser.fio)} · <span style="font-weight:400;color:var(--ink-muted)">${escapeHtml(state.currentUser.position || 'Руководитель')}, ${escapeHtml(state.currentUser.workplace || 'ОО Кузбасса')}</span> · <span class="badge b-g">${getRoleTitle(state.currentUser.role)}</span>`;
     }
     if (demoRoleSelect) {
-      demoRoleSelect.value = state.currentUser.login;
+      demoRoleSelect.value = state.currentUser.role || state.currentUser.login;
     }
     fillProfileForm();
   } else {
     if (headerBtn) headerBtn.style.display = 'inline-flex';
+    if (navAdminBtn) navAdminBtn.style.display = 'none';
     if (userBadge) userBadge.style.display = 'none';
     if (loginWrap) loginWrap.style.display = 'grid';
     if (cabWrap) cabWrap.style.display = 'none';
@@ -482,11 +552,17 @@ function getRoleTitle(role) {
 }
 
 // ── Routing ──
-const ROUTES = ['home', 'about', 'comp', 'diag', 'traj', 'dialog', 'future', 'help', 'login'];
+const ROUTES = ['home', 'about', 'comp', 'diag', 'traj', 'dialog', 'future', 'help', 'login', 'admin'];
 
 function route() {
   const hash = (location.hash || '#/home').replace(/^#\/?/, '');
   state.activeRoute = ROUTES.includes(hash) ? hash : 'home';
+
+  if (state.activeRoute === 'admin' && state.currentUser?.role !== 'admin') {
+    state.activeRoute = 'login';
+    location.hash = '#/login';
+    showToast('Панель управления доступна только администраторам', true);
+  }
 
   ROUTES.forEach(r => {
     const el = document.getElementById('p-' + r);
@@ -509,20 +585,23 @@ function route() {
   if (state.activeRoute === 'dialog') loadDialogueFeed();
   if (state.activeRoute === 'future') loadReserveIdeas();
   if (state.activeRoute === 'login' && state.currentUser) loadCabinetData();
+  if (state.activeRoute === 'admin') loadAdminPanelData();
 }
 
 window.addEventListener('hashchange', route);
 
 // ── Tabs Generic ──
-function initTabs(barId, panePrefix) {
+function initTabs(barId, panePrefix, paneClass) {
   const bar = document.getElementById(barId);
   if (!bar) return;
+  const pClass = paneClass || (panePrefix + '-pane');
   bar.querySelectorAll('button').forEach(btn => {
     btn.onclick = () => {
       bar.querySelectorAll('button').forEach(b => b.classList.remove('on'));
       btn.classList.add('on');
-      const targetId = panePrefix + '-' + btn.dataset.t;
-      document.querySelectorAll('.' + panePrefix + '-pane').forEach(pane => {
+      const key = btn.dataset.t || btn.dataset[panePrefix] || Object.values(btn.dataset)[0];
+      const targetId = panePrefix + '-' + key;
+      document.querySelectorAll('.' + pClass).forEach(pane => {
         pane.classList.toggle('on', pane.id === targetId);
       });
     };
@@ -534,13 +613,13 @@ function renderCompetencies() {
   const box = document.getElementById('compContainer');
   if (!box) return;
 
-  box.innerHTML = COMPETENCIES.map(c => `
+  box.innerHTML = COMPETENCIES.map((c, idx) => `
     <div class="card">
       <div class="card-icon">${c.icon}</div>
-      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">${c.code} · ${c.subtitle}</div>
+      <div style="font-size:11px;font-weight:700;color:var(--accent-blue);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">Направление 0${idx + 1} · ${c.subtitle}</div>
       <h3>${c.title}</h3>
       <p>${c.desc}</p>
-      <div style="margin:12px 0 0;background:var(--surface-subtle);border-left:3px solid var(--accent);padding:10px 12px;font-size:12.5px;color:var(--ink-secondary);font-style:italic">
+      <div style="margin:12px 0 0;background:var(--surface-subtle);border-left:3px solid var(--accent-blue);padding:10px 12px;font-size:12.5px;color:var(--ink-secondary);font-style:italic">
         ${c.selfQuote}
       </div>
     </div>
@@ -799,35 +878,317 @@ async function submitTest() {
   resBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// ── Normative Library ──
-function renderNormativeLibrary() {
-  const box = document.getElementById('normLib');
-  if (!box) return;
-  let html = '';
+// ── Normative and Methodological Library ──
+async function renderNormativeLibrary() {
+  const normBox = document.getElementById('normLib');
+  const methodBox = document.getElementById('methodDocsContainer');
+  if (!normBox) return;
 
+  try {
+    const res = await api('/api/documents');
+    if (res && res.documents && res.documents.length > 0) {
+      const normDocs = res.documents.filter(d => d.category === 'normative');
+      const methodDocs = res.documents.filter(d => d.category === 'methodological');
+
+      normBox.innerHTML = normDocs.map(d => `
+        <div class="doc-row">
+          <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="doc-content">
+            <span class="doc-title">${escapeHtml(d.title)}</span>
+            <span class="doc-desc">${escapeHtml(d.description || '')}</span>
+            ${d.url ? `<div style="margin-top:6px"><a href="${escapeHtml(d.url)}" target="_blank" rel="noopener" style="font-size:12px;font-weight:600;color:var(--accent-blue)">Открыть документ ↗</a></div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      if (methodBox && methodDocs.length > 0) {
+        methodBox.innerHTML = methodDocs.map(d => `
+          <div class="doc-row">
+            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+            <div class="doc-content">
+              <span class="doc-title">${escapeHtml(d.title)}</span>
+              <span class="doc-desc">${escapeHtml(d.description || '')}</span>
+              ${d.url ? `<div style="margin-top:6px"><a href="${escapeHtml(d.url)}" target="_blank" rel="noopener" style="font-size:12px;font-weight:600;color:var(--accent-blue)">Открыть документ ↗</a></div>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+      return;
+    }
+  } catch (_) {}
+
+  // Fallback
+  let html = '';
   NORMATIVE_DOCS.forEach(group => {
-    html += `<h3 style="margin:26px 0 12px;font-size:15px;color:var(--ink)">${group.group}</h3>`;
+    html += `<h4 style="margin:16px 0 8px;font-size:13.5px;color:var(--ink)">${group.group}</h4>`;
     group.items.forEach(doc => {
       html += `
         <div class="doc-row">
           <div class="doc-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           </div>
           <div class="doc-content">
-            <span class="doc-title">${doc.name}</span>
-            <span class="doc-desc">${doc.note}</span>
+            <span class="doc-title">${escapeHtml(doc.name)}</span>
+            <span class="doc-desc">${escapeHtml(doc.note)}</span>
             <div style="margin-top:6px">
-              <span class="badge b-g">${doc.status}</span>
-              ${doc.url ? `<a href="${doc.url}" target="_blank" rel="noopener" style="margin-left:10px;font-size:12px;font-weight:600">Открыть первоисточник ↗</a>` : ''}
+              <span class="badge b-g">${escapeHtml(doc.status)}</span>
+              ${doc.url ? `<a href="${doc.url}" target="_blank" rel="noopener" style="margin-left:10px;font-size:12px;font-weight:600">Открыть ↗</a>` : ''}
             </div>
           </div>
         </div>
       `;
     });
   });
-
-  box.innerHTML = html;
+  normBox.innerHTML = html;
 }
+
+// ── Site Content Dynamic Loader ──
+async function loadAndApplySiteContent() {
+  try {
+    const data = await api('/api/content');
+    if (!data || !data.content) return;
+    const c = data.content;
+
+    if (c.hero_title) {
+      const el = document.querySelector('#p-home .hero-banner h1');
+      if (el) el.innerHTML = escapeHtml(c.hero_title).replace(/«|»/g, '<span>$&</span>');
+    }
+    if (c.hero_subtitle) {
+      const el = document.querySelector('#p-home .hero-banner p');
+      if (el) el.textContent = c.hero_subtitle;
+    }
+    if (c.mission_text) {
+      document.querySelectorAll('.mission-box p, .schema-box.mission').forEach(el => {
+        el.innerHTML = `<b>МИССИЯ:</b> ${escapeHtml(c.mission_text)}`;
+      });
+    }
+    if (c.about_goal) {
+      const el = document.querySelector('.schema-box.goal');
+      if (el) el.innerHTML = `<b>ЦЕЛЬ:</b> ${escapeHtml(c.about_goal)}`;
+    }
+
+    if (c.photo_iro) {
+      document.querySelectorAll('img[src*="photo_iro"]').forEach(img => img.src = c.photo_iro);
+    }
+    if (c.photo_strat_session) {
+      document.querySelectorAll('img[src*="photo_strat_session"]').forEach(img => img.src = c.photo_strat_session);
+    }
+    if (c.photo_ecosistema) {
+      document.querySelectorAll('img[src*="photo_ecosistema"]').forEach(img => img.src = c.photo_ecosistema);
+    }
+    if (c.photo_kniga_direktora) {
+      document.querySelectorAll('img[src*="photo_kniga_direktora"]').forEach(img => img.src = c.photo_kniga_direktora);
+    }
+  } catch (_) {}
+}
+
+// ── Admin Panel Methods ──
+async function loadAdminPanelData() {
+  if (!state.currentUser || state.currentUser.role !== 'admin') return;
+
+  try {
+    const data = await api('/api/content');
+    if (data && data.content) {
+      const c = data.content;
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+      setVal('adm_hero_title', c.hero_title);
+      setVal('adm_hero_subtitle', c.hero_subtitle);
+      setVal('adm_mission_text', c.mission_text);
+      setVal('adm_about_goal', c.about_goal);
+
+      setVal('adm_photo_iro', c.photo_iro);
+      setVal('adm_photo_strat_session', c.photo_strat_session);
+      setVal('adm_photo_ecosistema', c.photo_ecosistema);
+      setVal('adm_photo_kniga_direktora', c.photo_kniga_direktora);
+
+      const setPrev = (id, src) => { const el = document.getElementById(id); if (el && src) el.src = src; };
+      setPrev('prev_photo_iro', c.photo_iro);
+      setPrev('prev_photo_strat_session', c.photo_strat_session);
+      setPrev('prev_photo_ecosistema', c.photo_ecosistema);
+      setPrev('prev_photo_kniga_direktora', c.photo_kniga_direktora);
+    }
+  } catch (_) {}
+
+  loadAdminDocumentsList();
+  loadAdminDialogueList();
+}
+
+async function loadAdminDocumentsList() {
+  const container = document.getElementById('admDocList');
+  if (!container) return;
+  try {
+    const res = await api('/api/documents');
+    const docs = res.documents || [];
+    if (docs.length === 0) {
+      container.innerHTML = '<div style="color:var(--ink-muted);font-size:13px;padding:12px">Документов пока нет</div>';
+      return;
+    }
+    container.innerHTML = docs.map(d => `
+      <div class="adm-doc-item">
+        <div class="adm-doc-info">
+          <span class="adm-doc-tag ${d.category}">${d.category === 'normative' ? 'Нормативный' : 'Методический'}</span>
+          <b style="display:block;font-size:13.2px;line-height:1.3;color:var(--ink)">${escapeHtml(d.title)}</b>
+          <span style="font-size:12px;color:var(--ink-muted);display:block;margin-top:2px">${escapeHtml(d.description || '')}</span>
+          ${d.url ? `<a href="${escapeHtml(d.url)}" target="_blank" rel="noopener" style="font-size:11.5px;color:var(--accent-blue)">${escapeHtml(d.url)} ↗</a>` : ''}
+        </div>
+        <div>
+          <button class="btn sm danger" onclick="deleteAdminDocument(${d.id})">🗑️ Удалить</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = `<div style="color:var(--danger)">Ошибка загрузки: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+async function deleteAdminDocument(id) {
+  if (!confirm('Вы уверены, что хотите удалить этот документ с сайта?')) return;
+  try {
+    await api('/api/admin/documents/' + id, { method: 'DELETE' });
+    showToast('Документ успешно удален');
+    loadAdminDocumentsList();
+    renderNormativeLibrary();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+async function loadAdminDialogueList() {
+  const container = document.getElementById('admDialogueList');
+  if (!container) return;
+  try {
+    const res = await api('/api/dialogue');
+    const questions = res.questions || [];
+    if (questions.length === 0) {
+      container.innerHTML = '<div style="color:var(--ink-muted);font-size:13px;padding:12px">Вопросов пока нет</div>';
+      return;
+    }
+    container.innerHTML = questions.map(q => `
+      <div style="background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div>
+            <span style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--accent-blue)">${escapeHtml(q.category)}</span>
+            <span style="font-size:11px;color:var(--ink-muted);margin-left:8px">Автор: ${escapeHtml(q.author_name || 'Аноним')}</span>
+            <p style="margin:6px 0;font-size:13.5px;font-weight:600;color:var(--ink)">${escapeHtml(q.question_text)}</p>
+            ${q.answer_text ? `<div style="background:#fff;border-left:3px solid var(--accent-blue);padding:8px 12px;font-size:12.5px;margin-top:6px;color:var(--ink)"><b>Ответ:</b> ${escapeHtml(q.answer_text)}</div>` : '<div style="font-size:12px;color:var(--warning);margin-top:4px">Ожидает ответа эксперта</div>'}
+          </div>
+          <button class="btn sm danger" onclick="deleteAdminDialogueQuestion(${q.id})">Удалить</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = `<div style="color:var(--danger)">Ошибка: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+async function deleteAdminDialogueQuestion(id) {
+  if (!confirm('Удалить этот вопрос из ленты?')) return;
+  try {
+    await api('/api/admin/dialogue/' + id, { method: 'DELETE' });
+    showToast('Вопрос удален');
+    loadAdminDialogueList();
+    loadDialogueFeed();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+async function saveAdminTexts() {
+  const payload = {
+    hero_title: document.getElementById('adm_hero_title')?.value.trim() || '',
+    hero_subtitle: document.getElementById('adm_hero_subtitle')?.value.trim() || '',
+    mission_text: document.getElementById('adm_mission_text')?.value.trim() || '',
+    about_goal: document.getElementById('adm_about_goal')?.value.trim() || ''
+  };
+  try {
+    await api('/api/admin/content', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+    showToast('Тексты разделов успешно сохранены на сайте!');
+    await loadAndApplySiteContent();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+async function saveAdminImages() {
+  const payload = {
+    photo_iro: document.getElementById('adm_photo_iro')?.value.trim() || '',
+    photo_strat_session: document.getElementById('adm_photo_strat_session')?.value.trim() || '',
+    photo_ecosistema: document.getElementById('adm_photo_ecosistema')?.value.trim() || '',
+    photo_kniga_direktora: document.getElementById('adm_photo_kniga_direktora')?.value.trim() || ''
+  };
+  try {
+    await api('/api/admin/content', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+    showToast('Пути к изображениям сохранены!');
+    await loadAndApplySiteContent();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+function setupAdminImageUpload(fileInputId, textInputId, previewImgId) {
+  const fileInput = document.getElementById(fileInputId);
+  if (!fileInput) return;
+  fileInput.onchange = async () => {
+    if (!fileInput.files.length) return;
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      showToast('Загрузка изображения...');
+      const res = await api('/api/admin/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+      const url = res.url || res.imageUrl;
+      if (url) {
+        const textInput = document.getElementById(textInputId);
+        if (textInput) textInput.value = url;
+        const prev = document.getElementById(previewImgId);
+        if (prev) prev.src = url;
+        showToast('Файл загружен! Нажмите «Сохранить пути», чтобы применить изменения.');
+      }
+    } catch (err) {
+      showToast('Ошибка загрузки: ' + err.message, true);
+    }
+  };
+}
+
+async function handleAdminAddDocument(e) {
+  e.preventDefault();
+  const title = document.getElementById('admDocTitle')?.value.trim();
+  const category = document.getElementById('admDocCategory')?.value;
+  const description = document.getElementById('admDocDesc')?.value.trim();
+  const url = document.getElementById('admDocUrl')?.value.trim();
+
+  if (!title) {
+    showToast('Укажите название документа', true);
+    return;
+  }
+
+  try {
+    await api('/api/admin/documents', {
+      method: 'POST',
+      body: JSON.stringify({ title, category, description, url })
+    });
+    showToast('Документ успешно добавлен в библиотеку!');
+    document.getElementById('admDocTitle').value = '';
+    document.getElementById('admDocDesc').value = '';
+    loadAdminDocumentsList();
+    renderNormativeLibrary();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+window.deleteAdminDocument = deleteAdminDocument;
+window.deleteAdminDialogueQuestion = deleteAdminDialogueQuestion;
 
 // ── Dialogue Q&A ──
 async function loadDialogueFeed() {
@@ -1501,6 +1862,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   initTabs('ctabs', 'ct');
+  initTabs('adminTabs', 'at', 'admin-pane');
 
   renderCompetencies();
   renderSelfAssessment();
@@ -1610,6 +1972,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) logoutBtn.onclick = logout;
 
+  // Админ-панель: кнопки сохранения и загрузка файлов
+  const admSaveTextsBtn = document.getElementById('admSaveTextsBtn');
+  if (admSaveTextsBtn) admSaveTextsBtn.onclick = saveAdminTexts;
+
+  const admSaveImagesBtn = document.getElementById('admSaveImagesBtn');
+  if (admSaveImagesBtn) admSaveImagesBtn.onclick = saveAdminImages;
+
+  setupAdminImageUpload('upload_photo_iro', 'adm_photo_iro', 'prev_photo_iro');
+  setupAdminImageUpload('upload_photo_strat_session', 'adm_photo_strat_session', 'prev_photo_strat_session');
+  setupAdminImageUpload('upload_photo_ecosistema', 'adm_photo_ecosistema', 'prev_photo_ecosistema');
+  setupAdminImageUpload('upload_photo_kniga_direktora', 'adm_photo_kniga_direktora', 'prev_photo_kniga_direktora');
+
+  const admAddDocForm = document.getElementById('admAddDocForm');
+  if (admAddDocForm) admAddDocForm.onsubmit = handleAdminAddDocument;
+
   await initAuth();
+  await loadAndApplySiteContent();
   route();
 });

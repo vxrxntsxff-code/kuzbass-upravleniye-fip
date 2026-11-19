@@ -16,6 +16,7 @@ let tmpDir;
 let directorToken;   // демо-директор с полной историей
 let freshToken;      // свежесозданный пользователь
 let expertToken;     // эксперт Лиги
+let adminToken;      // администратор платформы
 
 async function api(path, { method = 'GET', body, token } = {}) {
   const headers = {};
@@ -382,6 +383,106 @@ test('E2E: защита от перебора пароля — 429 после с
   } finally {
     brute.kill();
   }
+});
+
+// ── Администрирование ──
+test('E2E: вход администратора и права роли admin', async () => {
+  const login = await api('/api/auth/login', { method: 'POST', body: { login: 'admin', password: 'admin123' } });
+  assert.equal(login.status, 200);
+  assert.equal(login.data.user.role, 'admin');
+  adminToken = login.data.token;
+});
+
+test('E2E: не-администратор получает 403 при попытке вызвать методы админки', async () => {
+  const testContent = await api('/api/admin/content', { method: 'PUT', token: freshToken, body: { hero_title: 'Хак' } });
+  assert.equal(testContent.status, 403);
+
+  const testDoc = await api('/api/admin/documents', { method: 'POST', token: freshToken, body: { title: 'Документ' } });
+  assert.equal(testDoc.status, 403);
+
+  const testDel = await api('/api/admin/documents/1', { method: 'DELETE', token: freshToken });
+  assert.equal(testDel.status, 403);
+});
+
+test('E2E: контент сайта читается публично и обновляется администратором', async () => {
+  const read = await api('/api/content');
+  assert.equal(read.status, 200);
+  assert.ok(read.data.content.hero_title);
+
+  const upd = await api('/api/admin/content', {
+    method: 'PUT',
+    token: adminToken,
+    body: { hero_title: '«Управленческий навигатор Кузбасса 2030»' }
+  });
+  assert.equal(upd.status, 200);
+  assert.equal(upd.data.content.hero_title, '«Управленческий навигатор Кузбасса 2030»');
+
+  const verify = await api('/api/content');
+  assert.equal(verify.data.content.hero_title, '«Управленческий навигатор Кузбасса 2030»');
+});
+
+test('E2E: библиотека документов — CRUD администратора', async () => {
+  const list = await api('/api/documents');
+  assert.equal(list.status, 200);
+  assert.ok(list.data.documents.length >= 4);
+
+  const create = await api('/api/admin/documents', {
+    method: 'POST',
+    token: adminToken,
+    body: {
+      title: 'Новое положение об аттестации 2026',
+      category: 'normative',
+      description: 'Тестовый нормативный документ',
+      url: 'https://kuz-edu.ru/test.pdf',
+      order_num: 10
+    }
+  });
+  assert.equal(create.status, 200);
+  const docId = create.data.document.id;
+
+  const edit = await api(`/api/admin/documents/${docId}`, {
+    method: 'PUT',
+    token: adminToken,
+    body: { description: 'Обновленное описание' }
+  });
+  assert.equal(edit.status, 200);
+  assert.equal(edit.data.document.description, 'Обновленное описание');
+
+  const del = await api(`/api/admin/documents/${docId}`, {
+    method: 'DELETE',
+    token: adminToken
+  });
+  assert.equal(del.status, 200);
+
+  const after = await api('/api/documents');
+  assert.ok(!after.data.documents.some(d => d.id === docId));
+});
+
+test('E2E: модерация эффективного диалога администратором', async () => {
+  const q = await api('/api/dialogue', {
+    method: 'POST',
+    token: freshToken,
+    body: { category: 'Финансы', question_text: 'Вопрос для модерации?' }
+  });
+  assert.equal(q.status, 200);
+  const qId = q.data.question.id;
+
+  const edit = await api(`/api/admin/dialogue/${qId}`, {
+    method: 'PUT',
+    token: adminToken,
+    body: { answer_text: 'Модерированный ответ администратора' }
+  });
+  assert.equal(edit.status, 200);
+  assert.equal(edit.data.question.answer_text, 'Модерированный ответ администратора');
+
+  const del = await api(`/api/admin/dialogue/${qId}`, {
+    method: 'DELETE',
+    token: adminToken
+  });
+  assert.equal(del.status, 200);
+
+  const list = await api('/api/dialogue');
+  assert.ok(!list.data.questions.some(item => item.id === qId));
 });
 
 // Контракт окружения: тестовый каталог не остаётся замусоренным
