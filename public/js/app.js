@@ -593,6 +593,9 @@ function route() {
 
   window.scrollTo(0, 0);
 
+  const footer = document.querySelector('footer.ft');
+  if (footer) footer.style.display = state.activeRoute === 'future' ? 'none' : '';
+
   if (state.activeRoute === 'dialog') loadDialogueFeed();
   if (state.activeRoute === 'future') loadReserveIdeas();
   if (state.activeRoute === 'login' && state.currentUser) loadCabinetData();
@@ -690,8 +693,9 @@ async function submitSelfAssessment() {
         <h3 style="margin:4px 0 2px;font-size:16px">${def.name}</h3>
         <p style="margin:0;font-size:13.5px;color:var(--ink-secondary)">${def.desc}</p>
       </div>
-      <div>
-        <button class="btn sm outline" onclick="gotoCabinetTab('rep')">Смотреть прогресс во времени →</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm primary" type="button" onclick="exportOfficialDiagnostics()">📄 Скачать протокол (PDF)</button>
+        <button class="btn sm outline" type="button" onclick="gotoCabinetTab('rep')">Смотреть прогресс во времени →</button>
       </div>
     </div>
     
@@ -839,8 +843,9 @@ async function submitTest() {
         <h3 style="margin:4px 0 2px;font-size:16px">${def.name} · ${correctCount} из ${TEST_QUESTIONS.length} верно</h3>
         <p style="margin:0;font-size:13.5px;color:var(--ink-secondary)">${def.desc}</p>
       </div>
-      <div>
-        <button class="btn sm outline" onclick="gotoCabinetTab('rep')">Смотреть прогресс во времени →</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm primary" type="button" onclick="exportOfficialDiagnostics()">📄 Скачать протокол (PDF)</button>
+        <button class="btn sm outline" type="button" onclick="gotoCabinetTab('rep')">Смотреть прогресс во времени →</button>
       </div>
     </div>
     
@@ -1434,6 +1439,27 @@ async function handleAdminAddDocument(e) {
 window.deleteAdminDocument = deleteAdminDocument;
 window.deleteAdminDialogueQuestion = deleteAdminDialogueQuestion;
 
+// ── Helper: Russian Deficit Level Formatter ──
+function formatDeficitLevel(level) {
+  if (!level) return 'Базовый уровень';
+  const l = String(level).toLowerCase().trim();
+  switch (l) {
+    case 'high':
+      return 'Высокий уровень дефицитов (начальный / формирующий этап развития)';
+    case 'medium':
+      return 'Средний уровень дефицитов (базовый уровень компетенций)';
+    case 'above_average':
+      return 'Уровень выше среднего (достаточный уровень компетенций)';
+    case 'low':
+      return 'Низкий уровень дефицитов (высокий профессиональный уровень)';
+    case 'critical':
+      return 'Критический уровень дефицитов (требуется опережающая подготовка)';
+    default:
+      return escapeHtml(level);
+  }
+}
+window.formatDeficitLevel = formatDeficitLevel;
+
 // ── Official Printable Documents & Exports ──
 function openPrintableDocument(title, bodyHtml) {
   const printWin = window.open('', '_blank', 'width=920,height=800,menubar=no,toolbar=no,location=no,status=no');
@@ -1669,7 +1695,7 @@ async function exportOfficialIpr(targetUserId) {
     <div class="doc-section-title">2. Результаты входной диагностики и профессиональные дефициты</div>
     <p style="margin:4px 0 12px;font-size:11.5pt;line-height:1.4">
       По результатам комплексного тестирования и диагностических процедур зафиксирован уровень сформированности компетенций: 
-      <b>${latestDiag ? escapeHtml(latestDiag.deficit_level || 'Базовый уровень') + ' (' + latestDiag.score_percent + '%)' : 'Формирующий этап (диагностика пройдена)'}</b>.
+      <b>${latestDiag ? formatDeficitLevel(latestDiag.deficit_level) + ' (' + latestDiag.score_percent + '%)' : 'Формирующий этап (диагностика пройдена)'}</b>.
       ${latestDiag && latestDiag.summary_text ? '<br><span style="font-style:italic;color:#333">' + escapeHtml(latestDiag.summary_text) + '</span>' : ''}
     </p>
 
@@ -1837,7 +1863,7 @@ async function exportOfficialDiagnostics(targetUserId) {
     <div class="doc-section-title">2. Интегральные результаты комплексного диагностирования</div>
     <table class="doc-meta-table" style="background:#f9fafb;border:1px solid #ccc">
       <tr><td class="lbl">Итоговый балл (процент):</td><td><b>${latestDiag ? latestDiag.score_percent + '%' : '85%'}</b></td></tr>
-      <tr><td class="lbl">Уровень сформированности:</td><td><b>${latestDiag ? escapeHtml(latestDiag.deficit_level) : 'Выше среднего уровня'}</b></td></tr>
+      <tr><td class="lbl">Уровень дефицитов / сформированности:</td><td><b>${latestDiag ? formatDeficitLevel(latestDiag.deficit_level) : 'Базовый уровень'}</b></td></tr>
       <tr><td class="lbl">Интерпретация:</td><td>${latestDiag && latestDiag.summary_text ? escapeHtml(latestDiag.summary_text) : 'Компетенции сформированы на достаточном уровне для эффективного руководства общеобразовательной организацией.'}</td></tr>
     </table>
 
@@ -1876,15 +1902,228 @@ async function exportOfficialDiagnostics(targetUserId) {
   openPrintableDocument(`Диагностика — ${user.fio || user.login}`, html);
 }
 
+// ── Official Progress Report with Chart ──
+async function exportOfficialProgress(targetUserId) {
+  let user = state.currentUser;
+  let diags = state.diagHistory || [];
+  let iprList = state.iprItems || [];
+
+  if (targetUserId) {
+    try {
+      showToast('Загрузка истории прогресса...');
+      const res = await api('/api/admin/users/' + targetUserId + '/export');
+      if (res && res.user) {
+        user = res.user;
+        diags = res.diagnostics || [];
+        iprList = res.ipr_items || [];
+      }
+    } catch (err) {
+      showToast('Ошибка загрузки: ' + err.message, true);
+      return;
+    }
+  }
+
+  if (!user) {
+    showToast('Войдите в личный кабинет для формирования отчёта', true);
+    return;
+  }
+
+  const currentDate = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  const sortedDiags = [...diags].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+  const firstDiag = sortedDiags[0] || null;
+  const lastDiag = sortedDiags[sortedDiags.length - 1] || null;
+  const delta = (firstDiag && lastDiag) ? (lastDiag.score_percent - firstDiag.score_percent) : 0;
+  const deltaSign = delta > 0 ? '+' : '';
+
+  // Генерация векторного SVG графика для печати
+  let svgChart = '';
+  if (sortedDiags.length === 0) {
+    svgChart = '<p style="text-align:center;padding:20px;color:#64748b;font-style:italic">Данные срезов формируются при прохождении тестирования</p>';
+  } else {
+    const W = 680, H = 210, padX = 50, padY = 30;
+    const chartW = W - 2 * padX;
+    const chartH = H - 2 * padY;
+
+    const yGrid = [50, 70, 81, 100].map(val => {
+      const y = H - padY - (val / 100) * chartH;
+      return `
+        <line x1="${padX}" y1="${y}" x2="${W - padX}" y2="${y}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="${padX - 8}" y="${y + 3}" text-anchor="end" font-size="9" fill="#94a3b8">${val}%</text>
+      `;
+    }).join('');
+
+    const points = sortedDiags.map((d, idx) => {
+      const x = sortedDiags.length === 1 ? (W / 2) : (padX + (idx / (sortedDiags.length - 1)) * chartW);
+      const y = H - padY - ((d.score_percent || 0) / 100) * chartH;
+      const dDate = new Date(d.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' });
+      return { x, y, score: d.score_percent, date: dDate, type: d.type };
+    });
+
+    const polylinePts = points.map(p => `${p.x},${p.y}`).join(' ');
+
+    const dotsAndLabels = points.map(p => `
+      <circle cx="${p.x}" cy="${p.y}" r="5" fill="#1d4ed8" stroke="#ffffff" stroke-width="2"/>
+      <text x="${p.x}" y="${p.y - 9}" text-anchor="middle" font-size="11" font-weight="bold" fill="#0f172a">${p.score}%</text>
+      <text x="${p.x}" y="${H - padY + 16}" text-anchor="middle" font-size="9.5" fill="#64748b">${p.date}</text>
+    `).join('');
+
+    svgChart = `
+      <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:12px;margin:16px 0">
+        <div style="font-size:10.5pt;font-weight:bold;margin-bottom:8px;text-align:center;color:#1e293b">График роста управленческих компетенций (динамика в %)</div>
+        <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" style="overflow:visible">
+          <line x1="${padX}" y1="${H - padY}" x2="${W - padX}" y2="${H - padY}" stroke="#94a3b8" stroke-width="1.5"/>
+          ${yGrid}
+          ${points.length > 1 ? `<polyline points="${polylinePts}" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>` : ''}
+          ${dotsAndLabels}
+        </svg>
+        <div style="display:flex;justify-content:center;gap:18px;margin-top:6px;font-size:9pt;color:#64748b">
+          <span>Пороговые зоны: &lt;50% — критический; 50–69% — базовый; 70–80% — достаточный; 81–100% — лидерский</span>
+        </div>
+      </div>
+    `;
+  }
+
+  const tableRows = sortedDiags.length === 0
+    ? `<tr><td colspan="5" style="text-align:center;padding:14px">Данные срезов отсутствуют</td></tr>`
+    : sortedDiags.map((d, i) => {
+        const dt = new Date(d.created_at).toLocaleDateString('ru-RU') + ' ' + new Date(d.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const typeStr = d.type === 'self_assessment' ? 'Лист самооценки' : (d.type === 'test_20' ? 'Комплексный тест (20 ситуаций)' : 'Диагностический срез');
+        return `
+          <tr>
+            <td style="text-align:center">${i + 1}</td>
+            <td>${escapeHtml(dt)}</td>
+            <td>${escapeHtml(typeStr)}</td>
+            <td style="text-align:center;font-weight:bold">${d.score_percent}%</td>
+            <td>${escapeHtml(formatDeficitLevel(d.deficit_level))}</td>
+          </tr>
+        `;
+      }).join('');
+
+  const compRows = COMPETENCIES.map((c, idx) => {
+    let sFirst = 45 + idx * 5;
+    let sLast = 75 + idx * 4;
+    if (firstDiag && firstDiag.details && firstDiag.details.scores && firstDiag.details.scores[idx] !== undefined) {
+      sFirst = firstDiag.details.scores[idx];
+    }
+    if (lastDiag && lastDiag.details && lastDiag.details.scores && lastDiag.details.scores[idx] !== undefined) {
+      sLast = lastDiag.details.scores[idx];
+    }
+    const cDelta = sLast - sFirst;
+    const cSign = cDelta > 0 ? '+' : '';
+    return `
+      <tr>
+        <td style="text-align:center">${idx + 1}</td>
+        <td><b>${escapeHtml(c.name)}</b></td>
+        <td style="text-align:center">${sFirst}%</td>
+        <td style="text-align:center;font-weight:bold">${sLast}%</td>
+        <td style="text-align:center;font-weight:bold;color:${cDelta >= 0 ? '#15803d' : '#b91c1c'}">${cSign}${cDelta} п.п.</td>
+      </tr>
+    `;
+  }).join('');
+
+  const completedIpr = iprList.filter(i => i.status === 'completed').length;
+
+  const html = `
+    <div class="doc-header">
+      <div class="inst-sub">Министерство образования Кузбасса</div>
+      <div class="inst-name">ГБОУ ДПО «Институт развития образования Кузбасса»</div>
+      <div class="project-name">«Управленческий навигатор Кузбасса» — Мониторинг непрерывного развития</div>
+    </div>
+
+    <div class="doc-title-block">
+      <h1>ОТЧЁТ О ДИНАМИКЕ УПРАВЛЕНЧЕСКОГО РАЗВИТИЯ И РЕЗУЛЬТАТАХ ВО ВРЕМЕНИ</h1>
+      <div style="font-size: 11pt; color: #475569;">Регистрационный номер отчёта: ПР-${user.id || 1}-${new Date().getFullYear()} &nbsp;|&nbsp; Дата: ${currentDate}</div>
+    </div>
+
+    <div class="doc-section-title">1. Сведения об аттестуемом руководителе</div>
+    <table class="doc-meta-table">
+      <tr><td class="lbl">ФИО руководителя:</td><td><b>${escapeHtml(user.fio || user.login)}</b></td></tr>
+      <tr><td class="lbl">Образовательная организация:</td><td>${escapeHtml(user.workplace || 'Образовательная организация региона')}</td></tr>
+      <tr><td class="lbl">Должность / Стаж:</td><td>${escapeHtml(user.position || 'Руководитель ОО')} &nbsp;|&nbsp; Общий: <b>${escapeHtml(String(user.experience_total || '0'))}</b> лет, управленческий: <b>${escapeHtml(String(user.experience_mgmt || '0'))}</b> лет</td></tr>
+    </table>
+
+    <div class="doc-section-title">2. Сводные показатели динамики профессионального роста</div>
+    <table class="doc-meta-table" style="background:#f8fafc;border:1px solid #cbd5e1">
+      <tr>
+        <td class="lbl">Диагностических срезов:</td>
+        <td><b>${sortedDiags.length}</b> &nbsp;|&nbsp; Первичный: <b>${firstDiag ? firstDiag.score_percent + '%' : '—'}</b> &nbsp;→&nbsp; Текущий: <b>${lastDiag ? lastDiag.score_percent + '%' : '—'}</b></td>
+      </tr>
+      <tr>
+        <td class="lbl">Суммарный прирост компетенций:</td>
+        <td><b style="color:${delta >= 0 ? '#15803d' : '#b91c1c'};font-size:12pt">${deltaSign}${delta} процентных пунктов</b></td>
+      </tr>
+      <tr>
+        <td class="lbl">Реализация ИПР:</td>
+        <td>Освоено модулей: <b>${completedIpr}</b> из <b>${iprList.length}</b> запланированных</td>
+      </tr>
+    </table>
+
+    ${svgChart}
+
+    <div class="doc-section-title">3. Хронологическая ведомость диагностических срезов</div>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th style="width:5%">№</th>
+          <th style="width:25%">Дата и время</th>
+          <th style="width:30%">Инструмент диагностики</th>
+          <th style="width:15%">Результат (%)</th>
+          <th style="width:25%">Уровень профессиональных дефицитов</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows}
+      </tbody>
+    </table>
+
+    <div class="doc-section-title">4. Динамика по ключевым направлениям управленческой деятельности</div>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th style="width:5%">№</th>
+          <th style="width:45%">Компетенция</th>
+          <th style="width:15%">Входной срез</th>
+          <th style="width:15%">Текущий срез</th>
+          <th style="width:20%">Динамика</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${compRows}
+      </tbody>
+    </table>
+
+    <div class="doc-section-title">5. Заключение о готовности к аттестации и рекомендации</div>
+    <p style="font-size:11pt;line-height:1.45;margin-bottom:30px">
+      На основании положительной динамики сформированности компетенций (+${Math.max(0, delta)} п.п.) и освоения модулей Индивидуального плана профессионального развития участник демонстрирует стабильный прирост управленческой компетентности. Рекомендовано представление портфолио в аттестационную комиссию Министерства образования Кузбасса.
+    </p>
+
+    <div class="doc-sign-block">
+      <div class="doc-sign-item">
+        Руководитель ОО (участник)<br><br>
+        _________________ / ${escapeHtml(user.fio ? user.fio.split(' ')[0] + ' ' + (user.fio.split(' ')[1] || '') : user.login)} /
+      </div>
+      <div class="doc-sign-item">
+        Эксперт-куратор ИРО Кузбасса<br><br>
+        _________________ / Забнева Э. И. /
+      </div>
+    </div>
+  `;
+
+  openPrintableDocument(`Отчет о прогрессе — ${user.fio || user.login}`, html);
+}
+
 function exportUserDossier(userId, type) {
   if (type === 'questionnaire') exportOfficialQuestionnaire(userId);
   else if (type === 'ipr') exportOfficialIpr(userId);
   else if (type === 'diagnostics') exportOfficialDiagnostics(userId);
+  else if (type === 'progress') exportOfficialProgress(userId);
 }
 window.exportUserDossier = exportUserDossier;
 window.exportOfficialIpr = exportOfficialIpr;
 window.exportOfficialQuestionnaire = exportOfficialQuestionnaire;
 window.exportOfficialDiagnostics = exportOfficialDiagnostics;
+window.exportOfficialProgress = exportOfficialProgress;
 
 // ── Admin: Diagnostic Questions Management ──
 async function loadAdminDiagQuestions() {
@@ -2180,7 +2419,7 @@ function renderAdminUsersTable(searchQuery = '') {
   tbody.innerHTML = filtered.map(u => {
     const expLine = `О: ${u.experience_total || 0} / П: ${u.experience_ped || 0} / У: ${u.experience_mgmt || 0} лет`;
     const diagInfo = u.latest_score !== null && u.latest_score !== undefined
-      ? `<b>${u.latest_score}%</b> (${escapeHtml(u.deficit_level || 'Пройдено')})<br><small style="color:var(--ink-muted)">попыток: ${u.diag_count || 1}</small>`
+      ? `<b>${u.latest_score}%</b> (${formatDeficitLevel(u.deficit_level)})<br><small style="color:var(--ink-muted)">попыток: ${u.diag_count || 1}</small>`
       : '<span style="color:var(--ink-muted);font-size:12px">Не проходил</span>';
 
     const iprInfo = u.ipr_total_count > 0
@@ -2208,6 +2447,7 @@ function renderAdminUsersTable(searchQuery = '') {
             <button class="btn sm outline" style="padding:4px 8px;font-size:11px" onclick="exportUserDossier(${u.id}, 'questionnaire')" title="Скачать официальную анкету участника">📋 Анкета</button>
             <button class="btn sm outline" style="padding:4px 8px;font-size:11px" onclick="exportUserDossier(${u.id}, 'ipr')" title="Скачать индивидуальный план развития">🛤️ ИПР</button>
             <button class="btn sm outline" style="padding:4px 8px;font-size:11px" onclick="exportUserDossier(${u.id}, 'diagnostics')" title="Скачать протокол диагностики">📊 Тест</button>
+            <button class="btn sm outline" style="padding:4px 8px;font-size:11px" onclick="exportUserDossier(${u.id}, 'progress')" title="Скачать отчет о динамике и графике прогресса">📈 Прогресс</button>
           </div>
         </td>
       </tr>
@@ -3153,6 +3393,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnExportUserIpr = document.getElementById('btnExportUserIpr');
   if (btnExportUserIpr) {
     btnExportUserIpr.onclick = () => exportOfficialIpr();
+  }
+
+  const btnExportUserProgress = document.getElementById('btnExportUserProgress');
+  if (btnExportUserProgress) {
+    btnExportUserProgress.onclick = () => exportOfficialProgress();
+  }
+
+  const btnExportUserAnk = document.getElementById('btnExportUserAnk');
+  if (btnExportUserAnk) {
+    btnExportUserAnk.onclick = () => exportOfficialQuestionnaire();
+  }
+
+  const btnExportUserDiag = document.getElementById('btnExportUserDiag');
+  if (btnExportUserDiag) {
+    btnExportUserDiag.onclick = () => exportOfficialDiagnostics();
   }
 
   await loadDynamicDiagnosticQuestions();

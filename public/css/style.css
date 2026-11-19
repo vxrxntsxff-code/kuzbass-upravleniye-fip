@@ -2023,3 +2023,17 @@ header.top.scrolled {
   border: 1px solid #a7f3d0;
 }
 
+/* ── Fullscreen Future Portal Embed ── */
+#p-future {
+  padding: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+#p-future iframe {
+  width: 100% !important;
+  height: calc(100vh - 66px) !important;
+  min-height: 800px !important;
+  border: none !important;
+  display: block !important;
+}
+
