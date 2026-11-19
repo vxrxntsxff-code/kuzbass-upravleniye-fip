@@ -889,7 +889,47 @@ app.get('/api/future-frame', async (req, res) => {
     const upstream = await fetch('https://ideairo.kuz-edu.ru/', { signal: controller.signal });
     clearTimeout(timeout);
     let html = await upstream.text();
-    html = html.replace('<head>', '<head><base href="https://ideairo.kuz-edu.ru/">');
+
+    const helperScript = `
+<script>
+(function() {
+  function scrollToTarget(hash) {
+    if (!hash) return;
+    var targetId = hash.replace(/^#/, '');
+    var el = document.getElementById(targetId) || document.querySelector('[name="' + targetId + '"]') || document.querySelector(hash);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  document.addEventListener('click', function(e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+
+    // Quick jump anchors (#rec... or relative hash)
+    if (href.startsWith('#') || href.includes('#rec')) {
+      e.preventDefault();
+      e.stopPropagation();
+      var hash = href.slice(href.indexOf('#'));
+      scrollToTarget(hash);
+      return false;
+    }
+
+    // External links: always open in new window
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+      a.setAttribute('target', '_blank');
+      a.setAttribute('rel', 'noopener noreferrer');
+    }
+  }, true);
+
+  window.addEventListener('hashchange', function() {
+    scrollToTarget(window.location.hash);
+  });
+})();
+</script>
+`;
+    html = html.replace('</body>', helperScript + '</body>');
     res.removeHeader('X-Frame-Options');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(html);

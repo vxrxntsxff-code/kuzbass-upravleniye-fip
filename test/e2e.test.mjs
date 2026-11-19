@@ -606,7 +606,7 @@ test('E2E: реестр участников и экспорт данных (а�
 test('E2E: прокси кадрового резерва и обновлённый заголовок О проекте', async () => {
   const content = await api('/api/content');
   assert.equal(content.status, 200);
-  assert.ok(content.data.content.about_title.includes('Как работает региональная модель опережающей подготовки'));
+  assert.ok(content.data.content.about_title.includes('О проекте «Региональная модель опережающей подготовки…»'));
 
   const frameRes = await fetch(base + '/api/future-frame');
   assert.equal(frameRes.status, 200);
