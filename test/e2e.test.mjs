@@ -485,6 +485,13 @@ test('E2E: модерация эффективного диалога админ
   assert.ok(!list.data.questions.some(item => item.id === qId));
 });
 
+test('E2E: сброс контента к заводским настройкам администратором', async () => {
+  const reset = await api('/api/admin/reset-content', { method: 'POST', token: adminToken });
+  assert.equal(reset.status, 200);
+  assert.ok(reset.data.content.hero_title);
+  assert.equal(reset.data.content.hero_title, '«Управленческий навигатор Кузбасса»');
+});
+
 // Контракт окружения: тестовый каталог не остаётся замусоренным
 test('E2E: временная БД создана в изолированном каталоге', () => {
   const dbFile = join(tmpDir, 'test.db');

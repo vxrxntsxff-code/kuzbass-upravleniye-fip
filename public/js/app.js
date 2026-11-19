@@ -368,6 +368,10 @@ async function mockApi(endpoint, options = {}) {
   if (endpoint === '/api/admin/upload-image' && method === 'POST') {
     return { success: true, url: 'img/photo_iro.jpg', filename: 'photo_iro.jpg' };
   }
+  if (endpoint === '/api/admin/reset-content' && method === 'POST') {
+    setLocalState('content', {});
+    return { success: true };
+  }
   if (endpoint === '/api/documents') {
     const defaultDocs = [
       { id: 1, title: 'Методический сборник «Управленческий навигатор Кузбасса»', category: 'methodological', description: 'Итоговый сборник модели: методики, разборы кейсов, рабочие листы руководителя', url: 'https://kuz-edu.ru' },
@@ -516,7 +520,10 @@ function updateAuthUI() {
     if (navAdminBtn) navAdminBtn.style.display = state.currentUser.role === 'admin' ? 'inline-flex' : 'none';
     if (userBadge) {
       userBadge.style.display = 'flex';
-      userBadge.innerHTML = `<span>${escapeHtml(state.currentUser.fio.split(' ')[0] || state.currentUser.login)}</span>`;
+      const label = state.currentUser.role === 'admin' 
+        ? 'Админ' 
+        : (state.currentUser.fio ? state.currentUser.fio.split(' ')[0] : state.currentUser.login);
+      userBadge.innerHTML = `<span title="Личный кабинет">👤 ${escapeHtml(label)}</span>`;
     }
     if (loginWrap) loginWrap.style.display = 'none';
     if (cabWrap) cabWrap.style.display = 'block';
@@ -949,24 +956,139 @@ async function loadAndApplySiteContent() {
     if (!data || !data.content) return;
     const c = data.content;
 
+    // Home
     if (c.hero_title) {
-      const el = document.querySelector('#p-home .hero-banner h1');
-      if (el) el.innerHTML = escapeHtml(c.hero_title).replace(/«|»/g, '<span>$&</span>');
+      document.querySelectorAll('#p-home .hero-copy h1, #p-home .hero-banner h1').forEach(el => {
+        el.innerHTML = escapeHtml(c.hero_title).replace(/«|»/g, '<span>$&</span>');
+      });
     }
     if (c.hero_subtitle) {
-      const el = document.querySelector('#p-home .hero-banner p');
-      if (el) el.textContent = c.hero_subtitle;
+      document.querySelectorAll('#p-home p.hero-lead, #p-home .hero-banner p').forEach(el => {
+        el.innerHTML = `<svg class="lead-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg> ${escapeHtml(c.hero_subtitle)}`;
+      });
+    }
+    if (c.hero_inst) {
+      document.querySelectorAll('.inst-tag').forEach(el => el.textContent = c.hero_inst);
     }
     if (c.mission_text) {
       document.querySelectorAll('.mission-box p, .schema-box.mission').forEach(el => {
         el.innerHTML = `<b>МИССИЯ:</b> ${escapeHtml(c.mission_text)}`;
       });
     }
-    if (c.about_goal) {
-      const el = document.querySelector('.schema-box.goal');
-      if (el) el.innerHTML = `<b>ЦЕЛЬ:</b> ${escapeHtml(c.about_goal)}`;
+    if (c.quote_text) {
+      document.querySelectorAll('.quote-box').forEach(el => {
+        el.innerHTML = `«${escapeHtml(c.quote_text.replace(/^«|»$/g, ''))}» <b>${escapeHtml(c.quote_author || '')}</b>`;
+      });
     }
 
+    // Home Stats
+    const setStat = (valId, lblId, val, lbl) => {
+      const vEl = document.getElementById(valId);
+      const lEl = document.getElementById(lblId);
+      if (vEl && val !== undefined) vEl.textContent = val;
+      if (lEl && lbl !== undefined) lEl.textContent = lbl;
+    };
+    setStat('homeStatVal1', 'homeStatLbl1', c.stat_val_1, c.stat_lbl_1);
+    setStat('homeStatVal2', 'homeStatLbl2', c.stat_val_2, c.stat_lbl_2);
+    setStat('homeStatVal3', 'homeStatLbl3', c.stat_val_3, c.stat_lbl_3);
+    setStat('homeStatVal4', 'homeStatLbl4', c.stat_val_4, c.stat_lbl_4);
+
+    // About
+    if (c.about_title) {
+      const el = document.querySelector('#p-about h1.pt');
+      if (el) el.innerHTML = `${escapeHtml(c.about_title)} <span>«Региональная модель»</span>`;
+    }
+    if (c.about_lead) {
+      const el = document.querySelector('#p-about p.lead');
+      if (el) el.textContent = c.about_lead;
+    }
+    if (c.about_goal) {
+      document.querySelectorAll('.schema-box.goal').forEach(el => {
+        el.innerHTML = `<b>ЦЕЛЬ:</b> ${escapeHtml(c.about_goal)}`;
+      });
+    }
+
+    // Contacts
+    if (c.contacts_phone) {
+      document.querySelectorAll('a[href^="tel:"]').forEach(a => {
+        a.setAttribute('href', 'tel:' + c.contacts_phone.replace(/[^\d+]/g, ''));
+        a.textContent = c.contacts_phone;
+      });
+      document.querySelectorAll('.phone-text').forEach(el => el.textContent = c.contacts_phone);
+    }
+    if (c.contacts_email) {
+      document.querySelectorAll('a[href^="mailto:"]').forEach(a => {
+        a.setAttribute('href', 'mailto:' + c.contacts_email);
+        a.textContent = c.contacts_email;
+      });
+    }
+    if (c.contacts_address) {
+      document.querySelectorAll('.address-text').forEach(el => el.textContent = c.contacts_address);
+    }
+
+    // Competencies (update COMPETENCIES array in memory & re-render)
+    let compUpdated = false;
+    for (let i = 0; i < 5; i++) {
+      const num = '0' + (i + 1);
+      if (c[`comp_${num}_title`]) { COMPETENCIES[i].title = c[`comp_${num}_title`]; compUpdated = true; }
+      if (c[`comp_${num}_desc`]) { COMPETENCIES[i].desc = c[`comp_${num}_desc`]; compUpdated = true; }
+      if (c[`comp_${num}_quote`]) { COMPETENCIES[i].selfQuote = c[`comp_${num}_quote`]; compUpdated = true; }
+    }
+    if (compUpdated) {
+      renderCompetencies();
+    }
+
+    // Trajectory
+    if (c.traj_lead) {
+      const el = document.querySelector('#p-traj p.lead');
+      if (el) el.textContent = c.traj_lead;
+    }
+    if (c.traj_card_dpo) {
+      const p = document.querySelector('#p-traj .grid.g2 > .card:nth-child(1) p');
+      if (p) p.textContent = c.traj_card_dpo;
+    }
+    if (c.traj_card_online) {
+      const p = document.querySelector('#p-traj .grid.g2 > .card:nth-child(2) p');
+      if (p) p.textContent = c.traj_card_online;
+    }
+    if (c.traj_card_events) {
+      const p = document.querySelector('#p-traj .grid.g2 > .card:nth-child(3) p');
+      if (p) p.textContent = c.traj_card_events;
+    }
+    if (c.traj_card_labs) {
+      const p = document.querySelector('#p-traj .grid.g2 > .card:nth-child(4) p');
+      if (p) p.textContent = c.traj_card_labs;
+    }
+
+    // Future (Кадровый резерв)
+    if (c.future_lead) {
+      const el = document.querySelector('#p-future p.lead');
+      if (el) el.textContent = c.future_lead;
+    }
+    setStat('futureStat1Val', 'futureStat1Lbl', c.future_stat_1_val, c.future_stat_1_lbl);
+    setStat('futureStat2Val', 'futureStat2Lbl', c.future_stat_2_val, c.future_stat_2_lbl);
+    setStat('futureStat3Val', 'futureStat3Lbl', c.future_stat_3_val, c.future_stat_3_lbl);
+    setStat('futureStat4Val', 'futureStat4Lbl', c.future_stat_4_val, c.future_stat_4_lbl);
+
+    // Help
+    if (c.help_lead) {
+      const el = document.querySelector('#p-help p.lead');
+      if (el) el.textContent = c.help_lead;
+    }
+    if (c.help_update_1_text) {
+      const p = document.querySelector('#p-help .sec .grid.g3 > .card:nth-child(1) p');
+      if (p) p.textContent = c.help_update_1_text;
+    }
+    if (c.help_update_2_text) {
+      const p = document.querySelector('#p-help .sec .grid.g3 > .card:nth-child(2) p');
+      if (p) p.textContent = c.help_update_2_text;
+    }
+    if (c.help_update_3_text) {
+      const p = document.querySelector('#p-help .sec .grid.g3 > .card:nth-child(3) p');
+      if (p) p.textContent = c.help_update_3_text;
+    }
+
+    // Images
     if (c.photo_iro) {
       document.querySelectorAll('img[src*="photo_iro"]').forEach(img => img.src = c.photo_iro);
     }
@@ -982,6 +1104,25 @@ async function loadAndApplySiteContent() {
   } catch (_) {}
 }
 
+const ALL_ADMIN_KEYS = [
+  'hero_title', 'hero_subtitle', 'hero_inst', 'mission_text', 'quote_text', 'quote_author',
+  'stat_val_1', 'stat_lbl_1', 'stat_val_2', 'stat_lbl_2', 'stat_val_3', 'stat_lbl_3', 'stat_val_4', 'stat_lbl_4',
+  'about_title', 'about_lead', 'about_goal', 'about_tasks', 'about_uniqueness', 'about_results_2030',
+  'contacts_phone', 'contacts_email', 'contacts_address', 'contacts_workhours',
+  'comp_01_title', 'comp_01_desc', 'comp_01_quote',
+  'comp_02_title', 'comp_02_desc', 'comp_02_quote',
+  'comp_03_title', 'comp_03_desc', 'comp_03_quote',
+  'comp_04_title', 'comp_04_desc', 'comp_04_quote',
+  'comp_05_title', 'comp_05_desc', 'comp_05_quote',
+  'traj_lead', 'traj_card_dpo', 'traj_card_online', 'traj_card_events', 'traj_card_labs',
+  'future_lead',
+  'future_stat_1_val', 'future_stat_1_lbl', 'future_stat_2_val', 'future_stat_2_lbl',
+  'future_stat_3_val', 'future_stat_3_lbl', 'future_stat_4_val', 'future_stat_4_lbl',
+  'future_lvl_1', 'future_lvl_2', 'future_lvl_3',
+  'help_lead', 'help_update_1_text', 'help_update_2_text', 'help_update_3_text',
+  'photo_iro', 'photo_strat_session', 'photo_ecosistema', 'photo_kniga_direktora'
+];
+
 // ── Admin Panel Methods ──
 async function loadAdminPanelData() {
   if (!state.currentUser || state.currentUser.role !== 'admin') return;
@@ -990,16 +1131,12 @@ async function loadAdminPanelData() {
     const data = await api('/api/content');
     if (data && data.content) {
       const c = data.content;
-      const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
-      setVal('adm_hero_title', c.hero_title);
-      setVal('adm_hero_subtitle', c.hero_subtitle);
-      setVal('adm_mission_text', c.mission_text);
-      setVal('adm_about_goal', c.about_goal);
-
-      setVal('adm_photo_iro', c.photo_iro);
-      setVal('adm_photo_strat_session', c.photo_strat_session);
-      setVal('adm_photo_ecosistema', c.photo_ecosistema);
-      setVal('adm_photo_kniga_direktora', c.photo_kniga_direktora);
+      ALL_ADMIN_KEYS.forEach(k => {
+        const el = document.getElementById('adm_' + k);
+        if (el && c[k] !== undefined && c[k] !== null) {
+          el.value = c[k];
+        }
+      });
 
       const setPrev = (id, src) => { const el = document.getElementById(id); if (el && src) el.src = src; };
       setPrev('prev_photo_iro', c.photo_iro);
@@ -1011,6 +1148,39 @@ async function loadAdminPanelData() {
 
   loadAdminDocumentsList();
   loadAdminDialogueList();
+}
+
+async function saveAllAdminContent() {
+  const payload = {};
+  ALL_ADMIN_KEYS.forEach(k => {
+    const el = document.getElementById('adm_' + k);
+    if (el) payload[k] = el.value.trim();
+  });
+
+  try {
+    showToast('Сохранение контента платформы...');
+    await api('/api/admin/content', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+    showToast('Все изменения успешно сохранены на сервере!');
+    await loadAndApplySiteContent();
+  } catch (err) {
+    showToast('Ошибка сохранения: ' + err.message, true);
+  }
+}
+
+async function resetAllAdminContent() {
+  if (!confirm('Восстановить заводские исходные тексты сайта по умолчанию? Все индивидуальные правки будут сброшены.')) return;
+  try {
+    showToast('Сброс к исходным настройкам...');
+    await api('/api/admin/reset-content', { method: 'POST' });
+    showToast('Контент успешно сброшен к заводским настройкам');
+    await loadAndApplySiteContent();
+    await loadAdminPanelData();
+  } catch (err) {
+    showToast('Ошибка сброса: ' + err.message, true);
+  }
 }
 
 async function loadAdminDocumentsList() {
@@ -1973,11 +2143,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (logoutBtn) logoutBtn.onclick = logout;
 
   // Админ-панель: кнопки сохранения и загрузка файлов
-  const admSaveTextsBtn = document.getElementById('admSaveTextsBtn');
-  if (admSaveTextsBtn) admSaveTextsBtn.onclick = saveAdminTexts;
+  const admSaveAllTopBtn = document.getElementById('admSaveAllTopBtn');
+  if (admSaveAllTopBtn) admSaveAllTopBtn.onclick = saveAllAdminContent;
 
-  const admSaveImagesBtn = document.getElementById('admSaveImagesBtn');
-  if (admSaveImagesBtn) admSaveImagesBtn.onclick = saveAdminImages;
+  const admResetBtn = document.getElementById('admResetBtn');
+  if (admResetBtn) admResetBtn.onclick = resetAllAdminContent;
+
+  const saveBtns = ['admSaveHomeBtn', 'admSaveAboutBtn', 'admSaveCompBtn', 'admSaveTrajBtn', 'admSaveFutureBtn', 'admSaveHelpBtn', 'admSaveTextsBtn', 'admSaveImagesBtn'];
+  saveBtns.forEach(btnId => {
+    const btn = document.getElementById(btnId);
+    if (btn) btn.onclick = saveAllAdminContent;
+  });
 
   setupAdminImageUpload('upload_photo_iro', 'adm_photo_iro', 'prev_photo_iro');
   setupAdminImageUpload('upload_photo_strat_session', 'adm_photo_strat_session', 'prev_photo_strat_session');

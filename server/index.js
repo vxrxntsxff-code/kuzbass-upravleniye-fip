@@ -3,7 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
 const multer = require('multer');
-const { db } = require('./db');
+const { db, resetSiteContentToDefaults } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -689,6 +689,18 @@ app.put('/api/admin/content', (req, res) => {
   const content = {};
   rows.forEach(r => { content[r.key] = r.value; });
   res.json({ success: true, content, items: rows });
+});
+
+app.post('/api/admin/reset-content', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  try {
+    const content = resetSiteContentToDefaults();
+    res.json({ success: true, content });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/admin/upload-image', (req, res) => {

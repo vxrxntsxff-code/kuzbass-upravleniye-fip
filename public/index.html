@@ -34,7 +34,7 @@
       <a href="#/future">Кадровый резерв</a>
       <a href="#/help">В помощь руководителю</a>
       <a href="#/login" class="btn-login" id="navLoginBtn">Кабинет</a>
-      <a href="#/admin" class="btn-admin" id="navAdminBtn" style="display:none">⚙️ Админ-панель</a>
+      <a href="#/admin" class="btn-admin" id="navAdminBtn" style="display:none">⚙️ Админка</a>
       <div id="userHeaderBadge" class="user-badge-header" style="display:none" onclick="location.hash='#/login'"></div>
     </nav>
 
@@ -64,6 +64,14 @@
           <img src="img/photo_strat_session.jpeg" alt="Управленческая сессия руководителей образования">
         </figure>
       </div>
+    </div>
+
+    <!-- 4 ключевых показателя региональной модели -->
+    <div class="grid g4" style="margin-top:24px" id="homeStatsGrid">
+      <div class="stat"><b id="homeStatVal1">31</b><span id="homeStatLbl1">опорная площадка во всех муниципалитетах региона</span></div>
+      <div class="stat"><b id="homeStatVal2">68 / 27</b><span id="homeStatLbl2">экспертов и наставников Лиги из 27 территорий</span></div>
+      <div class="stat"><b id="homeStatVal3">5</b><span id="homeStatLbl3">ключевых управленческих компетенций</span></div>
+      <div class="stat"><b id="homeStatVal4">2030</b><span id="homeStatLbl4">горизонт опережающей подготовки кадров</span></div>
     </div>
 
     <!-- Региональная модель опережающей подготовки — картинка -->
@@ -584,7 +592,6 @@
     </div>
   </div>
 </section>
-</section>
 
 <!-- ═══════════ В ПОМОЩЬ РУКОВОДИТЕЛЮ ═══════════ -->
 <section class="page" id="p-help">
@@ -935,82 +942,483 @@
   </div>
 </section>
 
-<!-- ═══════════ АДМИН-ПАНЕЛЬ (ДЛЯ ЧАЙНИКОВ) ═══════════ -->
+<!-- ═══════════ АДМИН-ПАНЕЛЬ (ПОЛНОЕ УПРАВЛЕНИЕ ПЛАТФОРМОЙ) ═══════════ -->
 <section class="page" id="p-admin">
   <div class="wrap">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;background:#fff;padding:16px 20px;border-radius:var(--radius-sm);border:1px solid var(--border);box-shadow:var(--shadow-sm)">
       <div>
         <div style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--accent-blue);text-transform:uppercase;letter-spacing:0.06em">
           <span>⚙️ Панель управления платформой</span>
           <span style="background:var(--accent-subtle);padding:2px 8px;border-radius:6px">Режим администратора</span>
         </div>
-        <h1 class="pt" style="margin:4px 0 0">Управление <span>контентом сайта</span></h1>
+        <h1 class="pt" style="margin:4px 0 0;font-size:27px">Управление <span>контентом платформы</span></h1>
       </div>
-      <a class="btn sm outline" href="#/login">В личный кабинет →</a>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn primary" id="admSaveAllTopBtn">💾 Сохранить ВСЕ изменения</button>
+        <button class="btn outline" id="admResetBtn" type="button" title="Восстановить исходные тексты по умолчанию">🔄 Сбросить к заводским</button>
+        <a class="btn sm outline" href="#/login">В кабинет →</a>
+      </div>
     </div>
-    <p class="lead">
-      Простая панель настроек для редактирования текстов, баннеров, библиотеки документов и модерации вопросов. Все изменения сразу сохраняются в базу данных и отображаются на сайте.
+    <p class="lead" style="margin-bottom:20px;font-size:14.5px">
+      Здесь вы можете изменить любой текст, показатель статистики, карточку, документ или фотографию на платформе. Все изменения мгновенно сохраняются на сервере и отображаются посетителям сайта.
     </p>
 
     <!-- Admin Tabs -->
-    <div class="tabs" id="adminTabs" style="margin-bottom:20px">
-      <button class="on" data-at="texts">📝 Тексты разделов</button>
-      <button data-at="images">🖼️ Фотографии и баннеры</button>
-      <button data-at="docs">📚 Библиотека документов</button>
+    <div class="tabs" id="adminTabs" style="margin-bottom:22px;flex-wrap:wrap;gap:4px">
+      <button class="on" data-at="home">🏠 Главная страница</button>
+      <button data-at="about">📋 О проекте и контакты</button>
+      <button data-at="comp">🎯 Ключевые компетенции</button>
+      <button data-at="traj">🛤️ Траектория</button>
+      <button data-at="future">🌟 Кадровый резерв</button>
+      <button data-at="help">📚 Руководителю</button>
+      <button data-at="docs">📑 Документы (CRUD)</button>
       <button data-at="dialogue">💬 Модерация диалога</button>
+      <button data-at="images">🖼️ Фотографии и баннеры</button>
     </div>
 
-    <!-- Admin Tab: Texts -->
-    <div class="admin-pane on" id="at-texts">
+    <!-- TAB 1: HOME -->
+    <div class="admin-pane on" id="at-home">
       <div class="grid g2">
         <div class="card">
-          <h3>Главная страница</h3>
-          <p class="sub">Тексты на баннере при первом входе на сайт</p>
+          <h3>Баннер и приветствие</h3>
+          <p class="sub">Ключевые тексты первого экрана главной страницы</p>
           
           <div class="f-grp">
             <label class="fl">Главный заголовок платформы</label>
             <input class="inp" id="adm_hero_title" placeholder="«Управленческий навигатор Кузбасса»">
-            <small style="color:var(--ink-muted);font-size:11.5px">Отображается крупным шрифтом на синем баннере главной страницы</small>
           </div>
-
           <div class="f-grp">
-            <label class="fl">Подзаголовок (название проекта)</label>
+            <label class="fl">Подзаголовок (описание регионального проекта)</label>
             <textarea class="inp" id="adm_hero_subtitle" rows="3"></textarea>
-            <small style="color:var(--ink-muted);font-size:11.5px">Отображается под главным заголовком на баннере</small>
           </div>
-
           <div class="f-grp">
-            <label class="fl">Текст миссии</label>
+            <label class="fl">Название организации / института</label>
+            <input class="inp" id="adm_hero_inst" placeholder="ГБОУ ДПО «Институт развития образования Кузбасса»">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Текст миссии проекта</label>
             <textarea class="inp" id="adm_mission_text" rows="4"></textarea>
-            <small style="color:var(--ink-muted);font-size:11.5px">Отображается в золотой рамке «МИССИЯ» на главной и на странице «О проекте»</small>
           </div>
         </div>
 
         <div class="card">
-          <h3>Раздел «О проекте»</h3>
-          <p class="sub">Ключевая цель и формулировки региональной модели</p>
+          <h3>Статистика и цитата</h3>
+          <p class="sub">4 ключевых показателя на главной странице и мотивационная цитата</p>
 
-          <div class="f-grp">
-            <label class="fl">Цель регионального проекта</label>
-            <textarea class="inp" id="adm_about_goal" rows="4"></textarea>
-            <small style="color:var(--ink-muted);font-size:11.5px">Отображается в верхнем блоке схемы на странице «О проекте»</small>
+          <div class="f-row">
+            <div class="f-grp">
+              <label class="fl">Показатель 1 (цифра)</label>
+              <input class="inp" id="adm_stat_val_1" placeholder="31">
+            </div>
+            <div class="f-grp">
+              <label class="fl">Показатель 1 (описание)</label>
+              <input class="inp" id="adm_stat_lbl_1" placeholder="опорная площадка во всех муниципалитетах региона">
+            </div>
           </div>
 
-          <div style="margin-top:24px;padding:16px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--border)">
-            <b style="font-size:13px;display:block;margin-bottom:6px">💡 Подсказка для администратора:</b>
-            <p style="font-size:12.5px;color:var(--ink-muted);margin:0;line-height:1.5">
-              После изменения текстов нажмите синюю кнопку «Сохранить тексты» ниже. Изменения сразу обновятся на сайте и сохранятся на сервере.
-            </p>
+          <div class="f-row">
+            <div class="f-grp">
+              <label class="fl">Показатель 2 (цифра)</label>
+              <input class="inp" id="adm_stat_val_2" placeholder="68 / 27">
+            </div>
+            <div class="f-grp">
+              <label class="fl">Показатель 2 (описание)</label>
+              <input class="inp" id="adm_stat_lbl_2" placeholder="экспертов и наставников Лиги из 27 территорий">
+            </div>
+          </div>
+
+          <div class="f-row">
+            <div class="f-grp">
+              <label class="fl">Показатель 3 (цифра)</label>
+              <input class="inp" id="adm_stat_val_3" placeholder="5">
+            </div>
+            <div class="f-grp">
+              <label class="fl">Показатель 3 (описание)</label>
+              <input class="inp" id="adm_stat_lbl_3" placeholder="ключевых управленческих компетенций">
+            </div>
+          </div>
+
+          <div class="f-row">
+            <div class="f-grp">
+              <label class="fl">Показатель 4 (цифра)</label>
+              <input class="inp" id="adm_stat_val_4" placeholder="2030">
+            </div>
+            <div class="f-grp">
+              <label class="fl">Показатель 4 (описание)</label>
+              <input class="inp" id="adm_stat_lbl_4" placeholder="горизонт опережающей подготовки кадров">
+            </div>
+          </div>
+
+          <div class="f-grp" style="margin-top:10px">
+            <label class="fl">Текст цитаты на главной</label>
+            <input class="inp" id="adm_quote_text">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Автор цитаты</label>
+            <input class="inp" id="adm_quote_author">
           </div>
 
           <div style="margin-top:20px">
-            <button class="btn primary" id="admSaveTextsBtn">💾 Сохранить тексты на сайте</button>
+            <button class="btn primary" id="admSaveHomeBtn">💾 Сохранить главную страницу</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Admin Tab: Images -->
+    <!-- TAB 2: ABOUT & CONTACTS -->
+    <div class="admin-pane" id="at-about">
+      <div class="grid g2">
+        <div class="card">
+          <h3>Раздел «О проекте»</h3>
+          <p class="sub">Миссия, цели, задачи и уникальность региональной модели</p>
+
+          <div class="f-grp">
+            <label class="fl">Заголовок страницы</label>
+            <input class="inp" id="adm_about_title" placeholder="Как работает региональная модель">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Вводный текст раздела</label>
+            <textarea class="inp" id="adm_about_lead" rows="3"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Цель проекта (блок ЦЕЛЬ)</label>
+            <textarea class="inp" id="adm_about_goal" rows="4"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Задачи модели</label>
+            <textarea class="inp" id="adm_about_tasks" rows="5"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Уникальность проекта</label>
+            <textarea class="inp" id="adm_about_uniqueness" rows="4"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Ожидаемые результаты к 2030 году</label>
+            <textarea class="inp" id="adm_about_results_2030" rows="5"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Контакты и реквизиты</h3>
+          <p class="sub">Отображаются в блоке контактов, на карте и в подвале сайта</p>
+
+          <div class="f-grp">
+            <label class="fl">Единый телефон проектного офиса</label>
+            <input class="inp" id="adm_contacts_phone" placeholder="8 (3842) 37-80-33">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Электронная почта (email)</label>
+            <input class="inp" id="adm_contacts_email" placeholder="fip@kuz-edu.ru">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Адрес института</label>
+            <input class="inp" id="adm_contacts_address" placeholder="г. Кемерово, ул. Заузелкова, д. 3">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Режим работы</label>
+            <input class="inp" id="adm_contacts_workhours" placeholder="Понедельник — Пятница: 8:30 — 17:00">
+          </div>
+
+          <div style="margin-top:24px;padding:14px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--border)">
+            <b style="font-size:13px;display:block;margin-bottom:6px">💡 Подсказка:</b>
+            <p style="font-size:12px;color:var(--ink-muted);margin:0;line-height:1.5">
+              Номер телефона автоматически обновляется на всех страницах сайта и в ссылках для быстрого набора с мобильного телефона.
+            </p>
+          </div>
+
+          <div style="margin-top:20px">
+            <button class="btn primary" id="admSaveAboutBtn">💾 Сохранить раздел «О проекте» и контакты</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: COMPETENCIES -->
+    <div class="admin-pane" id="at-comp">
+      <div class="card">
+        <h3>5 ключевых управленческих компетенций</h3>
+        <p class="sub">Вы можете изменить названия направлений, их описания и контрольные цитаты самооценки</p>
+
+        <!-- Comp 1 -->
+        <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:14px">
+          <b style="color:var(--accent-blue);font-size:13px;text-transform:uppercase">Направление 01</b>
+          <div class="f-grp" style="margin-top:8px">
+            <label class="fl">Название компетенции</label>
+            <input class="inp" id="adm_comp_01_title">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Описание</label>
+            <textarea class="inp" id="adm_comp_01_desc" rows="2"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Цитата самооценки</label>
+            <input class="inp" id="adm_comp_01_quote">
+          </div>
+        </div>
+
+        <!-- Comp 2 -->
+        <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:14px">
+          <b style="color:var(--accent-blue);font-size:13px;text-transform:uppercase">Направление 02</b>
+          <div class="f-grp" style="margin-top:8px">
+            <label class="fl">Название компетенции</label>
+            <input class="inp" id="adm_comp_02_title">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Описание</label>
+            <textarea class="inp" id="adm_comp_02_desc" rows="2"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Цитата самооценки</label>
+            <input class="inp" id="adm_comp_02_quote">
+          </div>
+        </div>
+
+        <!-- Comp 3 -->
+        <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:14px">
+          <b style="color:var(--accent-blue);font-size:13px;text-transform:uppercase">Направление 03</b>
+          <div class="f-grp" style="margin-top:8px">
+            <label class="fl">Название компетенции</label>
+            <input class="inp" id="adm_comp_03_title">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Описание</label>
+            <textarea class="inp" id="adm_comp_03_desc" rows="2"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Цитата самооценки</label>
+            <input class="inp" id="adm_comp_03_quote">
+          </div>
+        </div>
+
+        <!-- Comp 4 -->
+        <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:14px">
+          <b style="color:var(--accent-blue);font-size:13px;text-transform:uppercase">Направление 04</b>
+          <div class="f-grp" style="margin-top:8px">
+            <label class="fl">Название компетенции</label>
+            <input class="inp" id="adm_comp_04_title">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Описание</label>
+            <textarea class="inp" id="adm_comp_04_desc" rows="2"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Цитата самооценки</label>
+            <input class="inp" id="adm_comp_04_quote">
+          </div>
+        </div>
+
+        <!-- Comp 5 -->
+        <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:14px">
+          <b style="color:var(--accent-blue);font-size:13px;text-transform:uppercase">Направление 05</b>
+          <div class="f-grp" style="margin-top:8px">
+            <label class="fl">Название компетенции</label>
+            <input class="inp" id="adm_comp_05_title">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Описание</label>
+            <textarea class="inp" id="adm_comp_05_desc" rows="2"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Цитата самооценки</label>
+            <input class="inp" id="adm_comp_05_quote">
+          </div>
+        </div>
+
+        <div style="margin-top:20px">
+          <button class="btn primary" id="admSaveCompBtn">💾 Сохранить ключевые компетенции</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: TRAJECTORY -->
+    <div class="admin-pane" id="at-traj">
+      <div class="card">
+        <h3>Образовательная траектория</h3>
+        <p class="sub">Вводный текст и 4 формата подготовки управленцев</p>
+
+        <div class="f-grp">
+          <label class="fl">Вводное описание траектории</label>
+          <textarea class="inp" id="adm_traj_lead" rows="3"></textarea>
+        </div>
+
+        <div class="grid g2" style="margin-top:16px">
+          <div class="f-grp">
+            <label class="fl">Карточка 1: Программы ДПО</label>
+            <textarea class="inp" id="adm_traj_card_dpo" rows="4"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Карточка 2: Формат «Онлайн»</label>
+            <textarea class="inp" id="adm_traj_card_online" rows="4"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Карточка 3: Интенсивы, форумы, семинары</label>
+            <textarea class="inp" id="adm_traj_card_events" rows="4"></textarea>
+          </div>
+          <div class="f-grp">
+            <label class="fl">Карточка 4: Сеть из 31 опорной площадки и лабораторий</label>
+            <textarea class="inp" id="adm_traj_card_labs" rows="4"></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:20px">
+          <button class="btn primary" id="admSaveTrajBtn">💾 Сохранить траекторию</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: FUTURE (КАДРОВЫЙ РЕЗЕРВ) -->
+    <div class="admin-pane" id="at-future">
+      <div class="card">
+        <h3>Кадровый резерв (КУЗБАСС.БУДУЩЕЕ.РФ)</h3>
+        <p class="sub">Вводный текст, цифры статистики и уровни модели резерва</p>
+
+        <div class="f-grp">
+          <label class="fl">Вводный текст раздела</label>
+          <textarea class="inp" id="adm_future_lead" rows="4"></textarea>
+        </div>
+
+        <h4 style="margin:20px 0 10px;font-size:14px">4 показателя статистики резерва</h4>
+        <div class="f-row">
+          <div class="f-grp">
+            <label class="fl">Показатель 1 (цифра)</label>
+            <input class="inp" id="adm_future_stat_1_val">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Показатель 1 (подпись)</label>
+            <input class="inp" id="adm_future_stat_1_lbl">
+          </div>
+        </div>
+        <div class="f-row">
+          <div class="f-grp">
+            <label class="fl">Показатель 2 (цифра)</label>
+            <input class="inp" id="adm_future_stat_2_val">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Показатель 2 (подпись)</label>
+            <input class="inp" id="adm_future_stat_2_lbl">
+          </div>
+        </div>
+        <div class="f-row">
+          <div class="f-grp">
+            <label class="fl">Показатель 3 (цифра)</label>
+            <input class="inp" id="adm_future_stat_3_val">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Показатель 3 (подпись)</label>
+            <input class="inp" id="adm_future_stat_3_lbl">
+          </div>
+        </div>
+        <div class="f-row">
+          <div class="f-grp">
+            <label class="fl">Показатель 4 (цифра)</label>
+            <input class="inp" id="adm_future_stat_4_val">
+          </div>
+          <div class="f-grp">
+            <label class="fl">Показатель 4 (подпись)</label>
+            <input class="inp" id="adm_future_stat_4_lbl">
+          </div>
+        </div>
+
+        <h4 style="margin:20px 0 10px;font-size:14px">3 уровня модели резерва</h4>
+        <div class="f-grp">
+          <label class="fl">Уровень 1</label>
+          <input class="inp" id="adm_future_lvl_1">
+        </div>
+        <div class="f-grp">
+          <label class="fl">Уровень 2</label>
+          <input class="inp" id="adm_future_lvl_2">
+        </div>
+        <div class="f-grp">
+          <label class="fl">Уровень 3</label>
+          <input class="inp" id="adm_future_lvl_3">
+        </div>
+
+        <div style="margin-top:20px">
+          <button class="btn primary" id="admSaveFutureBtn">💾 Сохранить кадровый резерв</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: HELP (В ПОМОЩЬ РУКОВОДИТЕЛЮ) -->
+    <div class="admin-pane" id="at-help">
+      <div class="card">
+        <h3>В помощь руководителю</h3>
+        <p class="sub">Вводный текст раздела и блоки изменений законодательства</p>
+
+        <div class="f-grp">
+          <label class="fl">Вводный текст раздела</label>
+          <textarea class="inp" id="adm_help_lead" rows="3"></textarea>
+        </div>
+
+        <h4 style="margin:20px 0 10px;font-size:14px">Ключевые обновления законодательства 2025–2026 годов</h4>
+        <div class="f-grp">
+          <label class="fl">Блок 1: С 1 сентября 2025 (Порядок ДПП)</label>
+          <textarea class="inp" id="adm_help_update_1_text" rows="3"></textarea>
+        </div>
+        <div class="f-grp">
+          <label class="fl">Блок 2: 2025: стандарты и профстандарты (ФГОС СОО / Руководитель ПОО)</label>
+          <textarea class="inp" id="adm_help_update_2_text" rows="3"></textarea>
+        </div>
+        <div class="f-grp">
+          <label class="fl">Блок 3: 2026: региональный уровень (Закон № 86-ОЗ)</label>
+          <textarea class="inp" id="adm_help_update_3_text" rows="3"></textarea>
+        </div>
+
+        <div style="margin-top:20px">
+          <button class="btn primary" id="admSaveHelpBtn">💾 Сохранить раздел руководителя</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: DOCUMENTS CRUD -->
+    <div class="admin-pane" id="at-docs">
+      <div class="grid g2">
+        <div class="card">
+          <h3>Добавить новый документ в библиотеку</h3>
+          <p class="sub">Документ сразу появится на странице «В помощь руководителю»</p>
+          
+          <form id="admAddDocForm">
+            <div class="f-grp">
+              <label class="fl">Название документа</label>
+              <input class="inp" id="admDocTitle" placeholder="например: Методические рекомендации по ВСОКО 2026" required>
+            </div>
+            <div class="f-grp">
+              <label class="fl">Раздел библиотеки</label>
+              <select class="inp" id="admDocCategory">
+                <option value="methodological">Методические материалы (левая колонка)</option>
+                <option value="normative">Нормативная база руководителя (правая колонка)</option>
+              </select>
+            </div>
+            <div class="f-grp">
+              <label class="fl">Краткое описание / аннотация</label>
+              <textarea class="inp" id="admDocDesc" rows="3" placeholder="Для кого предназначен и что содержит документ..."></textarea>
+            </div>
+            <div class="f-grp">
+              <label class="fl">Ссылка на документ или первоисточник</label>
+              <input class="inp" id="admDocUrl" placeholder="https://..." value="https://kuz-edu.ru">
+            </div>
+            <button class="btn primary" type="submit">➕ Добавить документ на сайт</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Список документов на сайте</h3>
+          <p class="sub">Вы можете удалить любой устаревший документ в один клик</p>
+          <div id="admDocList" style="max-height:540px;overflow-y:auto;padding-right:6px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 8: DIALOGUE MODERATION -->
+    <div class="admin-pane" id="at-dialogue">
+      <div class="card">
+        <h3>Модерация вопросов в «Эффективном диалоге»</h3>
+        <p class="sub">Здесь отображаются все вопросы от участников. Вы можете удалять спам или редактировать ответы экспертов</p>
+        <div id="admDialogueList" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <!-- TAB 9: IMAGES -->
     <div class="admin-pane" id="at-images">
       <div class="card">
         <h3>Управление ключевыми фотографиями платформы</h3>
@@ -1092,53 +1500,6 @@
       </div>
     </div>
 
-    <!-- Admin Tab: Documents -->
-    <div class="admin-pane" id="at-docs">
-      <div class="grid g2">
-        <div class="card">
-          <h3>Добавить новый документ в библиотеку</h3>
-          <p class="sub">Документ сразу появится на странице «В помощь руководителю»</p>
-          
-          <form id="admAddDocForm">
-            <div class="f-grp">
-              <label class="fl">Название документа</label>
-              <input class="inp" id="admDocTitle" placeholder="например: Методические рекомендации по ВСОКО 2026" required>
-            </div>
-            <div class="f-grp">
-              <label class="fl">Раздел библиотеки</label>
-              <select class="inp" id="admDocCategory">
-                <option value="methodological">Методические материалы (левая колонка)</option>
-                <option value="normative">Нормативная база руководителя (правая колонка)</option>
-              </select>
-            </div>
-            <div class="f-grp">
-              <label class="fl">Краткое описание / аннотация</label>
-              <textarea class="inp" id="admDocDesc" rows="3" placeholder="Для кого предназначен и что содержит документ..."></textarea>
-            </div>
-            <div class="f-grp">
-              <label class="fl">Ссылка на документ или первоисточник</label>
-              <input class="inp" id="admDocUrl" placeholder="https://..." value="https://kuz-edu.ru">
-            </div>
-            <button class="btn primary" type="submit">➕ Добавить документ на сайт</button>
-          </form>
-        </div>
-
-        <div class="card">
-          <h3>Список документов на сайте</h3>
-          <p class="sub">Вы можете удалить любой устаревший документ в один клик</p>
-          <div id="admDocList" style="max-height:540px;overflow-y:auto;padding-right:6px"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Admin Tab: Dialogue Moderation -->
-    <div class="admin-pane" id="at-dialogue">
-      <div class="card">
-        <h3>Модерация вопросов в «Эффективном диалоге»</h3>
-        <p class="sub">Здесь отображаются все вопросы от участников. Вы можете удалять спам или редактировать ответы экспертов</p>
-        <div id="admDialogueList" style="margin-top:16px"></div>
-      </div>
-    </div>
   </div>
 </section>
 
