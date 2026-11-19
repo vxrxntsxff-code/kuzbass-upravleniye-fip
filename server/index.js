@@ -881,6 +881,23 @@ app.delete('/api/admin/media/:id', (req, res) => {
   res.json({ success: true });
 });
 
+// ── Proxy for КУЗБАСС.БУДУЩЕЕ.РФ (ideairo.kuz-edu.ru) without X-Frame-Options ──
+app.get('/api/future-frame', async (req, res) => {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const upstream = await fetch('https://ideairo.kuz-edu.ru/', { signal: controller.signal });
+    clearTimeout(timeout);
+    let html = await upstream.text();
+    html = html.replace('<head>', '<head><base href="https://ideairo.kuz-edu.ru/">');
+    res.removeHeader('X-Frame-Options');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (err) {
+    res.send(`<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><style>body{font-family:sans-serif;padding:40px;text-align:center;color:#475569;background:#f8fafc}</style></head><body><h2>Портал «КУЗБАСС.БУДУЩЕЕ.РФ»</h2><p>Для прямого перехода нажмите кнопку ниже:</p><p><a href="https://ideairo.kuz-edu.ru/" target="_blank" rel="noopener" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Открыть ideairo.kuz-edu.ru ↗</a></p></body></html>`);
+  }
+});
+
 // ── Diagnostic Questions API (вопросы тестирования и самооценки) ──
 app.get('/api/diagnostics/questions', (req, res) => {
   try {

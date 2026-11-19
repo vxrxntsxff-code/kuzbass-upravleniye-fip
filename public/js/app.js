@@ -985,15 +985,15 @@ function filterAndDisplayDocs() {
     switch (cat) {
       case 'federal':
       case 'normative':
-        return '<span class="doc-tier-badge badge-federal">🏛️ Федеральный уровень</span>';
+        return '<span class="doc-tier-badge badge-federal"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:-1px"><path d="M4 10h16M2 10l10-7 10 7M6 10v8M10 10v8M14 10v8M18 10v8M3 18h18M2 21h20"/></svg>Федеральный уровень</span>';
       case 'regional':
-        return '<span class="doc-tier-badge badge-regional">🌲 Региональный уровень (Кузбасс)</span>';
+        return '<span class="doc-tier-badge badge-regional"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:-1px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Региональный уровень (Кузбасс)</span>';
       case 'local':
-        return '<span class="doc-tier-badge badge-local">🏫 Локальный нормативный акт</span>';
+        return '<span class="doc-tier-badge badge-local"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:-1px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Локальный нормативный акт</span>';
       case 'methodological':
-        return '<span class="doc-tier-badge badge-methodological">📚 Методический материал</span>';
+        return '<span class="doc-tier-badge badge-methodological"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:-1px"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Методический материал</span>';
       default:
-        return '<span class="doc-tier-badge badge-federal">Документ</span>';
+        return '<span class="doc-tier-badge badge-federal"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:-1px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Документ</span>';
     }
   };
 
@@ -1058,7 +1058,7 @@ async function loadAndApplySiteContent() {
     // About
     if (c.about_title) {
       const el = document.querySelector('#p-about h1.pt');
-      if (el) el.innerHTML = `${escapeHtml(c.about_title)} <span>«Региональная модель»</span>`;
+      if (el) el.textContent = c.about_title;
     }
     if (c.about_lead) {
       const el = document.querySelector('#p-about p.lead');

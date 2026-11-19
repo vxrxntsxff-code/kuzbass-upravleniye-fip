@@ -216,7 +216,7 @@
 <!-- ═══════════ О ПРОЕКТЕ ═══════════ -->
 <section class="page" id="p-about">
   <div class="wrap">
-    <h1 class="pt">О проекте <span>«Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования»</span></h1>
+    <h1 class="pt">Как работает региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования в условиях демографических и социокультурных вызовов (на примере Кемеровской области — Кузбасса)</h1>
     <p class="lead">
       Научно обоснованная система сопровождения управленца в сфере образования на всех этапах его карьеры: от прогноза кадровой потребности и диагностики до портфолио-аттестации и непрерывного развития. Модель объединяет четыре ключевых элемента: <b>прогнозирование кадровой потребности региона</b>, <b>практико-ориентированное модульное обучение</b>, <b>аттестацию через личное портфолио</b> и <b>индивидуальный трек развития</b>.
     </p>
@@ -548,17 +548,33 @@
   </div>
 </section>
 
-<!-- ═══════════ КАДРОВЫЙ РЕЗЕРВ (КУЗБАСС.БУДУЩЕЕ.РФ) ═══════════ -->
+<!-- ═══════════ КАДРОВЫЙ РЕЗЕРВ (КУЗБАСС.БУДУЩЕЕ.РФ / IDEAIRO.KUZ-EDU.RU) ═══════════ -->
 <section class="page" id="p-future">
   <div class="wrap">
-    <div style="display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent-blue);background:var(--accent-subtle);padding:5px 14px;border-radius:999px;margin-bottom:14px">
-      <span>● Региональный портал</span>
-      <span>КУЗБАСС.БУДУЩЕЕ.РФ</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:16px;background:#fff;padding:16px 20px;border-radius:var(--radius-sm);border:1px solid var(--border);box-shadow:var(--shadow-sm)">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent-blue)">
+          <span style="display:inline-block;width:8px;height:8px;background:var(--success);border-radius:50%"></span>
+          <span>Региональный портал кадрового резерва</span>
+        </div>
+        <h1 class="pt" style="margin:4px 0 0;font-size:24px">КУЗБАСС.БУДУЩЕЕ.РФ <span>· Банк идей и проектов</span></h1>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn primary sm" href="https://ideairo.kuz-edu.ru/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px">
+          <span>Открыть на ideairo.kuz-edu.ru</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+        <a class="btn outline sm" href="https://forms.yandex.com/cloud/65c47a1bc09c02257924f5bf/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>
+          <span>Подать проектную идею</span>
+        </a>
+      </div>
     </div>
-    <h1 class="pt">КУЗБАСС.БУДУЩЕЕ.РФ <span>· кадровый резерв системы образования</span></h1>
-    <p class="lead">
-      Онлайн-ресурс и проект по формированию, сопровождению, подготовке и использованию кадрового резерва системы образования Кемеровской области — Кузбасса с учётом проектов и конкурсов АНО «Россия — страна возможностей». Площадка для сбора, запуска и продвижения идей и проектов кандидатов в муниципальный и региональный кадровый резерв.
-    </p>
+
+    <!-- Интерактивный встроенный портал ideairo.kuz-edu.ru -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:24px">
+      <iframe id="ideairoFrame" src="/api/future-frame" title="КУЗБАСС.БУДУЩЕЕ.РФ — Кадровый резерв" style="width:100%;height:1400px;border:none;display:block"></iframe>
+    </div>
 
     <div class="grid g4" style="margin-top:24px">
       <div class="stat"><b>4</b><span>отбора кандидатов в кадровый резерв проведено</span></div>
@@ -605,15 +621,35 @@
     <div class="card" style="margin-bottom:20px;padding:18px 20px">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:14px">
         <div class="doc-filter-pills" id="helpCategoryFilters">
-          <button class="pill active" data-cat="all">Все документы <span id="cntDocAll">34</span></button>
-          <button class="pill" data-cat="federal">🏛️ Федеральный уровень <span id="cntDocFed">10</span></button>
-          <button class="pill" data-cat="regional">🌲 Региональный уровень (Кузбасс) <span id="cntDocReg">10</span></button>
-          <button class="pill" data-cat="local">🏫 Локальные нормативные акты <span id="cntDocLoc">8</span></button>
-          <button class="pill" data-cat="methodological">📚 Методические материалы <span id="cntDocMeth">6</span></button>
+          <button class="pill active" data-cat="all">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Все документы</span>
+            <span id="cntDocAll">34</span>
+          </button>
+          <button class="pill" data-cat="federal">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h16M2 10l10-7 10 7M6 10v8M10 10v8M14 10v8M18 10v8M3 18h18M2 21h20"/></svg>
+            <span>Федеральный уровень</span>
+            <span id="cntDocFed">10</span>
+          </button>
+          <button class="pill" data-cat="regional">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span>Региональный уровень (Кузбасс)</span>
+            <span id="cntDocReg">10</span>
+          </button>
+          <button class="pill" data-cat="local">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Локальные нормативные акты</span>
+            <span id="cntDocLoc">8</span>
+          </button>
+          <button class="pill" data-cat="methodological">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Методические материалы</span>
+            <span id="cntDocMeth">6</span>
+          </button>
         </div>
       </div>
       <div style="position:relative">
-        <input class="inp" id="helpDocSearch" placeholder="🔍 Быстрый поиск документа по названию, номеру (например: 273-ФЗ, 86-ОЗ, ВСОКО, 250н) или теме..." style="font-size:13.5px;padding-left:14px">
+        <input class="inp" id="helpDocSearch" placeholder="Быстрый поиск документа по названию, номеру (например: 273-ФЗ, 86-ОЗ, ВСОКО, 250н) или теме..." style="font-size:13.5px;padding-left:14px">
       </div>
     </div>
 
@@ -712,10 +748,11 @@
 
         <div class="tabs" id="ctabs" style="margin-top:16px">
           <button class="on" data-t="ank">Анкета</button>
+          <button data-t="sa">Лист самооценки</button>
           <button data-t="diag">Диагностика</button>
           <button data-t="ipr">Моя траектория</button>
+          <button data-t="rep">Прогресс по времени</button>
           <button data-t="pf">Портфолио</button>
-          <button data-t="rep">Прогресс во времени</button>
         </div>
       </div>
 
@@ -772,9 +809,11 @@
             <button class="btn primary" type="submit">Сохранить анкету</button>
           </form>
         </div>
+      </div>
 
-        <!-- Лист самооценки внутри анкеты -->
-        <div class="card" style="margin-top:20px">
+      <!-- Tab: Лист самооценки -->
+      <div class="tabpane ct-pane" id="ct-sa">
+        <div class="card">
           <h3>Лист самооценки профессиональных компетенций</h3>
           <p style="margin-bottom:16px">
             Оцените каждое утверждение по шкале от 0 (полностью не согласен) до 4 (полностью согласен). Результат зафиксируется в вашем профиле, а рекомендации по слабым направлениям автоматически попадут в ИПР.

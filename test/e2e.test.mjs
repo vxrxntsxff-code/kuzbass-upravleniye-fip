@@ -603,6 +603,17 @@ test('E2E: реестр участников и экспорт данных (а�
   assert.ok(usersCsv.contentType.includes('text/csv'));
 });
 
+test('E2E: прокси кадрового резерва и обновлённый заголовок О проекте', async () => {
+  const content = await api('/api/content');
+  assert.equal(content.status, 200);
+  assert.ok(content.data.content.about_title.includes('Как работает региональная модель опережающей подготовки'));
+
+  const frameRes = await fetch(base + '/api/future-frame');
+  assert.equal(frameRes.status, 200);
+  const text = await frameRes.text();
+  assert.ok(text.includes('КУЗБАСС.БУДУЩЕЕ.РФ') || text.includes('ideairo.kuz-edu.ru'));
+});
+
 // Контракт окружения: тестовый каталог не остаётся замусоренным
 test('E2E: временная БД создана в изолированном каталоге', () => {
   const dbFile = join(tmpDir, 'test.db');
