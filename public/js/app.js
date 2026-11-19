@@ -485,7 +485,7 @@ function getRoleTitle(role) {
 const ROUTES = ['home', 'about', 'comp', 'diag', 'traj', 'dialog', 'future', 'help', 'login'];
 
 function route() {
-  const hash = (location.hash || '#/home').replace('#/', '');
+  const hash = (location.hash || '#/home').replace(/^#\/?/, '');
   state.activeRoute = ROUTES.includes(hash) ? hash : 'home';
 
   ROUTES.forEach(r => {
