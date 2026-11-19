@@ -1141,6 +1141,49 @@ nav.main a.on {
 .admin-pane { display: none; }
 .admin-pane.on { display: block; }
 
+/* ── Admin Tabs: современная панель навигации без капсульного скругления ── */
+#adminTabs {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  background: var(--surface-subtle) !important;
+  border: 1px solid var(--border) !important;
+  padding: 8px !important;
+  border-radius: var(--radius-md) !important;
+  width: 100% !important;
+  margin-bottom: 24px !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+#adminTabs button {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--ink) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 9px 15px !important;
+  border-radius: var(--radius-sm) !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: all 0.15s ease !important;
+  font-family: inherit !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+#adminTabs button:hover {
+  background: var(--accent-subtle) !important;
+  border-color: var(--accent-blue) !important;
+  color: var(--navy-deep) !important;
+}
+#adminTabs button.on {
+  background: var(--navy) !important;
+  border-color: var(--navy) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
 .adm-doc-item {
   display: flex;
   align-items: center;
