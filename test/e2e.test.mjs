@@ -492,6 +492,117 @@ test('E2E: сброс контента к заводским настройка�
   assert.equal(reset.data.content.hero_title, '«Управленческий навигатор Кузбасса»');
 });
 
+test('E2E: трехуровневая нормативная база фильтруется по категориям', async () => {
+  const allDocs = await api('/api/documents');
+  assert.equal(allDocs.status, 200);
+  assert.ok(allDocs.data.documents.length >= 20);
+
+  const fedDocs = await api('/api/documents?category=federal');
+  assert.equal(fedDocs.status, 200);
+  assert.ok(fedDocs.data.documents.some(d => d.title.includes('273-ФЗ')));
+
+  const regDocs = await api('/api/documents?category=regional');
+  assert.equal(regDocs.status, 200);
+  assert.ok(regDocs.data.documents.some(d => d.title.includes('86-ОЗ')));
+
+  const localDocs = await api('/api/documents?category=local');
+  assert.equal(localDocs.status, 200);
+  assert.ok(localDocs.data.documents.some(d => d.title.includes('ВСОКО')));
+});
+
+test('E2E: медиатека — добавление и удаление фото администратором', async () => {
+  const list = await api('/api/media');
+  assert.equal(list.status, 200);
+  assert.ok(list.data.media.length >= 4);
+
+  const created = await api('/api/admin/media', {
+    method: 'POST',
+    token: adminToken,
+    body: {
+      title: 'Тестовое фото мероприятия',
+      url: 'img/test_event.jpg',
+      category: 'events'
+    }
+  });
+  assert.equal(created.status, 200);
+  const mediaId = created.data.item.id;
+
+  const del = await api(`/api/admin/media/${mediaId}`, {
+    method: 'DELETE',
+    token: adminToken
+  });
+  assert.equal(del.status, 200);
+
+  const after = await api('/api/media');
+  assert.ok(!after.data.media.some(m => m.id === mediaId));
+});
+
+test('E2E: управление диагностикой — CRUD вопросов администратором', async () => {
+  const publicQ = await api('/api/diagnostics/questions');
+  assert.equal(publicQ.status, 200);
+  assert.equal(publicQ.data.questions.length, 20);
+  assert.equal(publicQ.data.self_assessment.length, 5);
+
+  const adminList = await api('/api/admin/diagnostics/questions', { token: adminToken });
+  assert.equal(adminList.status, 200);
+  assert.ok(adminList.data.questions.length >= 25);
+
+  const newQ = await api('/api/admin/diagnostics/questions', {
+    method: 'POST',
+    token: adminToken,
+    body: {
+      type: 'test',
+      competency_index: 0,
+      question_text: 'Какой срок утверждения новой программы развития ОО?',
+      options: ['1 месяц', '3 месяца', 'В соответствии с уставом ОО', 'По согласованию с учредителем'],
+      correct_index: 2,
+      explanation: 'Срок и порядок определяются уставом образовательной организации.',
+      order_num: 99
+    }
+  });
+  assert.equal(newQ.status, 200);
+  const qId = newQ.data.question.id;
+
+  const editQ = await api(`/api/admin/diagnostics/questions/${qId}`, {
+    method: 'PUT',
+    token: adminToken,
+    body: {
+      question_text: 'Какой срок утверждения программы развития ОО (ред.)?'
+    }
+  });
+  assert.equal(editQ.status, 200);
+  assert.equal(editQ.data.question.question_text, 'Какой срок утверждения программы развития ОО (ред.)?');
+
+  const delQ = await api(`/api/admin/diagnostics/questions/${qId}`, {
+    method: 'DELETE',
+    token: adminToken
+  });
+  assert.equal(delQ.status, 200);
+});
+
+test('E2E: реестр участников и экспорт данных (анкета, ИПР, CSV)', async () => {
+  const users = await api('/api/admin/users', { token: adminToken });
+  assert.equal(users.status, 200);
+  assert.ok(users.data.users.length >= 3);
+
+  const directorUser = users.data.users.find(u => u.login === 'director');
+  assert.ok(directorUser);
+
+  const exportUser = await api(`/api/admin/users/${directorUser.id}/export`, { token: adminToken });
+  assert.equal(exportUser.status, 200);
+  assert.equal(exportUser.data.user.login, 'director');
+  assert.ok(Array.isArray(exportUser.data.diagnostics));
+  assert.ok(Array.isArray(exportUser.data.ipr_items));
+
+  const diagCsv = await api('/api/admin/diagnostics/export-csv', { token: adminToken });
+  assert.equal(diagCsv.status, 200);
+  assert.ok(diagCsv.contentType.includes('text/csv'));
+
+  const usersCsv = await api('/api/admin/users/export-csv', { token: adminToken });
+  assert.equal(usersCsv.status, 200);
+  assert.ok(usersCsv.contentType.includes('text/csv'));
+});
+
 // Контракт окружения: тестовый каталог не остаётся замусоренным
 test('E2E: временная БД создана в изолированном каталоге', () => {
   const dbFile = join(tmpDir, 'test.db');

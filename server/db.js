@@ -130,11 +130,34 @@ function initSchema() {
     CREATE TABLE IF NOT EXISTS library_documents (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
-      category TEXT NOT NULL, -- 'methodological' or 'normative'
+      category TEXT NOT NULL, -- 'federal', 'regional', 'local', 'methodological' or legacy 'normative'
       description TEXT,
       url TEXT,
       file_path TEXT,
       order_num INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS site_media (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      url TEXT NOT NULL,
+      category TEXT DEFAULT 'general',
+      file_name TEXT,
+      file_size INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS diagnostic_questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL DEFAULT 'test', -- 'test' or 'self_assessment'
+      competency_index INTEGER NOT NULL DEFAULT 0, -- 0..4
+      question_text TEXT NOT NULL,
+      options_json TEXT, -- JSON array of strings
+      correct_index INTEGER DEFAULT 0,
+      explanation TEXT,
+      order_num INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
@@ -175,6 +198,29 @@ function migrateSchema() {
       order_num INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS site_media (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      url TEXT NOT NULL,
+      category TEXT DEFAULT 'general',
+      file_name TEXT,
+      file_size INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS diagnostic_questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL DEFAULT 'test',
+      competency_index INTEGER NOT NULL DEFAULT 0,
+      question_text TEXT NOT NULL,
+      options_json TEXT,
+      correct_index INTEGER DEFAULT 0,
+      explanation TEXT,
+      order_num INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   // Убеждаемся, что администратор существует в уже существующей БД
@@ -202,6 +248,8 @@ function migrateSchema() {
   // Заполняем дефолтный контент при отсутствии
   seedSiteContent();
   seedLibraryDocuments();
+  seedSiteMedia();
+  seedDiagnosticQuestions();
 }
 
 function seedInitialData() {
@@ -525,7 +573,7 @@ const DEFAULT_SITE_CONTENT = [
   { key: 'stat_lbl_4', value: 'горизонт опережающей подготовки кадров', desc: 'Подпись 4 статистики', cat: 'home' },
 
   // О проекте (about)
-  { key: 'about_title', value: 'Как работает региональная модель', desc: 'Заголовок на странице «О проекте»', cat: 'about' },
+  { key: 'about_title', value: 'Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования', desc: 'Заголовок на странице «О проекте»', cat: 'about' },
   { key: 'about_lead', value: 'Научно обоснованная система сопровождения управленца в сфере образования на всех этапах его карьеры: от прогноза кадровой потребности и диагностики до портфолио-аттестации и непрерывного развития.', desc: 'Вводный текст раздела «О проекте»', cat: 'about' },
   { key: 'about_goal', value: 'разработка, научное обоснование, апробация и тиражирование региональной модели опережающей подготовки и непрерывного профессионального развития управленческих кадров системы образования, обеспечивающей преодоление демографических и социокультурных вызовов.', desc: 'Цель региональной модели', cat: 'about' },
   { key: 'about_tasks', value: '01. Теоретико-методологические основания предиктивной диагностики дефицитов\n02. Стандартизированный инструментарий по 5 направлениям компетенций\n03. Научные принципы перехода к портфолио-оценке результатов\n04. Модульные ДПП ПК с кейсами и симуляционными заданиями\n05. Региональная система аттестации на основе портфолио\n06. Сеть ресурсных центров управленческих практик в муниципалитетах\n07. Цифровая платформа «Управленческий навигатор Кузбасса»\n08. Сборник и пакет нормативных документов для тиражирования в субъектах РФ', desc: 'Задачи модели', cat: 'about' },
@@ -562,7 +610,7 @@ const DEFAULT_SITE_CONTENT = [
   // Образовательная траектория (traj)
   { key: 'traj_lead', value: 'Обучение строится под конкретные запросы руководителя: проектное управление, ВСОКО, развитие малокомплектной школы и другие темы собираются в персональный маршрут из четырёх форматов.', desc: 'Вводный текст траектории', cat: 'traj' },
   { key: 'traj_card_dpo', value: 'Четыре модульные программы ДПО (120 / 72 / 36 часов): стратегическое управление и проектная деятельность, финансово-хозяйственная деятельность, управление персоналом и командообразование, управление качеством образования, коммуникации. Личностно-ориентированный подход с учётом оценки портфолио.', desc: 'Карточка ДПП ПК', cat: 'traj' },
-  { key: 'traj_card_online', value: 'Короткие прикладные курсы под специфические дефициты компетенций, выявленные диагностикой, — без отрыва от работы, с немедленным применением результата. Доступны из личного кабинета, а решённые задания становятся вкладом в портфолио.', desc: 'Карточка «Онлайн»', cat: 'traj' },
+  { key: 'traj_card_online', value: 'Короткие прикладные курсы под специфические дефициты компетенций, выявленные диагностикой, — без отрыва от работы, с немедленным применением результата. Доступны из личного кабинета, а решённые задания становятся вкладом в портфолио.', desc: 'Карточка «Онлайн-модули»', cat: 'traj' },
   { key: 'traj_card_events', value: 'Ежегодный форум «Управленческий компас» на площадках муниципалитетов, интенсивы, круглые столы, вебинары (не реже 1 раза в квартал): лидерские компетенции, карьерное планирование, ФХД, управление изменениями, наставничество.', desc: 'Карточка мероприятий', cat: 'traj' },
   { key: 'traj_card_labs', value: 'Ресурсные центры управленческих практик в муниципальных образованиях: стажировочные сессии (не менее 2 в квартал), обмен практиками, виртуальные стажировочные площадки лучших школ региона. Работают 5 лабораторий по направлениям компетенций.', desc: 'Карточка 31 опорной площадки', cat: 'traj' },
 
@@ -615,24 +663,340 @@ function resetSiteContentToDefaults() {
   return content;
 }
 
-function seedLibraryDocuments() {
-  const count = db.prepare('SELECT COUNT(*) as cnt FROM library_documents').get().cnt;
-  if (count > 0) return;
+// ── Богатая библиотека документов («В помощь руководителю») ──
+const SEED_DOCUMENTS = [
+  // Федеральный уровень
+  {
+    title: 'Федеральный закон «Об образовании в Российской Федерации» № 273-ФЗ',
+    category: 'federal',
+    description: 'Базовый законодательный акт: компетенции ОО, статус руководителя, аттестация и программы ДПО (в ред. 2026 г.)',
+    url: 'http://pravo.gov.ru/proxy/ips/?docbody=&nd=102162745',
+    order_num: 1
+  },
+  {
+    title: 'Федеральный закон «О персональных данных» № 152-ФЗ',
+    category: 'federal',
+    description: 'Обязательные требования к защите персональных данных педагогов и обучающихся, согласия на обработку',
+    url: 'http://pravo.gov.ru/proxy/ips/?docbody=&nd=102108261',
+    order_num: 2
+  },
+  {
+    title: 'Федеральный закон «О контрактной системе в сфере закупок» № 44-ФЗ',
+    category: 'federal',
+    description: 'Планирование, конкурентные процедуры закупок, типовые контракты и отчётность образовательной организации',
+    url: 'http://pravo.gov.ru/proxy/ips/?docbody=&nd=102164677',
+    order_num: 3
+  },
+  {
+    title: 'Трудовой кодекс РФ (глава 52: особенности регулирования труда в ОО)',
+    category: 'federal',
+    description: 'Трудовые договоры с руководителем и педагогами, дисциплинарные процедуры, ограничения на занятие педдеятельностью',
+    url: 'http://pravo.gov.ru/proxy/ips/?docbody=&nd=102074279',
+    order_num: 4
+  },
+  {
+    title: 'Профстандарт «Руководитель образовательной организации» (Приказ Минтруда № 250н)',
+    category: 'federal',
+    description: 'Основа компетентностной модели, трудовые функции, требования к квалификации и аттестации руководителя',
+    url: 'http://publication.pravo.gov.ru/Document/View/0001202105180026',
+    order_num: 5
+  },
+  {
+    title: 'Профстандарт «Руководитель профессиональной образовательной организации» (Приказ Минтруда № 137н)',
+    category: 'federal',
+    description: 'Актуализированный профессиональный стандарт руководителя колледжа / техникума (вступил в силу в 2025 г.)',
+    url: 'http://publication.pravo.gov.ru/Document/View/0001202504150033',
+    order_num: 6
+  },
+  {
+    title: 'Порядок организации и осуществления деятельности по ДПП (Приказ Минобрнауки № 266)',
+    category: 'federal',
+    description: 'Новый порядок организации программ ДПО, стажировок и сетевого обучения, вступил в силу с 01.09.2025',
+    url: 'https://docs.cntd.ru/document/1312587284',
+    order_num: 7
+  },
+  {
+    title: 'ФГОС СОО с актуальными изменениями (Приказ Минпросвещения № 138)',
+    category: 'federal',
+    description: 'Федеральный государственный образовательный стандарт среднего общего образования: требования к ООП и результатам',
+    url: 'http://publication.pravo.gov.ru/Document/View/0001202503280014',
+    order_num: 8
+  },
+  {
+    title: 'Правила применения электронного обучения и ДОТ (Постановление Правительства № 1678)',
+    category: 'federal',
+    description: 'Порядок применения дистанционных образовательных технологий и электронных платформ в образовательном процессе',
+    url: 'http://publication.pravo.gov.ru/document/0001202310130030',
+    order_num: 9
+  },
+  {
+    title: 'Концепция подготовки педагогических кадров для системы образования до 2030 года',
+    category: 'federal',
+    description: 'Распоряжение Правительства РФ № 1688-р: целевые ориентиры непрерывного развития учительского и управленческого корпуса',
+    url: 'http://pravo.gov.ru/proxy/ips/?docbody=&nd=603517436',
+    order_num: 10
+  },
 
-  const insert = db.prepare('INSERT INTO library_documents (title, category, description, url, order_num) VALUES (?, ?, ?, ?, ?)');
+  // Региональный уровень
+  {
+    title: 'Закон Кемеровской области — Кузбасса «Об образовании» № 86-ОЗ',
+    category: 'regional',
+    description: 'Базовый региональный закон (действует в редакции от 1 июля 2026 г.): полномочия, гарантии и специфика Кузбасса',
+    url: 'https://docs.cntd.ru/document/465200916',
+    order_num: 11
+  },
+  {
+    title: 'Госпрограмма «Развитие системы образования Кузбасса на 2024–2030 годы»',
+    category: 'regional',
+    description: 'Постановление Правительства Кемеровской области — Кузбасса № 698: ключевые региональные проекты и финансирование',
+    url: 'https://kuz-edu.ru',
+    order_num: 12
+  },
+  {
+    title: 'Приказ Минобразования Кузбасса № 42 «О региональной модели развития управленческих кадров»',
+    category: 'regional',
+    description: 'Нормативное закрепление модели опережающей подготовки, 5 направлений компетенций и проектного офиса ФИП',
+    url: 'https://kuz-edu.ru',
+    order_num: 13
+  },
+  {
+    title: 'Положение о кадровом резерве системы образования Кузбасса «КУЗБАСС.БУДУЩЕЕ.РФ»',
+    category: 'regional',
+    description: 'Регламент трёх уровней отбора, оценки, подготовки и назначения управленческого резерва региона',
+    url: 'https://кузбасс.будущее.рф',
+    order_num: 14
+  },
+  {
+    title: 'Приказ Минобразования Кузбасса № 1845 «О сети опорных площадок и межмуниципальных лабораторий»',
+    category: 'regional',
+    description: 'Положение о 31 опорной площадке региона: функции ресурсных центров, регламент сетевых стажировок и лабораторий',
+    url: 'https://kuz-edu.ru',
+    order_num: 15
+  },
+  {
+    title: 'Положение о региональной «Лиге наставников» руководителей образовательных организаций',
+    category: 'regional',
+    description: 'Статус наставника, порядок включения в Лигу 68 экспертов из 27 территорий, технология «парного управления»',
+    url: 'https://kuz-edu.ru',
+    order_num: 16
+  },
+  {
+    title: 'Приказ Минобразования Кузбасса № 1210 «Об аттестации руководителей ОО на основе цифрового портфолио»',
+    category: 'regional',
+    description: 'Порядок подтверждения соответствия должности и первой/высшей категории по показателям портфолио на платформе',
+    url: 'https://kuz-edu.ru',
+    order_num: 17
+  },
+  {
+    title: 'Распоряжение Губернатора Кемеровской области — Кузбасса № 54-рг «О поддержке молодых управленцев»',
+    category: 'regional',
+    description: 'Комплекс мер социальной и методической поддержки впервые назначенных директоров и заведующих ОО',
+    url: 'https://kuz-edu.ru',
+    order_num: 18
+  },
+  {
+    title: 'Концепция региональной системы оценки качества образования (РСОКО) Кузбасса до 2030 года',
+    category: 'regional',
+    description: 'Критерии объективности процедур оценивания, аналитика ВПР, ОГЭ, ЕГЭ и механизм помощи школам ШНОР',
+    url: 'https://kuz-edu.ru',
+    order_num: 19
+  },
+  {
+    title: 'Регламент межмуниципального трансфера лучших управленческих практик в Кузбассе',
+    category: 'regional',
+    description: 'Методика тиражирования проверенных управленческих решений между опорными площадками и муниципалитетами',
+    url: 'https://kuz-edu.ru',
+    order_num: 20
+  },
+
+  // Локальные нормативные акты
+  {
+    title: 'Модельное положение о внутренней системе оценки качества образования (ВСОКО) ОО',
+    category: 'local',
+    description: 'Шаблон локального акта школы/лицея/детского сада на 2025/2026 уч. год с критериями доказательного менеджмента',
+    url: 'https://kuz-edu.ru',
+    order_num: 21
+  },
+  {
+    title: 'Шаблон Программы развития образовательной организации на 2025–2030 годы',
+    category: 'local',
+    description: 'Готовая структура программы развития ОО с индикаторами результативности, проектными линиями и расчётом бюджета',
+    url: 'https://kuz-edu.ru',
+    order_num: 22
+  },
+  {
+    title: 'Модельное положение об оплате труда и стимулирующих выплатах работников ОО',
+    category: 'local',
+    description: 'Формулы расчёта стимулирующих надбавок, критерии эффективности педработников и администрации ОО',
+    url: 'https://kuz-edu.ru',
+    order_num: 23
+  },
+  {
+    title: 'Модельное положение о наставничестве в образовательной организации',
+    category: 'local',
+    description: 'Локальный акт по организации целевой модели наставничества «директор — молодой зам / кандидат резерва»',
+    url: 'https://kuz-edu.ru',
+    order_num: 24
+  },
+  {
+    title: 'Модельный регламент Управляющего совета и Педагогического совета ОО',
+    category: 'local',
+    description: 'Порядок работы коллегиальных органов управления, согласования локальных актов и участия родителей в управлении',
+    url: 'https://kuz-edu.ru',
+    order_num: 25
+  },
+  {
+    title: 'Пакет типовых должностных инструкций заместителей руководителя ОО по профстандартам 2025 года',
+    category: 'local',
+    description: 'Должностные регламенты зам. по УВР, зам. по ВР, зам. по АХР, руководителя цифровой трансформации',
+    url: 'https://kuz-edu.ru',
+    order_num: 26
+  },
+  {
+    title: 'Порядок разработки, принятия и утверждения локальных нормативных актов ОО',
+    category: 'local',
+    description: 'Регламент нормотворческой деятельности внутри организации: экспертиза, согласование с профкомом, сроки',
+    url: 'https://kuz-edu.ru',
+    order_num: 27
+  },
+  {
+    title: 'Положение о комиссии по урегулированию споров между участниками образовательных отношений',
+    category: 'local',
+    description: 'Порядок разрешения конфликтов, регламент заседаний комиссии и защита профессиональной чести педагога',
+    url: 'https://kuz-edu.ru',
+    order_num: 28
+  },
 
   // Методические материалы
-  insert.run('Методический сборник «Управленческий навигатор Кузбасса»', 'methodological', 'Итоговый сборник модели: методики, разборы кейсов, рабочие листы руководителя', 'https://kuz-edu.ru', 1);
-  insert.run('Банк управленческих кейсов и симуляционных заданий (200+)', 'methodological', 'Реальные ситуации по пяти направлениям: стратегия, ФХД, персонал, качество, коммуникации', 'https://kuz-edu.ru', 2);
-  insert.run('Банк лучших управленческих практик Кузбасса', 'methodological', 'Готовые управленческие решения с возможностью адаптации под свою организацию', 'https://kuz-edu.ru', 3);
-  insert.run('Методические рекомендации по формированию управленческого портфолио', 'methodological', 'Алгоритм сбора данных, критерии и показатели оценки, подготовка к портфолио-аттестации', 'https://kuz-edu.ru', 4);
+  {
+    title: 'Методический сборник «Управленческий навигатор Кузбасса»',
+    category: 'methodological',
+    description: 'Итоговый сборник модели: методики, разборы кейсов, рабочие листы руководителя и шаблоны документов',
+    url: 'https://kuz-edu.ru',
+    order_num: 29
+  },
+  {
+    title: 'Банк управленческих кейсов и симуляционных заданий (200+)',
+    category: 'methodological',
+    description: 'Реальные управленческие ситуации по пяти направлениям: стратегия, ФХД, персонал, качество, коммуникации',
+    url: 'https://kuz-edu.ru',
+    order_num: 30
+  },
+  {
+    title: 'Банк лучших управленческих практик лидеров образования Кузбасса',
+    category: 'methodological',
+    description: 'Готовые апробированные управленческие решения с описанием эффектов и возможностью адаптации под свою организацию',
+    url: 'https://kuz-edu.ru',
+    order_num: 31
+  },
+  {
+    title: 'Методические рекомендации по формированию цифрового управленческого портфолио',
+    category: 'methodological',
+    description: 'Алгоритм сбора доказательств, критерии оценки, подготовка к аттестации и самодиагностика',
+    url: 'https://kuz-edu.ru',
+    order_num: 32
+  },
+  {
+    title: 'Рабочая тетрадь руководителя: «Антикризисный менеджмент в школе и ДОУ»',
+    category: 'methodological',
+    description: 'Практикум разрешения нештатных инцидентов, проверок надзорных органов и работы со сложными обращениями',
+    url: 'https://kuz-edu.ru',
+    order_num: 33
+  },
+  {
+    title: 'Конструктор индивидуальной программы развития (ИПР) управленческих компетенций',
+    category: 'methodological',
+    description: 'Пошаговый алгоритм перевода дефицитов диагностики в план конкретных действий, курсов и стажировок',
+    url: 'https://kuz-edu.ru',
+    order_num: 34
+  }
+];
 
-  // Нормативная база
-  insert.run('Федеральный закон «Об образовании в РФ» № 273-ФЗ', 'normative', 'Базовый законодательный акт в образовании с актуальными изменениями 2026 года', 'http://pravo.gov.ru/proxy/ips/?docbody=&nd=102162745', 5);
-  insert.run('Закон Кемеровской области — Кузбасса от 05.07.2013 № 86-ОЗ', 'normative', 'Закон «Об образовании» в редакции от 1 июля 2026 г.', 'https://kuz-edu.ru', 6);
-  insert.run('Приказ Минпросвещения России от 24.02.2025 № 138 (ФГОС СОО)', 'normative', 'Федеральный государственный образовательный стандарт среднего общего образования', 'http://publication.pravo.gov.ru/', 7);
-  insert.run('Приказ Минтруда России от 21.03.2025 № 137н', 'normative', 'Профстандарт «Руководитель профессиональной образовательной организации»', 'http://publication.pravo.gov.ru/', 8);
-  insert.run('Приказ Минобрнауки России от 24.03.2025 № 266 (Порядок ДПП)', 'normative', 'Новый порядок организации программ ДПО, вступил в силу с 01.09.2025', 'http://publication.pravo.gov.ru/', 9);
+function seedLibraryDocuments() {
+  const count = db.prepare('SELECT COUNT(*) as cnt FROM library_documents').get().cnt;
+  const insert = db.prepare('INSERT INTO library_documents (title, category, description, url, order_num) VALUES (?, ?, ?, ?, ?)');
+
+  if (count === 0) {
+    for (const d of SEED_DOCUMENTS) {
+      insert.run(d.title, d.category, d.description, d.url, d.order_num);
+    }
+  } else if (count < 20) {
+    // Дополняем существующую БД недостающими документами
+    const existingTitles = new Set(db.prepare('SELECT title FROM library_documents').all().map(r => r.title));
+    for (const d of SEED_DOCUMENTS) {
+      if (!existingTitles.has(d.title)) {
+        insert.run(d.title, d.category, d.description, d.url, d.order_num);
+      }
+    }
+  }
+}
+
+// ── Медиатека (фотографии и графика) ──
+const SEED_MEDIA = [
+  { title: 'Здание Института развития образования Кузбасса', url: 'img/photo_iro.jpg', category: 'about' },
+  { title: 'Панорама региона Кемеровская область — Кузбасс', url: 'img/photo_kuzbass.jpg', category: 'home' },
+  { title: 'Стратегическая сессия руководителей образования', url: 'img/photo_strat_session.jpeg', category: 'about' },
+  { title: 'Образовательная экосистема Кузбасса', url: 'img/photo_ecosistema.jpg', category: 'home' },
+  { title: 'Настольная книга руководителя образовательной организации', url: 'img/photo_kniga_direktora.png', category: 'help' },
+  { title: 'Банк эффективных управленческих практик', url: 'img/photo_uprav_praktik.png', category: 'traj' },
+  { title: 'Герб Кемеровской области — Кузбасса', url: 'img/gerb_kuzbass.png', category: 'identity' },
+  { title: 'Логотип ГБОУ ДПО «ИРО Кузбасса»', url: 'img/logo_iro.png', category: 'identity' }
+];
+
+function seedSiteMedia() {
+  const count = db.prepare('SELECT COUNT(*) as cnt FROM site_media').get().cnt;
+  if (count > 0) return;
+
+  const insert = db.prepare('INSERT INTO site_media (title, url, category) VALUES (?, ?, ?)');
+  for (const m of SEED_MEDIA) {
+    insert.run(m.title, m.url, m.category);
+  }
+}
+
+// ── Управление диагностикой (вопросы теста и самооценки) ──
+function seedDiagnosticQuestions() {
+  const count = db.prepare('SELECT COUNT(*) as cnt FROM diagnostic_questions').get().cnt;
+  if (count > 0) return;
+
+  try {
+    const { TEST_QUESTIONS, SA_QUESTIONS } = require('../public/js/data');
+    const insert = db.prepare(`
+      INSERT INTO diagnostic_questions (type, competency_index, question_text, options_json, correct_index, explanation, order_num)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    // Вопросы тестирования (20 вопросов)
+    if (Array.isArray(TEST_QUESTIONS)) {
+      TEST_QUESTIONS.forEach((q, idx) => {
+        insert.run(
+          'test',
+          typeof q.d === 'number' ? q.d : 0,
+          q.q || '',
+          JSON.stringify(Array.isArray(q.o) ? q.o : []),
+          typeof q.c === 'number' ? q.c : 0,
+          q.e || '',
+          idx + 1
+        );
+      });
+    }
+
+    // Вопросы самооценки (5 направлений)
+    if (Array.isArray(SA_QUESTIONS)) {
+      SA_QUESTIONS.forEach((sa, idx) => {
+        insert.run(
+          'self_assessment',
+          typeof sa.id === 'number' ? sa.id : idx,
+          sa.text || '',
+          JSON.stringify([]),
+          0,
+          sa.title || '',
+          idx + 1
+        );
+      });
+    }
+  } catch (err) {
+    console.error('Ошибка сидирования вопросов диагностики:', err.message);
+  }
 }
 
 initSchema();
@@ -640,5 +1004,7 @@ initSchema();
 module.exports = {
   db,
   initSchema,
-  resetSiteContentToDefaults
+  resetSiteContentToDefaults,
+  SEED_DOCUMENTS,
+  SEED_MEDIA
 };

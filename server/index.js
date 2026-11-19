@@ -716,10 +716,22 @@ app.post('/api/admin/upload-image', (req, res) => {
   });
 });
 
-// ── Admin: Library Documents API (библиотека «В помощь руководителю») ──
+// ── Library Documents API (библиотека «В помощь руководителю») ──
+const ALLOWED_DOC_CATEGORIES = ['federal', 'regional', 'local', 'methodological', 'normative'];
+
 app.get('/api/documents', (req, res) => {
   try {
-    const documents = db.prepare('SELECT * FROM library_documents ORDER BY category, order_num, id').all();
+    const { category } = req.query;
+    let documents;
+    if (category && category !== 'all' && category !== 'Все') {
+      if (category === 'federal' || category === 'normative') {
+        documents = db.prepare("SELECT * FROM library_documents WHERE category IN ('federal', 'normative') ORDER BY order_num, id").all();
+      } else {
+        documents = db.prepare('SELECT * FROM library_documents WHERE category = ? ORDER BY order_num, id').all(category);
+      }
+    } else {
+      documents = db.prepare('SELECT * FROM library_documents ORDER BY category, order_num, id').all();
+    }
     res.json({ success: true, documents });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -736,7 +748,7 @@ app.post('/api/admin/documents', (req, res) => {
     return res.status(400).json({ error: 'Укажите название документа' });
   }
 
-  const cat = category === 'normative' ? 'normative' : 'methodological';
+  const cat = ALLOWED_DOC_CATEGORIES.includes(category) ? category : 'federal';
   const info = db.prepare(`
     INSERT INTO library_documents (title, category, description, url, file_path, order_num)
     VALUES (?, ?, ?, ?, ?, ?)
@@ -764,6 +776,8 @@ app.put('/api/admin/documents/:id', (req, res) => {
   if (!existing) return res.status(404).json({ error: 'Документ не найден' });
 
   const { title, category, description, url, file_path, order_num } = req.body;
+  const safeCat = category !== undefined ? (ALLOWED_DOC_CATEGORIES.includes(category) ? category : existing.category) : null;
+
   db.prepare(`
     UPDATE library_documents
     SET title = COALESCE(?, title),
@@ -775,7 +789,7 @@ app.put('/api/admin/documents/:id', (req, res) => {
     WHERE id = ?
   `).run(
     title !== undefined ? String(title).trim().slice(0, 300) : null,
-    category !== undefined ? (category === 'normative' ? 'normative' : 'methodological') : null,
+    safeCat,
     description !== undefined ? String(description).slice(0, 1000) : null,
     url !== undefined ? String(url).slice(0, 500) : null,
     file_path !== undefined ? String(file_path).slice(0, 500) : null,
@@ -796,6 +810,379 @@ app.delete('/api/admin/documents/:id', (req, res) => {
 
   db.prepare('DELETE FROM library_documents WHERE id = ?').run(id);
   res.json({ success: true });
+});
+
+// ── Media Library API (Фотогалерея и медиатека) ──
+app.get('/api/media', (req, res) => {
+  try {
+    const media = db.prepare('SELECT * FROM site_media ORDER BY id DESC').all();
+    res.json({ success: true, media });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/media', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+    uploadImage.single('image')(req, res, (err) => {
+      if (err) return res.status(400).json({ error: err.message });
+      if (!req.file) return res.status(400).json({ error: 'Файл изображения не передан' });
+
+      const title = String(req.body.title || req.file.originalname || 'Фото').trim().slice(0, 200);
+      const category = String(req.body.category || 'general').trim().slice(0, 50);
+      const publicUrl = '/uploads/images/' + req.file.filename;
+
+      const info = db.prepare(`
+        INSERT INTO site_media (title, url, category, file_name, file_size)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(title, publicUrl, category, req.file.filename, req.file.size);
+
+      const item = db.prepare('SELECT * FROM site_media WHERE id = ?').get(info.lastInsertRowid);
+      res.json({ success: true, item });
+    });
+  } else {
+    const { title, url, category } = req.body || {};
+    const safeUrl = String(url || '').trim();
+    if (!safeUrl) return res.status(400).json({ error: 'Укажите URL изображения или загрузите файл' });
+    const safeTitle = String(title || 'Изображение').trim().slice(0, 200);
+    const safeCat = String(category || 'general').trim().slice(0, 50);
+
+    const info = db.prepare(`
+      INSERT INTO site_media (title, url, category)
+      VALUES (?, ?, ?)
+    `).run(safeTitle, safeUrl.slice(0, 500), safeCat);
+
+    const item = db.prepare('SELECT * FROM site_media WHERE id = ?').get(info.lastInsertRowid);
+    res.json({ success: true, item });
+  }
+});
+
+app.delete('/api/admin/media/:id', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id изображения' });
+
+  const item = db.prepare('SELECT * FROM site_media WHERE id = ?').get(id);
+  if (!item) return res.status(404).json({ error: 'Изображение не найдено' });
+
+  if (item.file_name) {
+    const filePath = path.join(uploadDir, 'images', item.file_name);
+    try {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    } catch (_) {}
+  }
+
+  db.prepare('DELETE FROM site_media WHERE id = ?').run(id);
+  res.json({ success: true });
+});
+
+// ── Diagnostic Questions API (вопросы тестирования и самооценки) ──
+app.get('/api/diagnostics/questions', (req, res) => {
+  try {
+    const testQuestions = db.prepare(`
+      SELECT id, competency_index, question_text, options_json, correct_index, explanation, order_num
+      FROM diagnostic_questions
+      WHERE type = 'test' AND is_active = 1
+      ORDER BY order_num, id
+    `).all().map(q => ({
+      id: q.id,
+      d: q.competency_index,
+      q: q.question_text,
+      o: JSON.parse(q.options_json || '[]'),
+      c: q.correct_index,
+      e: q.explanation,
+      order: q.order_num
+    }));
+
+    const saQuestions = db.prepare(`
+      SELECT id, competency_index, question_text, explanation, order_num
+      FROM diagnostic_questions
+      WHERE type = 'self_assessment' AND is_active = 1
+      ORDER BY order_num, id
+    `).all().map(sa => ({
+      id: sa.competency_index,
+      db_id: sa.id,
+      title: sa.explanation,
+      text: sa.question_text
+    }));
+
+    res.json({
+      success: true,
+      questions: testQuestions,
+      self_assessment: saQuestions
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/admin/diagnostics/questions', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  try {
+    const questions = db.prepare('SELECT * FROM diagnostic_questions ORDER BY type, competency_index, order_num, id').all().map(q => ({
+      ...q,
+      options: JSON.parse(q.options_json || '[]')
+    }));
+    res.json({ success: true, questions });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/diagnostics/questions', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const { type, competency_index, question_text, options, correct_index, explanation, order_num } = req.body || {};
+  const safeText = String(question_text || '').trim();
+  if (!safeText) return res.status(400).json({ error: 'Укажите текст вопроса' });
+
+  const qType = type === 'self_assessment' ? 'self_assessment' : 'test';
+  const compIdx = Math.max(0, Math.min(4, parseInt(competency_index, 10) || 0));
+  const optionsArr = Array.isArray(options) ? options : [];
+  const correctIdx = Math.max(0, parseInt(correct_index, 10) || 0);
+
+  const info = db.prepare(`
+    INSERT INTO diagnostic_questions (type, competency_index, question_text, options_json, correct_index, explanation, order_num)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    qType,
+    compIdx,
+    safeText.slice(0, 2000),
+    JSON.stringify(optionsArr),
+    correctIdx,
+    String(explanation || '').slice(0, 2000),
+    parseInt(order_num, 10) || 0
+  );
+
+  const created = db.prepare('SELECT * FROM diagnostic_questions WHERE id = ?').get(info.lastInsertRowid);
+  res.json({ success: true, question: { ...created, options: JSON.parse(created.options_json || '[]') } });
+});
+
+app.put('/api/admin/diagnostics/questions/:id', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id вопроса' });
+
+  const existing = db.prepare('SELECT * FROM diagnostic_questions WHERE id = ?').get(id);
+  if (!existing) return res.status(404).json({ error: 'Вопрос не найден' });
+
+  const { type, competency_index, question_text, options, correct_index, explanation, order_num, is_active } = req.body || {};
+
+  db.prepare(`
+    UPDATE diagnostic_questions
+    SET type = COALESCE(?, type),
+        competency_index = COALESCE(?, competency_index),
+        question_text = COALESCE(?, question_text),
+        options_json = COALESCE(?, options_json),
+        correct_index = COALESCE(?, correct_index),
+        explanation = COALESCE(?, explanation),
+        order_num = COALESCE(?, order_num),
+        is_active = COALESCE(?, is_active)
+    WHERE id = ?
+  `).run(
+    type !== undefined ? (type === 'self_assessment' ? 'self_assessment' : 'test') : null,
+    competency_index !== undefined ? parseInt(competency_index, 10) : null,
+    question_text !== undefined ? String(question_text).trim().slice(0, 2000) : null,
+    options !== undefined ? JSON.stringify(Array.isArray(options) ? options : []) : null,
+    correct_index !== undefined ? parseInt(correct_index, 10) : null,
+    explanation !== undefined ? String(explanation).slice(0, 2000) : null,
+    order_num !== undefined ? parseInt(order_num, 10) : null,
+    is_active !== undefined ? (is_active ? 1 : 0) : null,
+    id
+  );
+
+  const updated = db.prepare('SELECT * FROM diagnostic_questions WHERE id = ?').get(id);
+  res.json({ success: true, question: { ...updated, options: JSON.parse(updated.options_json || '[]') } });
+});
+
+app.delete('/api/admin/diagnostics/questions/:id', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id вопроса' });
+
+  db.prepare('DELETE FROM diagnostic_questions WHERE id = ?').run(id);
+  res.json({ success: true });
+});
+
+// ── Admin: Participants & Export API (участники, анкеты, результаты диагностики и ИПР) ──
+app.get('/api/admin/users', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  try {
+    const users = db.prepare(`
+      SELECT 
+        u.id, u.login, u.role, u.fio, u.birth_date, u.address, u.phone, u.email,
+        u.education_level, u.institution, u.workplace, u.position,
+        u.experience_total, u.experience_ped, u.experience_mgmt, u.share_experience,
+        u.consent_pd, u.created_at,
+        (SELECT COUNT(*) FROM diagnostic_results WHERE user_id = u.id) as diag_count,
+        (SELECT score_percent FROM diagnostic_results WHERE user_id = u.id ORDER BY id DESC LIMIT 1) as last_diag_score,
+        (SELECT deficit_level FROM diagnostic_results WHERE user_id = u.id ORDER BY id DESC LIMIT 1) as last_diag_level,
+        (SELECT created_at FROM diagnostic_results WHERE user_id = u.id ORDER BY id DESC LIMIT 1) as last_diag_date,
+        (SELECT COUNT(*) FROM ipr_items WHERE user_id = u.id) as ipr_count
+      FROM users u
+      ORDER BY u.id DESC
+    `).all();
+
+    res.json({ success: true, users });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/admin/users/:id/export', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Некорректный id пользователя' });
+
+  const user = db.prepare(`
+    SELECT id, login, role, fio, birth_date, address, phone, email,
+           education_level, institution, workplace, position,
+           experience_total, experience_ped, experience_mgmt, share_experience,
+           consent_pd, created_at
+    FROM users WHERE id = ?
+  `).get(id);
+
+  if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
+
+  const diagnostics = db.prepare('SELECT * FROM diagnostic_results WHERE user_id = ? ORDER BY id DESC').all(id).map(d => {
+    let details = {};
+    try { details = JSON.parse(d.details_json || '{}'); } catch (_) {}
+    return {
+      ...d,
+      details
+    };
+  });
+
+  const iprItems = db.prepare('SELECT * FROM ipr_items WHERE user_id = ? ORDER BY id ASC').all(id);
+  const portfolio = db.prepare('SELECT id, category, title, description, file_name, verification_status, created_at FROM portfolio_items WHERE user_id = ?').all(id);
+
+  res.json({
+    success: true,
+    user,
+    diagnostics,
+    ipr_items: iprItems,
+    portfolio
+  });
+});
+
+app.get('/api/admin/diagnostics/export-csv', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  try {
+    const rows = db.prepare(`
+      SELECT 
+        d.id as diag_id, d.created_at as passed_at, d.type, d.score_percent, d.deficit_level, d.summary_text, d.details_json,
+        u.id as user_id, u.fio, u.login, u.workplace, u.position, u.phone, u.email
+      FROM diagnostic_results d
+      JOIN users u ON d.user_id = u.id
+      ORDER BY d.id DESC
+    `).all();
+
+    let csv = '\uFEFF';
+    csv += 'ID теста;Дата;ФИО;Логин;Организация;Должность;Телефон;Email;Тип диагностики;Итоговый балл (%);Уровень дефицита;1. Стратегия;2. ФХД;3. Персонал;4. Качество;5. Коммуникации;Резюме\n';
+
+    const clean = (val) => '"' + String(val || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ') + '"';
+
+    rows.forEach(r => {
+      let details = {};
+      try { details = JSON.parse(r.details_json || '{}'); } catch (_) {}
+      const scores = Array.isArray(details.scores) ? details.scores : [];
+
+      csv += [
+        r.diag_id,
+        clean(r.passed_at),
+        clean(r.fio),
+        clean(r.login),
+        clean(r.workplace),
+        clean(r.position),
+        clean(r.phone),
+        clean(r.email),
+        clean(r.type === 'self_assessment' ? 'Самооценка' : 'Комплексный тест (20)'),
+        r.score_percent !== undefined ? r.score_percent : 0,
+        clean(r.deficit_level),
+        scores[0] !== undefined ? scores[0] : '',
+        scores[1] !== undefined ? scores[1] : '',
+        scores[2] !== undefined ? scores[2] : '',
+        scores[3] !== undefined ? scores[3] : '',
+        scores[4] !== undefined ? scores[4] : '',
+        clean(r.summary_text)
+      ].join(';') + '\n';
+    });
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="diagnostics_kuzbass_${new Date().toISOString().slice(0, 10)}.csv"`);
+    res.send(csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/admin/users/export-csv', (req, res) => {
+  const admin = requireAdmin(req, res);
+  if (!admin) return;
+
+  try {
+    const rows = db.prepare(`
+      SELECT 
+        u.id, u.login, u.role, u.fio, u.birth_date, u.address, u.phone, u.email,
+        u.education_level, u.institution, u.workplace, u.position,
+        u.experience_total, u.experience_ped, u.experience_mgmt, u.share_experience,
+        u.consent_pd, u.created_at,
+        (SELECT COUNT(*) FROM diagnostic_results WHERE user_id = u.id) as diag_count,
+        (SELECT COUNT(*) FROM ipr_items WHERE user_id = u.id) as ipr_count
+      FROM users u
+      ORDER BY u.id DESC
+    `).all();
+
+    let csv = '\uFEFF';
+    csv += 'ID;ФИО;Логин;Роль;Организация;Должность;Телефон;Email;Образование;Общий стаж;Пед. стаж;Управл. стаж;Диагностика (раз);Мероприятий ИПР;Согласие ПД;Дата регистрации\n';
+
+    const clean = (val) => '"' + String(val || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ') + '"';
+
+    rows.forEach(u => {
+      csv += [
+        u.id,
+        clean(u.fio),
+        clean(u.login),
+        clean(u.role),
+        clean(u.workplace),
+        clean(u.position),
+        clean(u.phone),
+        clean(u.email),
+        clean(u.education_level),
+        clean(u.experience_total),
+        clean(u.experience_ped),
+        clean(u.experience_mgmt),
+        u.diag_count,
+        u.ipr_count,
+        u.consent_pd ? 'Да' : 'Нет',
+        clean(u.created_at)
+      ].join(';') + '\n';
+    });
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="participants_kuzbass_${new Date().toISOString().slice(0, 10)}.csv"`);
+    res.send(csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── Admin: Dialogue Moderation API ──

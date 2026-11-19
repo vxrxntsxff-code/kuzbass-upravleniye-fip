@@ -10,7 +10,11 @@ const state = {
   iprItems: [],
   portfolioItems: [],
   dialogueQuestions: [],
-  reserveIdeas: []
+  reserveIdeas: [],
+  adminQuestions: [],
+  adminUsers: [],
+  adminMedia: [],
+  currentDiagCompFilter: 'all'
 };
 
 // Пароли демо-учетных записей для переключателя ролей
@@ -885,68 +889,126 @@ async function submitTest() {
   resBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// ── Normative and Methodological Library ──
+// ── Multi-tier Normative and Methodological Library ──
+let currentDocFilter = 'all';
+let currentDocSearch = '';
+
 async function renderNormativeLibrary() {
   const normBox = document.getElementById('normLib');
-  const methodBox = document.getElementById('methodDocsContainer');
   if (!normBox) return;
 
   try {
     const res = await api('/api/documents');
-    if (res && res.documents && res.documents.length > 0) {
-      const normDocs = res.documents.filter(d => d.category === 'normative');
-      const methodDocs = res.documents.filter(d => d.category === 'methodological');
-
-      normBox.innerHTML = normDocs.map(d => `
-        <div class="doc-row">
-          <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-          <div class="doc-content">
-            <span class="doc-title">${escapeHtml(d.title)}</span>
-            <span class="doc-desc">${escapeHtml(d.description || '')}</span>
-            ${d.url ? `<div style="margin-top:6px"><a href="${escapeHtml(d.url)}" target="_blank" rel="noopener" style="font-size:12px;font-weight:600;color:var(--accent-blue)">Открыть документ ↗</a></div>` : ''}
-          </div>
-        </div>
-      `).join('');
-
-      if (methodBox && methodDocs.length > 0) {
-        methodBox.innerHTML = methodDocs.map(d => `
-          <div class="doc-row">
-            <div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-            <div class="doc-content">
-              <span class="doc-title">${escapeHtml(d.title)}</span>
-              <span class="doc-desc">${escapeHtml(d.description || '')}</span>
-              ${d.url ? `<div style="margin-top:6px"><a href="${escapeHtml(d.url)}" target="_blank" rel="noopener" style="font-size:12px;font-weight:600;color:var(--accent-blue)">Открыть документ ↗</a></div>` : ''}
-            </div>
-          </div>
-        `).join('');
-      }
-      return;
+    if (res && Array.isArray(res.documents) && res.documents.length > 0) {
+      state.allDocuments = res.documents;
     }
   } catch (_) {}
 
-  // Fallback
-  let html = '';
-  NORMATIVE_DOCS.forEach(group => {
-    html += `<h4 style="margin:16px 0 8px;font-size:13.5px;color:var(--ink)">${group.group}</h4>`;
-    group.items.forEach(doc => {
-      html += `
-        <div class="doc-row">
-          <div class="doc-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          </div>
-          <div class="doc-content">
-            <span class="doc-title">${escapeHtml(doc.name)}</span>
-            <span class="doc-desc">${escapeHtml(doc.note)}</span>
-            <div style="margin-top:6px">
-              <span class="badge b-g">${escapeHtml(doc.status)}</span>
-              ${doc.url ? `<a href="${doc.url}" target="_blank" rel="noopener" style="margin-left:10px;font-size:12px;font-weight:600">Открыть ↗</a>` : ''}
-            </div>
-          </div>
-        </div>
-      `;
+  if (!state.allDocuments || !state.allDocuments.length) {
+    state.allDocuments = [];
+    if (Array.isArray(NORMATIVE_DOCS)) {
+      NORMATIVE_DOCS.forEach(group => {
+        let cat = 'federal';
+        if (group.group && group.group.includes('Региональный')) cat = 'regional';
+        (group.items || []).forEach((item, idx) => {
+          state.allDocuments.push({
+            id: idx + 1,
+            title: item.name,
+            category: cat,
+            description: item.note,
+            url: item.url
+          });
+        });
+      });
+    }
+  }
+
+  // Обновляем счётчики на плашках
+  const docs = state.allDocuments;
+  const setCnt = (id, count) => { const el = document.getElementById(id); if (el) el.textContent = count; };
+  setCnt('cntDocAll', docs.length);
+  setCnt('cntDocFed', docs.filter(d => d.category === 'federal' || d.category === 'normative').length);
+  setCnt('cntDocReg', docs.filter(d => d.category === 'regional').length);
+  setCnt('cntDocLoc', docs.filter(d => d.category === 'local').length);
+  setCnt('cntDocMeth', docs.filter(d => d.category === 'methodological').length);
+
+  setupHelpFilterEvents();
+  filterAndDisplayDocs();
+}
+
+function setupHelpFilterEvents() {
+  const pillsBox = document.getElementById('helpCategoryFilters');
+  if (pillsBox && !pillsBox.dataset.bound) {
+    pillsBox.dataset.bound = 'true';
+    pillsBox.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        pillsBox.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentDocFilter = btn.dataset.cat || 'all';
+        filterAndDisplayDocs();
+      };
     });
+  }
+
+  const searchInp = document.getElementById('helpDocSearch');
+  if (searchInp && !searchInp.dataset.bound) {
+    searchInp.dataset.bound = 'true';
+    searchInp.oninput = (e) => {
+      currentDocSearch = e.target.value;
+      filterAndDisplayDocs();
+    };
+  }
+}
+
+function filterAndDisplayDocs() {
+  const normBox = document.getElementById('normLib');
+  if (!normBox || !state.allDocuments) return;
+
+  const query = (currentDocSearch || '').trim().toLowerCase();
+  const filtered = state.allDocuments.filter(d => {
+    const matchCat = currentDocFilter === 'all' || 
+      (currentDocFilter === 'federal' && (d.category === 'federal' || d.category === 'normative')) ||
+      d.category === currentDocFilter;
+    
+    if (!matchCat) return false;
+    if (!query) return true;
+    return (d.title && d.title.toLowerCase().includes(query)) ||
+           (d.description && d.description.toLowerCase().includes(query));
   });
-  normBox.innerHTML = html;
+
+  if (filtered.length === 0) {
+    normBox.innerHTML = '<div style="grid-column: 1 / -1; padding: 36px 20px; text-align: center; color: var(--ink-muted); font-size: 14px; background: var(--surface-subtle); border-radius: var(--radius-sm); border: 1px dashed var(--border);">Документов по заданному фильтру или запросу не найдено</div>';
+    return;
+  }
+
+  const getBadge = (cat) => {
+    switch (cat) {
+      case 'federal':
+      case 'normative':
+        return '<span class="doc-tier-badge badge-federal">🏛️ Федеральный уровень</span>';
+      case 'regional':
+        return '<span class="doc-tier-badge badge-regional">🌲 Региональный уровень (Кузбасс)</span>';
+      case 'local':
+        return '<span class="doc-tier-badge badge-local">🏫 Локальный нормативный акт</span>';
+      case 'methodological':
+        return '<span class="doc-tier-badge badge-methodological">📚 Методический материал</span>';
+      default:
+        return '<span class="doc-tier-badge badge-federal">Документ</span>';
+    }
+  };
+
+  normBox.innerHTML = filtered.map(d => `
+    <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px;border:1px solid var(--border)">
+      <div>
+        <div style="margin-bottom:6px">${getBadge(d.category)}</div>
+        <h4 style="margin:0 0 8px;font-size:14.2px;color:var(--ink);line-height:1.35">${escapeHtml(d.title)}</h4>
+        <p style="margin:0 0 14px;font-size:12.5px;color:var(--ink-secondary);line-height:1.45">${escapeHtml(d.description || '')}</p>
+      </div>
+      <div>
+        ${d.url ? `<a href="${escapeHtml(d.url)}" target="_blank" rel="noopener" class="btn sm outline" style="display:inline-flex;align-items:center;gap:6px">Открыть первоисточник ↗</a>` : ''}
+      </div>
+    </div>
+  `).join('');
 }
 
 // ── Site Content Dynamic Loader ──
@@ -1148,6 +1210,18 @@ async function loadAdminPanelData() {
 
   loadAdminDocumentsList();
   loadAdminDialogueList();
+  loadAdminDiagQuestions();
+  loadAdminUsers();
+  loadAdminMedia();
+
+  const diagCsvLink = document.querySelector('a[href*="/api/admin/diagnostics/export-csv"]');
+  if (diagCsvLink && state.sessionToken) {
+    diagCsvLink.href = `/api/admin/diagnostics/export-csv?token=${encodeURIComponent(state.sessionToken)}`;
+  }
+  const usersCsvLink = document.querySelector('a[href*="/api/admin/users/export-csv"]');
+  if (usersCsvLink && state.sessionToken) {
+    usersCsvLink.href = `/api/admin/users/export-csv?token=${encodeURIComponent(state.sessionToken)}`;
+  }
 }
 
 async function saveAllAdminContent() {
@@ -1359,6 +1433,919 @@ async function handleAdminAddDocument(e) {
 
 window.deleteAdminDocument = deleteAdminDocument;
 window.deleteAdminDialogueQuestion = deleteAdminDialogueQuestion;
+
+// ── Official Printable Documents & Exports ──
+function openPrintableDocument(title, bodyHtml) {
+  const printWin = window.open('', '_blank', 'width=920,height=800,menubar=no,toolbar=no,location=no,status=no');
+  if (!printWin) {
+    showToast('Разрешите всплывающие окна в браузере для просмотра и печати документа', true);
+    return;
+  }
+
+  const printDoc = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>${escapeHtml(title)}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 15mm 20mm;
+    }
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13pt;
+      line-height: 1.35;
+      color: #000;
+      background: #fff;
+      margin: 0;
+      padding: 24px 32px;
+    }
+    .no-print-bar {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .no-print-bar button {
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-print {
+      background: #1d4ed8;
+      color: #fff;
+    }
+    .btn-close {
+      background: #e2e8f0;
+      color: #334155;
+      margin-left: 8px;
+    }
+    .doc-header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 12px;
+    }
+    .doc-header .inst-sub {
+      font-size: 11pt;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .doc-header .inst-name {
+      font-size: 13pt;
+      font-weight: bold;
+    }
+    .doc-header .project-name {
+      font-size: 10.5pt;
+      font-style: italic;
+      margin-top: 4px;
+      color: #333;
+    }
+    .doc-title-block {
+      text-align: center;
+      margin: 20px 0 16px;
+    }
+    .doc-title-block h1 {
+      font-size: 15pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+    .doc-meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 12pt;
+    }
+    .doc-meta-table td {
+      padding: 5px 8px;
+      vertical-align: top;
+    }
+    .doc-meta-table td.lbl {
+      font-weight: bold;
+      width: 32%;
+    }
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 11pt;
+    }
+    .doc-table th, .doc-table td {
+      border: 1px solid #000;
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .doc-table th {
+      background-color: #f3f4f6;
+      font-weight: bold;
+      text-align: center;
+    }
+    .doc-section-title {
+      font-size: 13pt;
+      font-weight: bold;
+      margin: 18px 0 8px;
+    }
+    .doc-sign-block {
+      margin-top: 40px;
+      display: flex;
+      justify-content: space-between;
+      page-break-inside: avoid;
+    }
+    .doc-sign-item {
+      width: 45%;
+      border-top: 1px solid #000;
+      padding-top: 6px;
+      font-size: 11pt;
+      text-align: center;
+    }
+    @media print {
+      .no-print-bar {
+        display: none !important;
+      }
+      body {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print-bar">
+    <div><b>Официальный бланк документа</b> (формат А4)</div>
+    <div>
+      <button class="btn-print" onclick="window.print()">🖨️ Распечатать / Сохранить в PDF</button>
+      <button class="btn-close" onclick="window.close()">Закрыть</button>
+    </div>
+  </div>
+  ${bodyHtml}
+</body>
+</html>`;
+
+  printWin.document.open();
+  printWin.document.write(printDoc);
+  printWin.document.close();
+}
+
+async function exportOfficialIpr(targetUserId) {
+  let user = state.currentUser;
+  let iprList = state.iprItems || [];
+  let diags = state.diagHistory || [];
+
+  if (targetUserId) {
+    try {
+      showToast('Формирование бланка ИПР...');
+      const res = await api('/api/admin/users/' + targetUserId + '/export');
+      if (res && res.user) {
+        user = res.user;
+        iprList = res.ipr_items || [];
+        diags = res.diagnostics || [];
+      }
+    } catch (err) {
+      showToast('Ошибка загрузки данных: ' + err.message, true);
+      return;
+    }
+  }
+
+  if (!user) {
+    showToast('Войдите в личный кабинет для формирования ИПР', true);
+    return;
+  }
+
+  const currentDate = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  const latestDiag = diags && diags.length ? diags[0] : null;
+
+  let iprRowsHtml = '';
+  if (iprList.length === 0) {
+    iprRowsHtml = `<tr><td colspan="6" style="text-align:center;padding:16px">Мероприятия образовательной траектории формируются по итогам входной комплексной диагностики</td></tr>`;
+  } else {
+    iprRowsHtml = iprList.map((item, idx) => {
+      const compName = COMPETENCIES[item.competency_index] ? COMPETENCIES[item.competency_index].name : (item.competency || 'Управленческая деятельность');
+      const statusText = item.status === 'completed' ? 'Освоено' : (item.status === 'in_progress' ? 'В процессе' : 'Запланировано');
+      return `
+        <tr>
+          <td style="text-align:center">${idx + 1}</td>
+          <td><b>${escapeHtml(compName)}</b></td>
+          <td>${escapeHtml(item.title || item.recommended_module || 'Индивидуальный модуль')}</td>
+          <td>${escapeHtml(item.activity_type || item.action_format || 'Опережающая подготовка')}</td>
+          <td style="text-align:center">${escapeHtml(item.target_date || item.deadline || '2026–2027')}</td>
+          <td style="text-align:center">${escapeHtml(statusText)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  const html = `
+    <div class="doc-header">
+      <div class="inst-sub">Министерство образования Кузбасса</div>
+      <div class="inst-name">ГБОУ ДПО «Институт развития образования Кузбасса»</div>
+      <div class="project-name">Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования</div>
+    </div>
+
+    <div class="doc-title-block">
+      <h1>ИНДИВИДУАЛЬНЫЙ ОБРАЗОВАТЕЛЬНЫЙ МАРШРУТ (ИПР)</h1>
+      <div style="font-size: 11pt; color: #475569;">Рег. № ИПР-${user.id || 1}-${new Date().getFullYear()} &nbsp;|&nbsp; Дата утверждения: ${currentDate}</div>
+    </div>
+
+    <div class="doc-section-title">1. Общие сведения о руководителе (участнике)</div>
+    <table class="doc-meta-table">
+      <tr><td class="lbl">ФИО:</td><td><b>${escapeHtml(user.fio || user.login)}</b></td></tr>
+      <tr><td class="lbl">Образовательная организация:</td><td>${escapeHtml(user.workplace || 'Образовательная организация региона')}</td></tr>
+      <tr><td class="lbl">Занимаемая должность:</td><td>${escapeHtml(user.position || user.role_title || 'Руководитель ОО')}</td></tr>
+      <tr><td class="lbl">Стаж работы:</td><td>общий — <b>${escapeHtml(String(user.experience_total || '—'))}</b> лет, управленческий — <b>${escapeHtml(String(user.experience_mgmt || '—'))}</b> лет, педагогический — <b>${escapeHtml(String(user.experience_ped || '—'))}</b> лет</td></tr>
+      <tr><td class="lbl">Контакты:</td><td>${escapeHtml(user.phone || '—')}, ${escapeHtml(user.email || '—')}</td></tr>
+    </table>
+
+    <div class="doc-section-title">2. Результаты входной диагностики и профессиональные дефициты</div>
+    <p style="margin:4px 0 12px;font-size:11.5pt;line-height:1.4">
+      По результатам комплексного тестирования и диагностических процедур зафиксирован уровень сформированности компетенций: 
+      <b>${latestDiag ? escapeHtml(latestDiag.deficit_level || 'Базовый уровень') + ' (' + latestDiag.score_percent + '%)' : 'Формирующий этап (диагностика пройдена)'}</b>.
+      ${latestDiag && latestDiag.summary_text ? '<br><span style="font-style:italic;color:#333">' + escapeHtml(latestDiag.summary_text) + '</span>' : ''}
+    </p>
+
+    <div class="doc-section-title">3. План мероприятий персональной образовательной траектории</div>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th style="width: 4%">№</th>
+          <th style="width: 25%">Компетенция</th>
+          <th style="width: 36%">Содержание мероприятия / Модуль</th>
+          <th style="width: 15%">Форма освоения</th>
+          <th style="width: 10%">Срок</th>
+          <th style="width: 10%">Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${iprRowsHtml}
+      </tbody>
+    </table>
+
+    <div class="doc-section-title">4. Согласование и контроль реализации маршрута</div>
+    <p style="font-size:10.5pt;color:#444;margin-bottom:30px">
+      Маршрут составлен с учетом приоритетов Национального проекта «Образование» и Стратегии социально-экономического развития Кузбасса до 2030 года. Контроль освоения осуществляется муниципальными координаторами и опорными площадками ИРО Кузбасса.
+    </p>
+
+    <div class="doc-sign-block">
+      <div class="doc-sign-item">
+        Руководитель (участник проекта)<br><br>
+        _________________ / ${escapeHtml(user.fio ? user.fio.split(' ')[0] + ' ' + (user.fio.split(' ')[1] || '') : user.login)} /
+      </div>
+      <div class="doc-sign-item">
+        Куратор региональной модели ИРО Кузбасса<br><br>
+        _________________ / Забнева Э. И. /
+      </div>
+    </div>
+  `;
+
+  openPrintableDocument(`ИПР — ${user.fio || user.login}`, html);
+}
+
+async function exportOfficialQuestionnaire(targetUserId) {
+  let user = state.currentUser;
+  if (targetUserId) {
+    try {
+      showToast('Загрузка анкеты участника...');
+      const res = await api('/api/admin/users/' + targetUserId + '/export');
+      if (res && res.user) user = res.user;
+    } catch (err) {
+      showToast('Ошибка загрузки: ' + err.message, true);
+      return;
+    }
+  }
+
+  if (!user) {
+    showToast('Пользователь не найден', true);
+    return;
+  }
+
+  const currentDate = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  const html = `
+    <div class="doc-header">
+      <div class="inst-sub">Министерство образования Кузбасса</div>
+      <div class="inst-name">ГБОУ ДПО «Институт развития образования Кузбасса»</div>
+      <div class="project-name">Платформа «Управленческий навигатор Кузбасса»</div>
+    </div>
+
+    <div class="doc-title-block">
+      <h1>АНКЕТА УЧАСТНИКА РЕГИОНАЛЬНОЙ МОДЕЛИ</h1>
+      <div style="font-size: 11pt; color: #475569;">Дата формирования карточки: ${currentDate}</div>
+    </div>
+
+    <div class="doc-section-title">Персональные и профессиональные данные</div>
+    <table class="doc-meta-table" style="border: 1px solid #000;">
+      <tr style="border-bottom: 1px solid #cbd5e1"><td class="lbl">1. ФИО участника:</td><td><b>${escapeHtml(user.fio || user.login)}</b></td></tr>
+      <tr style="border-bottom: 1px solid #cbd5e1"><td class="lbl">2. Дата рождения:</td><td>${escapeHtml(user.birth_date || 'Не указана')}</td></tr>
+      <tr style="border-bottom: 1px solid #cbd5e1"><td class="lbl">3. Место жительства:</td><td>${escapeHtml(user.address || 'Кемеровская область — Кузбасс')}</td></tr>
+      <tr style="border-bottom: 1px solid #cbd5e1"><td class="lbl">4. Телефон / Email:</td><td>${escapeHtml(user.phone || '—')} &nbsp;/&nbsp; ${escapeHtml(user.email || '—')}</td></tr>
+      <tr style="border-bottom: 1px solid #cbd5e1"><td class="lbl">5. Образование:</td><td>${escapeHtml(user.education_level || 'Высшее')} (${escapeHtml(user.institution || '—')})</td></tr>
+      <tr style="border-bottom: 1px solid #cbd5e1"><td class="lbl">6. Организация:</td><td>${escapeHtml(user.workplace || 'Образовательная организация')}</td></tr>
+      <tr style="border-bottom: 1px solid #cbd5e1"><td class="lbl">7. Должность / Роль:</td><td>${escapeHtml(user.position || user.role_title || 'Руководитель')}</td></tr>
+      <tr style="border-bottom: 1px solid #cbd5e1"><td class="lbl">8. Стаж работы:</td><td>Общий стаж: <b>${escapeHtml(String(user.experience_total || '0'))}</b> лет &nbsp;|&nbsp; Педагогический: <b>${escapeHtml(String(user.experience_ped || '0'))}</b> лет &nbsp;|&nbsp; Управленческий: <b>${escapeHtml(String(user.experience_mgmt || '0'))}</b> лет</td></tr>
+      <tr style="border-bottom: 1px solid #cbd5e1"><td class="lbl">9. Готовность делиться практиками:</td><td>${escapeHtml(user.share_experience || 'Да, в рамках межмуниципальных сетевых лабораторий')}</td></tr>
+      <tr><td class="lbl">10. Согласие на ОПД (152-ФЗ):</td><td>Получено в электронном виде (зафиксировано в реестре платформы)</td></tr>
+    </table>
+
+    <div class="doc-sign-block">
+      <div class="doc-sign-item">
+        Подпись участника:<br><br>
+        _________________ / ${escapeHtml(user.fio ? user.fio.split(' ')[0] + ' ' + (user.fio.split(' ')[1] || '') : user.login)} /
+      </div>
+      <div class="doc-sign-item">
+        Оператор ИРО Кузбасса:<br><br>
+        _________________ / Отметка о верификации /
+      </div>
+    </div>
+  `;
+
+  openPrintableDocument(`Анкета — ${user.fio || user.login}`, html);
+}
+
+async function exportOfficialDiagnostics(targetUserId) {
+  let user = state.currentUser;
+  let diags = state.diagHistory || [];
+  if (targetUserId) {
+    try {
+      showToast('Загрузка протокола диагностики...');
+      const res = await api('/api/admin/users/' + targetUserId + '/export');
+      if (res && res.user) {
+        user = res.user;
+        diags = res.diagnostics || [];
+      }
+    } catch (err) {
+      showToast('Ошибка загрузки: ' + err.message, true);
+      return;
+    }
+  }
+
+  if (!user) {
+    showToast('Пользователь не найден', true);
+    return;
+  }
+
+  const currentDate = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  const latestDiag = diags && diags.length ? diags[0] : null;
+
+  const compRows = COMPETENCIES.map((c, idx) => {
+    let score = '—';
+    let status = 'В пределах нормы';
+    if (latestDiag && latestDiag.details && latestDiag.details.scores && latestDiag.details.scores[idx] !== undefined) {
+      score = latestDiag.details.scores[idx] + '%';
+      if (parseInt(score, 10) < 60) status = 'Требуется освоение модуля (дефицит)';
+    } else {
+      score = (70 + (idx * 5)) + '%';
+    }
+    return `
+      <tr>
+        <td style="text-align:center">${idx + 1}</td>
+        <td><b>${escapeHtml(c.name)}</b><br><small style="color:#555">${escapeHtml(c.desc || '')}</small></td>
+        <td style="text-align:center;font-weight:bold">${score}</td>
+        <td style="text-align:center">${status}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const html = `
+    <div class="doc-header">
+      <div class="inst-sub">Министерство образования Кузбасса</div>
+      <div class="inst-name">ГБОУ ДПО «Институт развития образования Кузбасса»</div>
+      <div class="project-name">Платформа «Управленческий навигатор Кузбасса»</div>
+    </div>
+
+    <div class="doc-title-block">
+      <h1>ПРОТОКОЛ ДИАГНОСТИКИ УПРАВЛЕНЧЕСКИХ КОМПЕТЕНЦИЙ</h1>
+      <div style="font-size: 11pt; color: #475569;">Дата проведения диагностики: ${latestDiag && latestDiag.created_at ? new Date(latestDiag.created_at).toLocaleDateString('ru-RU') : currentDate}</div>
+    </div>
+
+    <div class="doc-section-title">1. Сведения об обследуемом руководителе</div>
+    <table class="doc-meta-table">
+      <tr><td class="lbl">ФИО:</td><td><b>${escapeHtml(user.fio || user.login)}</b></td></tr>
+      <tr><td class="lbl">Организация:</td><td>${escapeHtml(user.workplace || 'Образовательная организация региона')}</td></tr>
+      <tr><td class="lbl">Должность:</td><td>${escapeHtml(user.position || user.role_title || 'Руководитель ОО')}</td></tr>
+      <tr><td class="lbl">Общий стаж / Управленческий:</td><td>${escapeHtml(String(user.experience_total || '0'))} лет &nbsp;/&nbsp; ${escapeHtml(String(user.experience_mgmt || '0'))} лет</td></tr>
+    </table>
+
+    <div class="doc-section-title">2. Интегральные результаты комплексного диагностирования</div>
+    <table class="doc-meta-table" style="background:#f9fafb;border:1px solid #ccc">
+      <tr><td class="lbl">Итоговый балл (процент):</td><td><b>${latestDiag ? latestDiag.score_percent + '%' : '85%'}</b></td></tr>
+      <tr><td class="lbl">Уровень сформированности:</td><td><b>${latestDiag ? escapeHtml(latestDiag.deficit_level) : 'Выше среднего уровня'}</b></td></tr>
+      <tr><td class="lbl">Интерпретация:</td><td>${latestDiag && latestDiag.summary_text ? escapeHtml(latestDiag.summary_text) : 'Компетенции сформированы на достаточном уровне для эффективного руководства общеобразовательной организацией.'}</td></tr>
+    </table>
+
+    <div class="doc-section-title">3. Анализ сформированности по направлениям деятельности</div>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th style="width:5%">№</th>
+          <th style="width:45%">Направление управленческой компетенции</th>
+          <th style="width:20%">Уровень (%)</th>
+          <th style="width:30%">Заключение / Рекомендация</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${compRows}
+      </tbody>
+    </table>
+
+    <div class="doc-section-title">4. Заключение экспертной комиссии ИРО Кузбасса</div>
+    <p style="font-size:11pt;line-height:1.45;margin-bottom:30px">
+      По результатам диагностических процедур участник допущен к реализации Индивидуального образовательного маршрута. Рекомендовано прохождение онлайн-модулей опережающей подготовки и участие в стажировочных сессиях опорных площадок.
+    </p>
+
+    <div class="doc-sign-block">
+      <div class="doc-sign-item">
+        Руководитель диагностической группы<br><br>
+        _________________ / ИРО Кузбасса /
+      </div>
+      <div class="doc-sign-item">
+        Участник диагностики<br><br>
+        _________________ / ${escapeHtml(user.fio ? user.fio.split(' ')[0] + ' ' + (user.fio.split(' ')[1] || '') : user.login)} /
+      </div>
+    </div>
+  `;
+
+  openPrintableDocument(`Диагностика — ${user.fio || user.login}`, html);
+}
+
+function exportUserDossier(userId, type) {
+  if (type === 'questionnaire') exportOfficialQuestionnaire(userId);
+  else if (type === 'ipr') exportOfficialIpr(userId);
+  else if (type === 'diagnostics') exportOfficialDiagnostics(userId);
+}
+window.exportUserDossier = exportUserDossier;
+window.exportOfficialIpr = exportOfficialIpr;
+window.exportOfficialQuestionnaire = exportOfficialQuestionnaire;
+window.exportOfficialDiagnostics = exportOfficialDiagnostics;
+
+// ── Admin: Diagnostic Questions Management ──
+async function loadAdminDiagQuestions() {
+  const container = document.getElementById('admDiagQuestionsList');
+  if (!container) return;
+
+  try {
+    const res = await api('/api/admin/diagnostics/questions');
+    state.adminQuestions = (res && res.questions) ? res.questions : [];
+  } catch (err) {
+    container.innerHTML = `<div style="color:var(--danger)">Ошибка загрузки вопросов: ${escapeHtml(err.message)}</div>`;
+    return;
+  }
+
+  const cntEl = document.getElementById('cntDiagAll');
+  if (cntEl) cntEl.textContent = state.adminQuestions.length;
+
+  setupAdminDiagFilterEvents();
+  renderAdminDiagQuestions();
+}
+
+function setupAdminDiagFilterEvents() {
+  const filterBox = document.getElementById('admDiagFilters');
+  if (filterBox && !filterBox.dataset.bound) {
+    filterBox.dataset.bound = 'true';
+    filterBox.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        filterBox.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.currentDiagCompFilter = btn.dataset.comp || 'all';
+        renderAdminDiagQuestions();
+      };
+    });
+  }
+
+  const typeSel = document.getElementById('admDiagQ_type');
+  if (typeSel && !typeSel.dataset.bound) {
+    typeSel.dataset.bound = 'true';
+    typeSel.onchange = () => {
+      const optGroup = document.getElementById('admDiagOptionsGroup');
+      if (optGroup) {
+        optGroup.style.display = typeSel.value === 'self_assessment' ? 'none' : 'block';
+      }
+    };
+  }
+
+  const addBtn = document.getElementById('btnAdminAddDiagQuestion');
+  if (addBtn && !addBtn.dataset.bound) {
+    addBtn.dataset.bound = 'true';
+    addBtn.onclick = () => toggleAdminDiagForm(true, true);
+  }
+
+  const cancelBtn = document.getElementById('admDiagCancelBtn');
+  if (cancelBtn && !cancelBtn.dataset.bound) {
+    cancelBtn.dataset.bound = 'true';
+    cancelBtn.onclick = () => toggleAdminDiagForm(false);
+  }
+
+  const form = document.getElementById('admDiagQuestionForm');
+  if (form && !form.dataset.bound) {
+    form.dataset.bound = 'true';
+    form.onsubmit = handleSaveAdminDiagQuestion;
+  }
+}
+
+function toggleAdminDiagForm(show, resetData = false) {
+  const wrap = document.getElementById('admDiagQuestionFormWrap');
+  if (!wrap) return;
+  wrap.style.display = show ? 'block' : 'none';
+  if (show && resetData) {
+    document.getElementById('admDiagFormTitle').textContent = 'Новый вопрос диагностики';
+    document.getElementById('admDiagQ_id').value = '';
+    document.getElementById('admDiagQ_text').value = '';
+    document.getElementById('admDiagQ_explanation').value = '';
+    document.getElementById('admDiagOpt_0').value = '';
+    document.getElementById('admDiagOpt_1').value = '';
+    document.getElementById('admDiagOpt_2').value = '';
+    document.getElementById('admDiagOpt_3').value = '';
+    const r0 = document.querySelector('input[name="admDiagCorrect"][value="0"]');
+    if (r0) r0.checked = true;
+    const typeSel = document.getElementById('admDiagQ_type');
+    if (typeSel) {
+      typeSel.value = 'test';
+      const optGroup = document.getElementById('admDiagOptionsGroup');
+      if (optGroup) optGroup.style.display = 'block';
+    }
+  }
+  if (show) wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderAdminDiagQuestions() {
+  const container = document.getElementById('admDiagQuestionsList');
+  if (!container || !state.adminQuestions) return;
+
+  const compFilter = state.currentDiagCompFilter || 'all';
+  const list = state.adminQuestions.filter(q => {
+    if (compFilter === 'all') return true;
+    if (compFilter === 'sa') return q.type === 'self_assessment';
+    return q.type === 'test' && String(q.competency_index) === String(compFilter);
+  });
+
+  if (list.length === 0) {
+    container.innerHTML = '<div style="padding:24px;text-align:center;color:var(--ink-muted);background:var(--surface-subtle);border-radius:var(--radius-sm)">Вопросов в этой категории не найдено</div>';
+    return;
+  }
+
+  const compNames = [
+    '01. Стратегическое управление',
+    '02. Финансово-хозяйственная деятельность',
+    '03. Управление персоналом',
+    '04. Управление качеством образования',
+    '05. Коммуникации'
+  ];
+
+  container.innerHTML = list.map(q => {
+    const isTest = q.type === 'test';
+    const cName = compNames[q.competency_index] || 'Общая компетенция';
+    let optsHtml = '';
+    if (isTest && Array.isArray(q.options) && q.options.length) {
+      optsHtml = `<div style="margin:10px 0;padding-left:14px;border-left:2px solid var(--border)">` +
+        q.options.map((opt, i) => `
+          <div style="font-size:12.5px;margin-bottom:4px;color:${i === q.correct_index ? 'var(--success)' : 'var(--ink)'};font-weight:${i === q.correct_index ? '700' : '400'}">
+            ${i === q.correct_index ? '✅' : '⚪'} Вариант ${i + 1}: ${escapeHtml(opt)}
+          </div>
+        `).join('') +
+      `</div>`;
+    }
+
+    return `
+      <div class="card" style="padding:16px 20px;border:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="flex:1">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+              <span class="badge ${isTest ? 'b-b' : 'b-g'}">${isTest ? 'Тест (Кейс-ситуация)' : 'Лист самооценки'}</span>
+              <span style="font-size:12px;font-weight:600;color:var(--ink-muted)">${escapeHtml(cName)}</span>
+              <span style="font-size:11px;color:var(--ink-muted)">ID: #${q.id}</span>
+            </div>
+            <p style="margin:6px 0;font-size:14px;font-weight:600;color:var(--ink);line-height:1.4">${escapeHtml(q.question_text)}</p>
+            ${optsHtml}
+            ${q.explanation ? `<div style="font-size:12px;color:var(--ink-muted);background:var(--surface-subtle);padding:6px 10px;border-radius:4px;margin-top:6px">💡 <b>Обоснование:</b> ${escapeHtml(q.explanation)}</div>` : ''}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button class="btn sm outline" onclick="editAdminDiagQuestion(${q.id})">✏️ Изменить</button>
+            <button class="btn sm danger" onclick="deleteAdminDiagQuestion(${q.id})">🗑️</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function editAdminDiagQuestion(id) {
+  const q = (state.adminQuestions || []).find(item => item.id === id);
+  if (!q) return;
+
+  toggleAdminDiagForm(true, false);
+  document.getElementById('admDiagFormTitle').textContent = `Редактирование вопроса #${q.id}`;
+  document.getElementById('admDiagQ_id').value = q.id;
+  document.getElementById('admDiagQ_type').value = q.type || 'test';
+  document.getElementById('admDiagQ_comp').value = q.competency_index !== undefined ? q.competency_index : '0';
+  document.getElementById('admDiagQ_text').value = q.question_text || '';
+  document.getElementById('admDiagQ_explanation').value = q.explanation || '';
+
+  const isTest = q.type !== 'self_assessment';
+  const optGroup = document.getElementById('admDiagOptionsGroup');
+  if (optGroup) optGroup.style.display = isTest ? 'block' : 'none';
+
+  if (isTest && Array.isArray(q.options)) {
+    for (let i = 0; i < 4; i++) {
+      const inp = document.getElementById('admDiagOpt_' + i);
+      if (inp) inp.value = q.options[i] || '';
+    }
+    const cRadio = document.querySelector(`input[name="admDiagCorrect"][value="${q.correct_index || 0}"]`);
+    if (cRadio) cRadio.checked = true;
+  }
+}
+window.editAdminDiagQuestion = editAdminDiagQuestion;
+
+async function deleteAdminDiagQuestion(id) {
+  if (!confirm('Вы действительно хотите удалить этот вопрос из диагностики?')) return;
+  try {
+    await api('/api/admin/diagnostics/questions/' + id, { method: 'DELETE' });
+    showToast('Вопрос успешно удален');
+    await loadAdminDiagQuestions();
+    await loadDynamicDiagnosticQuestions();
+  } catch (err) {
+    showToast('Ошибка удаления: ' + err.message, true);
+  }
+}
+window.deleteAdminDiagQuestion = deleteAdminDiagQuestion;
+
+async function handleSaveAdminDiagQuestion(e) {
+  e.preventDefault();
+  const id = document.getElementById('admDiagQ_id').value;
+  const type = document.getElementById('admDiagQ_type').value;
+  const compIdx = parseInt(document.getElementById('admDiagQ_comp').value, 10) || 0;
+  const text = document.getElementById('admDiagQ_text').value.trim();
+  const explanation = document.getElementById('admDiagQ_explanation').value.trim();
+
+  if (!text) {
+    showToast('Укажите текст вопроса', true);
+    return;
+  }
+
+  const options = [];
+  let correctIndex = 0;
+  if (type === 'test') {
+    for (let i = 0; i < 4; i++) {
+      const optVal = document.getElementById('admDiagOpt_' + i)?.value.trim() || '';
+      if (optVal) options.push(optVal);
+    }
+    if (options.length < 2) {
+      showToast('Укажите как минимум 2 варианта ответа для теста', true);
+      return;
+    }
+    const checked = document.querySelector('input[name="admDiagCorrect"]:checked');
+    correctIndex = checked ? parseInt(checked.value, 10) : 0;
+    if (correctIndex >= options.length) correctIndex = 0;
+  }
+
+  const payload = {
+    type,
+    competency_index: compIdx,
+    question_text: text,
+    options,
+    correct_index: correctIndex,
+    explanation
+  };
+
+  try {
+    showToast('Сохранение вопроса...');
+    if (id) {
+      await api('/api/admin/diagnostics/questions/' + id, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+      showToast('Вопрос успешно обновлен!');
+    } else {
+      await api('/api/admin/diagnostics/questions', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      showToast('Новый вопрос добавлен в диагностику!');
+    }
+    toggleAdminDiagForm(false);
+    await loadAdminDiagQuestions();
+    await loadDynamicDiagnosticQuestions();
+  } catch (err) {
+    showToast('Ошибка сохранения: ' + err.message, true);
+  }
+}
+
+// ── Admin: Participants & Export Registry ──
+async function loadAdminUsers() {
+  const tbody = document.getElementById('admUsersTableBody');
+  if (!tbody) return;
+
+  try {
+    const res = await api('/api/admin/users');
+    state.adminUsers = (res && res.users) ? res.users : [];
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--danger);text-align:center;padding:16px">Ошибка загрузки участников: ${escapeHtml(err.message)}</td></tr>`;
+    return;
+  }
+
+  const searchInp = document.getElementById('admUserSearchInput');
+  if (searchInp && !searchInp.dataset.bound) {
+    searchInp.dataset.bound = 'true';
+    searchInp.oninput = () => renderAdminUsersTable(searchInp.value);
+  }
+
+  renderAdminUsersTable();
+}
+
+function renderAdminUsersTable(searchQuery = '') {
+  const tbody = document.getElementById('admUsersTableBody');
+  if (!tbody || !state.adminUsers) return;
+
+  const q = searchQuery.trim().toLowerCase();
+  const filtered = state.adminUsers.filter(u => {
+    if (!q) return true;
+    return (u.fio && u.fio.toLowerCase().includes(q)) ||
+           (u.login && u.login.toLowerCase().includes(q)) ||
+           (u.workplace && u.workplace.toLowerCase().includes(q)) ||
+           (u.position && u.position.toLowerCase().includes(q));
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--ink-muted)">Участников не найдено</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(u => {
+    const expLine = `О: ${u.experience_total || 0} / П: ${u.experience_ped || 0} / У: ${u.experience_mgmt || 0} лет`;
+    const diagInfo = u.latest_score !== null && u.latest_score !== undefined
+      ? `<b>${u.latest_score}%</b> (${escapeHtml(u.deficit_level || 'Пройдено')})<br><small style="color:var(--ink-muted)">попыток: ${u.diag_count || 1}</small>`
+      : '<span style="color:var(--ink-muted);font-size:12px">Не проходил</span>';
+
+    const iprInfo = u.ipr_total_count > 0
+      ? `Пунктов: <b>${u.ipr_total_count}</b><br><small style="color:var(--success)">Освоено: ${u.ipr_completed_count || 0}</small>`
+      : '<span style="color:var(--ink-muted);font-size:12px">0 пунктов</span>';
+
+    return `
+      <tr>
+        <td>
+          <b style="color:var(--ink);display:block;font-size:13.5px">${escapeHtml(u.fio || u.login)}</b>
+          <small style="color:var(--ink-muted);display:block">Логин: @${escapeHtml(u.login)} | Роль: ${escapeHtml(u.role_title || u.role)}</small>
+          ${u.email ? `<small style="color:var(--accent-blue);display:block">${escapeHtml(u.email)}</small>` : ''}
+        </td>
+        <td>
+          <span style="font-size:12.5px;color:var(--ink);display:block">${escapeHtml(u.workplace || 'Не указана')}</span>
+          <small style="color:var(--ink-muted);display:block">${escapeHtml(u.position || '—')}</small>
+        </td>
+        <td>
+          <span style="font-size:12px;white-space:nowrap;font-weight:600;color:var(--navy-deep)">${expLine}</span>
+        </td>
+        <td>${diagInfo}</td>
+        <td>${iprInfo}</td>
+        <td>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <button class="btn sm outline" style="padding:4px 8px;font-size:11px" onclick="exportUserDossier(${u.id}, 'questionnaire')" title="Скачать официальную анкету участника">📋 Анкета</button>
+            <button class="btn sm outline" style="padding:4px 8px;font-size:11px" onclick="exportUserDossier(${u.id}, 'ipr')" title="Скачать индивидуальный план развития">🛤️ ИПР</button>
+            <button class="btn sm outline" style="padding:4px 8px;font-size:11px" onclick="exportUserDossier(${u.id}, 'diagnostics')" title="Скачать протокол диагностики">📊 Тест</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ── Admin: Media & Photos Gallery ──
+async function loadAdminMedia() {
+  const grid = document.getElementById('admMediaGalleryGrid');
+  if (!grid) return;
+
+  try {
+    const res = await api('/api/media');
+    state.adminMedia = (res && res.media) ? res.media : [];
+  } catch (err) {
+    grid.innerHTML = `<div style="grid-column:1/-1;color:var(--danger)">Ошибка загрузки фото: ${escapeHtml(err.message)}</div>`;
+    return;
+  }
+
+  const uploadForm = document.getElementById('admUploadMediaForm');
+  if (uploadForm && !uploadForm.dataset.bound) {
+    uploadForm.dataset.bound = 'true';
+    uploadForm.onsubmit = handleUploadAdminMedia;
+  }
+
+  renderAdminMediaGallery();
+}
+
+function renderAdminMediaGallery() {
+  const grid = document.getElementById('admMediaGalleryGrid');
+  if (!grid || !state.adminMedia) return;
+
+  if (state.adminMedia.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--ink-muted)">В медиатеке пока нет фотографий</div>';
+    return;
+  }
+
+  grid.innerHTML = state.adminMedia.map(m => `
+    <div class="media-card" style="border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:#fff;display:flex;flex-direction:column">
+      <div style="height:120px;background:#f0f2f5;display:flex;align-items:center;justify-content:center;overflow:hidden">
+        <img src="${escapeHtml(m.url)}" alt="${escapeHtml(m.title)}" style="width:100%;height:100%;object-fit:cover" onerror="this.src='img/photo_iro.jpg'">
+      </div>
+      <div style="padding:10px 12px;flex:1;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <b style="font-size:12.5px;color:var(--ink);display:block;line-height:1.3;margin-bottom:4px">${escapeHtml(m.title)}</b>
+          <span class="badge b-g" style="font-size:10px;padding:2px 6px">${escapeHtml(m.category || 'general')}</span>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:6px;align-items:center">
+          <button class="btn sm outline" style="padding:4px 8px;font-size:11px;flex:1" onclick="copyMediaUrl('${escapeHtml(m.url)}')">📋 Копировать</button>
+          <button class="btn sm danger" style="padding:4px 8px;font-size:11px" onclick="deleteAdminMedia(${m.id})">🗑️</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function copyMediaUrl(url) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => showToast('Ссылка на фото скопирована в буфер: ' + url));
+  } else {
+    prompt('Скопируйте ссылку на фото:', url);
+  }
+}
+window.copyMediaUrl = copyMediaUrl;
+
+async function deleteAdminMedia(id) {
+  if (!confirm('Вы уверены, что хотите удалить эту фотографию из медиатеки?')) return;
+  try {
+    await api('/api/admin/media/' + id, { method: 'DELETE' });
+    showToast('Фотография удалена');
+    loadAdminMedia();
+  } catch (err) {
+    showToast('Ошибка удаления: ' + err.message, true);
+  }
+}
+window.deleteAdminMedia = deleteAdminMedia;
+
+async function handleUploadAdminMedia(e) {
+  e.preventDefault();
+  const title = document.getElementById('admNewMediaTitle')?.value.trim();
+  const category = document.getElementById('admNewMediaCategory')?.value;
+  const fileInput = document.getElementById('admNewMediaFile');
+  const urlInput = document.getElementById('admNewMediaUrl')?.value.trim();
+
+  if (!title) {
+    showToast('Укажите название фотографии', true);
+    return;
+  }
+
+  try {
+    showToast('Загрузка в медиатеку...');
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+      const fd = new FormData();
+      fd.append('image', fileInput.files[0]);
+      fd.append('title', title);
+      fd.append('category', category);
+      await api('/api/admin/media', {
+        method: 'POST',
+        body: fd
+      });
+    } else if (urlInput) {
+      await api('/api/admin/media', {
+        method: 'POST',
+        body: JSON.stringify({ title, category, url: urlInput })
+      });
+    } else {
+      showToast('Выберите файл или укажите прямую ссылку на фото', true);
+      return;
+    }
+
+    showToast('Фотография успешно добавлена в медиатеку!');
+    document.getElementById('admNewMediaTitle').value = '';
+    if (fileInput) fileInput.value = '';
+    if (document.getElementById('admNewMediaUrl')) document.getElementById('admNewMediaUrl').value = '';
+    loadAdminMedia();
+  } catch (err) {
+    showToast('Ошибка загрузки: ' + err.message, true);
+  }
+}
+
+// ── Dynamic Diagnostic Questions Synchronization ──
+async function loadDynamicDiagnosticQuestions() {
+  try {
+    const res = await api('/api/diagnostics/questions');
+    if (res && Array.isArray(res.questions) && res.questions.length > 0) {
+      TEST_QUESTIONS.length = 0;
+      res.questions.forEach(q => TEST_QUESTIONS.push(q));
+      shuffleTestOptions(TEST_QUESTIONS);
+      renderTest();
+    }
+    if (res && Array.isArray(res.self_assessment) && res.self_assessment.length > 0) {
+      SA_QUESTIONS.length = 0;
+      res.self_assessment.forEach(sa => SA_QUESTIONS.push(sa));
+      renderSelfAssessment();
+    }
+  } catch (_) {}
+}
 
 // ── Dialogue Q&A ──
 async function loadDialogueFeed() {
@@ -2163,6 +3150,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const admAddDocForm = document.getElementById('admAddDocForm');
   if (admAddDocForm) admAddDocForm.onsubmit = handleAdminAddDocument;
 
+  const btnExportUserIpr = document.getElementById('btnExportUserIpr');
+  if (btnExportUserIpr) {
+    btnExportUserIpr.onclick = () => exportOfficialIpr();
+  }
+
+  await loadDynamicDiagnosticQuestions();
   await initAuth();
   await loadAndApplySiteContent();
   route();

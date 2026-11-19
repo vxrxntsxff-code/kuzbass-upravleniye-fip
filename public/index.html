@@ -19,7 +19,7 @@
         <img src="img/logo_iro.png" alt="Логотип ИРО Кузбасса">
       </span>
       <span>
-        <b>Региональная модель</b>
+        <b>ГБОУ ДПО «Институт развития образования Кузбасса»</b>
         <small>Управленческий навигатор Кузбасса</small>
       </span>
     </a>
@@ -216,7 +216,7 @@
 <!-- ═══════════ О ПРОЕКТЕ ═══════════ -->
 <section class="page" id="p-about">
   <div class="wrap">
-    <h1 class="pt">О проекте <span>«Региональная модель»</span></h1>
+    <h1 class="pt">О проекте <span>«Региональная модель опережающей подготовки и непрерывного развития управленческих кадров системы образования»</span></h1>
     <p class="lead">
       Научно обоснованная система сопровождения управленца в сфере образования на всех этапах его карьеры: от прогноза кадровой потребности и диагностики до портфолио-аттестации и непрерывного развития. Модель объединяет четыре ключевых элемента: <b>прогнозирование кадровой потребности региона</b>, <b>практико-ориентированное модульное обучение</b>, <b>аттестацию через личное портфолио</b> и <b>индивидуальный трек развития</b>.
     </p>
@@ -449,7 +449,7 @@
       </div>
 
       <div class="card">
-        <h3>Онлайн</h3>
+        <h3>Онлайн-модули</h3>
         <p>Короткие прикладные курсы под специфические дефициты компетенций, выявленные диагностикой, — без отрыва от работы, с немедленным применением результата. Доступны из личного кабинета, а решённые задания становятся вкладом в портфолио.</p>
         <div class="micro-grid">
           <div class="micro-item"><b>«Управление проектами: от идеи до гранта»</b><span>40 мин · видеолекция + тренажёр</span></div>
@@ -601,22 +601,24 @@
       Методические и нормативные материалы модели: всё, что нужно руководителю для подготовки к аттестации, формирования портфолио и ежедневной управленческой работы.
     </p>
 
-    <div class="grid g2">
-      <div>
-        <h3 style="margin:0 0 10px;font-size:15px">Методические материалы</h3>
-        <div id="methodDocsContainer">
-          <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="doc-content"><span class="doc-title">Методический сборник «Управленческий навигатор Кузбасса»</span><span class="doc-desc">Итоговый сборник модели: методики, разборы кейсов, рабочие листы руководителя</span></div></div>
-          <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="doc-content"><span class="doc-title">Банк управленческих кейсов и симуляционных заданий (200+)</span><span class="doc-desc">Реальные ситуации по пяти направлениям: стратегия, ФХД, персонал, качество, коммуникации</span></div></div>
-          <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 6v6c0 5 3.8 8.6 9 10 5.2-1.4 9-5 9-10V6l-9-4Z"/><path d="m8.5 12 2.4 2.4 4.6-4.8"/></svg></div><div class="doc-content"><span class="doc-title">Банк лучших управленческих практик Кузбасса</span><span class="doc-desc">Готовые управленческие решения с возможностью адаптации под свою организацию</span></div></div>
-          <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="doc-content"><span class="doc-title">Методические рекомендации по формированию управленческого портфолио</span><span class="doc-desc">Алгоритм сбора данных, критерии и показатели оценки, подготовка к портфолио-аттестации</span></div></div>
+    <!-- Панель фильтрации и поиска нормативных документов -->
+    <div class="card" style="margin-bottom:20px;padding:18px 20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:14px">
+        <div class="doc-filter-pills" id="helpCategoryFilters">
+          <button class="pill active" data-cat="all">Все документы <span id="cntDocAll">34</span></button>
+          <button class="pill" data-cat="federal">🏛️ Федеральный уровень <span id="cntDocFed">10</span></button>
+          <button class="pill" data-cat="regional">🌲 Региональный уровень (Кузбасс) <span id="cntDocReg">10</span></button>
+          <button class="pill" data-cat="local">🏫 Локальные нормативные акты <span id="cntDocLoc">8</span></button>
+          <button class="pill" data-cat="methodological">📚 Методические материалы <span id="cntDocMeth">6</span></button>
         </div>
       </div>
-
-      <div>
-        <h3 style="margin:0 0 10px;font-size:15px">Нормативная база для работы руководителя</h3>
-        <div id="normLib"></div>
+      <div style="position:relative">
+        <input class="inp" id="helpDocSearch" placeholder="🔍 Быстрый поиск документа по названию, номеру (например: 273-ФЗ, 86-ОЗ, ВСОКО, 250н) или теме..." style="font-size:13.5px;padding-left:14px">
       </div>
     </div>
+
+    <div id="normLib" class="grid g2" style="margin-bottom:24px"></div>
+    <div id="methodDocsContainer" style="display:none"></div>
 
     <div class="sec">
       <h3 style="margin:0 0 10px;font-size:16px">Ключевые обновления законодательства 2025–2026 годов</h3>
@@ -823,7 +825,7 @@
               <p style="margin:4px 0 0;font-size:13px;color:var(--ink-muted)">Создаётся автоматически по результатам диагностики и дополняется вручную — конструктор ИПР</p>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button class="btn sm outline" onclick="window.print()">Распечатать ИПР (PDF)</button>
+              <button class="btn primary sm" id="btnExportUserIpr" type="button">📥 Скачать / Распечатать ИПР (PDF)</button>
             </div>
           </div>
 
@@ -972,8 +974,10 @@
       <button data-at="future">🌟 Кадровый резерв</button>
       <button data-at="help">📖 В помощь руководителю</button>
       <button data-at="docs">📚 Библиотека документов</button>
+      <button data-at="diag">📝 Диагностика (тесты)</button>
+      <button data-at="users">👥 Участники и выгрузка</button>
       <button data-at="dialogue">💬 Эффективный диалог</button>
-      <button data-at="images">🖼️ Фотографии и баннеры</button>
+      <button data-at="images">🖼️ Фотографии и медиа</button>
     </div>
 
     <!-- TAB 1: HOME -->
@@ -1247,7 +1251,7 @@
             <textarea class="inp" id="adm_traj_card_dpo" rows="4"></textarea>
           </div>
           <div class="f-grp">
-            <label class="fl">Карточка 2: Формат «Онлайн»</label>
+            <label class="fl">Карточка 2: Формат «Онлайн-модули»</label>
             <textarea class="inp" id="adm_traj_card_online" rows="4"></textarea>
           </div>
           <div class="f-grp">
@@ -1385,8 +1389,10 @@
             <div class="f-grp">
               <label class="fl">Раздел библиотеки</label>
               <select class="inp" id="admDocCategory">
-                <option value="methodological">Методические материалы (левая колонка)</option>
-                <option value="normative">Нормативная база руководителя (правая колонка)</option>
+                <option value="federal">🏛️ Федеральный уровень</option>
+                <option value="regional">🌲 Региональный уровень (Кузбасс)</option>
+                <option value="local">🏫 Локальные нормативные акты</option>
+                <option value="methodological">📚 Методические материалы</option>
               </select>
             </div>
             <div class="f-grp">
@@ -1402,14 +1408,156 @@
         </div>
 
         <div class="card">
-          <h3>Список документов на сайте</h3>
-          <p class="sub">Вы можете удалить любой устаревший документ в один клик</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px">
+            <div>
+              <h3 style="margin:0">Список документов на сайте</h3>
+              <p class="sub" style="margin:4px 0 0">Управление документами и удаление в один клик</p>
+            </div>
+            <div class="doc-filter-pills" id="admDocFilters">
+              <button class="pill active" data-cat="all">Все</button>
+              <button class="pill" data-cat="federal">Фед.</button>
+              <button class="pill" data-cat="regional">Регион.</button>
+              <button class="pill" data-cat="local">Локал.</button>
+              <button class="pill" data-cat="methodological">Метод.</button>
+            </div>
+          </div>
           <div id="admDocList" style="max-height:540px;overflow-y:auto;padding-right:6px"></div>
         </div>
       </div>
     </div>
 
-    <!-- TAB 8: DIALOGUE MODERATION -->
+    <!-- TAB 8: DIAGNOSTICS MANAGEMENT -->
+    <div class="admin-pane" id="at-diag">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+          <div>
+            <h3 style="margin:0">Управление вопросами диагностики</h3>
+            <p class="sub" style="margin:4px 0 0">Редактирование, добавление и настройка заданий комплексного теста (20 ситуаций) и листа самооценки (5 направлений)</p>
+          </div>
+          <button class="btn primary sm" id="btnAdminAddDiagQuestion" type="button">➕ Добавить вопрос в диагностику</button>
+        </div>
+
+        <!-- Форма добавления / редактирования вопроса (скрыта по умолчанию) -->
+        <div id="admDiagQuestionFormWrap" style="display:none;background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;margin-bottom:20px">
+          <h4 id="admDiagFormTitle" style="margin:0 0 12px;font-size:15px;color:var(--ink)">Новый вопрос диагностики</h4>
+          <form id="admDiagQuestionForm">
+            <input type="hidden" id="admDiagQ_id" value="">
+            <div class="f-row">
+              <div class="f-grp">
+                <label class="fl">Тип задания</label>
+                <select class="inp" id="admDiagQ_type">
+                  <option value="test">Комплексный тест (ситуация с 4 вариантами ответа)</option>
+                  <option value="self_assessment">Лист самооценки (утверждение по компетенции)</option>
+                </select>
+              </div>
+              <div class="f-grp">
+                <label class="fl">Направление компетенции</label>
+                <select class="inp" id="admDiagQ_comp">
+                  <option value="0">01. Стратегическое управление</option>
+                  <option value="1">02. Финансово-хозяйственная деятельность</option>
+                  <option value="2">03. Управление персоналом</option>
+                  <option value="3">04. Управление качеством образования</option>
+                  <option value="4">05. Коммуникации</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="f-grp">
+              <label class="fl">Текст вопроса / кейс-ситуации</label>
+              <textarea class="inp" id="admDiagQ_text" rows="3" placeholder="Введите текст вопроса или практической управленческой ситуации..." required></textarea>
+            </div>
+
+            <div id="admDiagOptionsGroup">
+              <label class="fl">Варианты ответа (отметьте верный ответ переключателем слева):</label>
+              <div class="diag-opt-row" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <input type="radio" name="admDiagCorrect" value="0" checked title="Правильный ответ">
+                <input class="inp" id="admDiagOpt_0" placeholder="Вариант ответа 1">
+              </div>
+              <div class="diag-opt-row" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <input type="radio" name="admDiagCorrect" value="1" title="Правильный ответ">
+                <input class="inp" id="admDiagOpt_1" placeholder="Вариант ответа 2">
+              </div>
+              <div class="diag-opt-row" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <input type="radio" name="admDiagCorrect" value="2" title="Правильный ответ">
+                <input class="inp" id="admDiagOpt_2" placeholder="Вариант ответа 3">
+              </div>
+              <div class="diag-opt-row" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <input type="radio" name="admDiagCorrect" value="3" title="Правильный ответ">
+                <input class="inp" id="admDiagOpt_3" placeholder="Вариант ответа 4">
+              </div>
+            </div>
+
+            <div class="f-grp" style="margin-top:12px">
+              <label class="fl">Методическое обоснование / ссылка на нормативный акт</label>
+              <textarea class="inp" id="admDiagQ_explanation" rows="2" placeholder="Пояснение, почему этот вариант верный (ссылка на ФЗ № 273-ФЗ, профстандарт, регламент)..."></textarea>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:14px">
+              <button class="btn primary sm" type="submit" id="admDiagSaveBtn">💾 Сохранить вопрос</button>
+              <button class="btn outline sm" type="button" id="admDiagCancelBtn">Отмена</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Фильтры списка вопросов -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:600;color:var(--ink-muted)">Направление:</div>
+          <div class="doc-filter-pills" id="admDiagFilters">
+            <button class="pill active" data-comp="all">Все (<span id="cntDiagAll">25</span>)</button>
+            <button class="pill" data-comp="0">1. Стратегия</button>
+            <button class="pill" data-comp="1">2. ФХД</button>
+            <button class="pill" data-comp="2">3. Персонал</button>
+            <button class="pill" data-comp="3">4. Качество</button>
+            <button class="pill" data-comp="4">5. Коммуникации</button>
+            <button class="pill" data-comp="sa">Самооценка</button>
+          </div>
+        </div>
+
+        <div id="admDiagQuestionsList" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+    </div>
+
+    <!-- TAB 9: PARTICIPANTS & EXPORT -->
+    <div class="admin-pane" id="at-users">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:18px">
+          <div>
+            <h3 style="margin:0">Реестр участников и выгрузка данных</h3>
+            <p class="sub" style="margin:4px 0 0">Просмотр зарегистрированных пользователей, результатов тестирования, индивидуальных планов и скачивание официальных бланков</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="/api/admin/diagnostics/export-csv" class="btn primary sm" target="_blank" download>📊 Скачать ведомость результатов диагностики (CSV / Excel)</a>
+            <a href="/api/admin/users/export-csv" class="btn outline sm" target="_blank" download>📋 Скачать реестр анкет (CSV / Excel)</a>
+          </div>
+        </div>
+
+        <!-- Поиск участников -->
+        <div style="margin-bottom:18px">
+          <input class="inp" id="admUserSearchInput" placeholder="🔍 Поиск участника по ФИО, логину, организации или должности...">
+        </div>
+
+        <!-- Таблица участников -->
+        <div style="overflow-x:auto">
+          <table class="adm-table" id="admUsersTable">
+            <thead>
+              <tr>
+                <th>Участник</th>
+                <th>Организация / Должность</th>
+                <th>Стаж (О/П/У)</th>
+                <th>Диагностика</th>
+                <th>ИПР</th>
+                <th>Официальные выгрузки</th>
+              </tr>
+            </thead>
+            <tbody id="admUsersTableBody">
+              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--ink-muted)">Загрузка списка участников...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 10: DIALOGUE MODERATION -->
     <div class="admin-pane" id="at-dialogue">
       <div class="card">
         <h3>Модерация вопросов в «Эффективном диалоге»</h3>
@@ -1418,11 +1566,58 @@
       </div>
     </div>
 
-    <!-- TAB 9: IMAGES -->
+    <!-- TAB 11: IMAGES & MEDIA -->
     <div class="admin-pane" id="at-images">
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+          <div>
+            <h3 style="margin:0">Медиатека и добавление новых фотографий</h3>
+            <p class="sub" style="margin:4px 0 0">Вы можете загрузить любое новое фото с компьютера или добавить по ссылке в общую галерею платформы</p>
+          </div>
+        </div>
+
+        <!-- Форма загрузки нового фото -->
+        <form id="admUploadMediaForm" style="background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:18px">
+          <div class="f-row">
+            <div class="f-grp">
+              <label class="fl">Название фотографии / баннера</label>
+              <input class="inp" id="admNewMediaTitle" placeholder="например: Открытие опорной площадки в Новокузнецке" required>
+            </div>
+            <div class="f-grp">
+              <label class="fl">Раздел сайта / Категория</label>
+              <select class="inp" id="admNewMediaCategory">
+                <option value="general">Общая галерея</option>
+                <option value="home">Главная страница / Баннеры</option>
+                <option value="about">О проекте</option>
+                <option value="traj">Образовательная траектория</option>
+                <option value="events">Мероприятия и события</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="f-row">
+            <div class="f-grp">
+              <label class="fl">Файл изображения с компьютера</label>
+              <input type="file" class="inp" id="admNewMediaFile" accept="image/*">
+            </div>
+            <div class="f-grp">
+              <label class="fl">Или прямая ссылка на изображение (URL)</label>
+              <input class="inp" id="admNewMediaUrl" placeholder="https://... или img/photo_...">
+            </div>
+          </div>
+
+          <div style="margin-top:10px">
+            <button class="btn primary sm" type="submit" id="admUploadMediaBtn">📤 Загрузить фото в медиатеку</button>
+          </div>
+        </form>
+
+        <h4 style="margin:16px 0 10px;font-size:14px;color:var(--ink)">Галерея загруженных фотографий и материалов</h4>
+        <div id="admMediaGalleryGrid" class="grid g4" style="gap:14px"></div>
+      </div>
+
       <div class="card">
-        <h3>Управление ключевыми фотографиями платформы</h3>
-        <p class="sub">Вы можете заменить любое фото, выбрав новый файл со своего компьютера или вставив прямую ссылку</p>
+        <h3>Привязка ключевых фотографий на сайте</h3>
+        <p class="sub">Назначьте изображения для основных блоков платформы</p>
 
         <div class="grid g2" style="margin-top:16px">
           <!-- Image 1 -->
@@ -1438,7 +1633,7 @@
             </div>
             <div style="display:flex;gap:8px">
               <input type="file" id="upload_photo_iro" accept="image/*" style="display:none">
-              <button class="btn sm outline" type="button" onclick="document.getElementById('upload_photo_iro').click()">📁 Загрузить файл</button>
+              <button class="btn sm outline" type="button" onclick="document.getElementById('upload_photo_iro').click()">📁 Выбрать файл</button>
             </div>
           </div>
 
@@ -1455,7 +1650,7 @@
             </div>
             <div style="display:flex;gap:8px">
               <input type="file" id="upload_photo_strat_session" accept="image/*" style="display:none">
-              <button class="btn sm outline" type="button" onclick="document.getElementById('upload_photo_strat_session').click()">📁 Загрузить файл</button>
+              <button class="btn sm outline" type="button" onclick="document.getElementById('upload_photo_strat_session').click()">📁 Выбрать файл</button>
             </div>
           </div>
 
@@ -1472,7 +1667,7 @@
             </div>
             <div style="display:flex;gap:8px">
               <input type="file" id="upload_photo_ecosistema" accept="image/*" style="display:none">
-              <button class="btn sm outline" type="button" onclick="document.getElementById('upload_photo_ecosistema').click()">📁 Загрузить файл</button>
+              <button class="btn sm outline" type="button" onclick="document.getElementById('upload_photo_ecosistema').click()">📁 Выбрать файл</button>
             </div>
           </div>
 
@@ -1489,13 +1684,13 @@
             </div>
             <div style="display:flex;gap:8px">
               <input type="file" id="upload_photo_kniga_direktora" accept="image/*" style="display:none">
-              <button class="btn sm outline" type="button" onclick="document.getElementById('upload_photo_kniga_direktora').click()">📁 Загрузить файл</button>
+              <button class="btn sm outline" type="button" onclick="document.getElementById('upload_photo_kniga_direktora').click()">📁 Выбрать файл</button>
             </div>
           </div>
         </div>
 
         <div style="margin-top:20px">
-          <button class="btn primary" id="admSaveImagesBtn">💾 Сохранить пути к изображениям</button>
+          <button class="btn primary" id="admSaveImagesBtn">💾 Сохранить пути к ключевым изображениям</button>
         </div>
       </div>
     </div>

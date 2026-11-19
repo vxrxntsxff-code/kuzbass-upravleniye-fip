@@ -159,37 +159,40 @@ header.top {
 }
 .logo:hover { text-decoration: none; }
 .logo .lm {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  background: var(--gold);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #3677cf;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
 .logo .lm img {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
 }
 .logo b {
   font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: 16px;
-  letter-spacing: 0.02em;
+  font-weight: 500;
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
   color: #fff;
   display: block;
-  line-height: 1.15;
+  line-height: 1.22;
+  max-width: 290px;
 }
 .logo small {
   display: block;
-  font-size: 10.5px;
-  color: var(--gold-bright);
-  font-weight: 600;
+  font-size: 9.5px;
+  color: #c4ddfc;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  margin-top: 2px;
 }
 
 /* Role Selector Badge (в кабинете — на светлой карточке) */
@@ -324,7 +327,7 @@ nav.main a.on {
   cursor: pointer;
 }
 
-@media(max-width: 1140px) {
+@media(max-width: 1180px) {
   nav.main {
     display: flex;
     position: absolute;
@@ -1863,3 +1866,160 @@ header.top.scrolled {
   .sec h2 { font-size: 20px; }
   .logo small { display: none; }
 }
+
+/* ── Multi-tier Document Library & Badges ── */
+.doc-filter-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.doc-filter-pills .pill {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-muted);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.doc-filter-pills .pill:hover {
+  border-color: var(--accent-blue);
+  color: var(--ink);
+}
+.doc-filter-pills .pill.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #fff;
+}
+.doc-filter-pills .pill span {
+  font-size: 11px;
+  opacity: 0.85;
+  background: rgba(0,0,0,0.08);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.doc-filter-pills .pill.active span {
+  background: rgba(255,255,255,0.25);
+}
+
+.doc-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+.badge-federal { background: #e0f2fe; color: #0284c7; }
+.badge-regional { background: #dcfce7; color: #15803d; }
+.badge-local { background: #f3e8ff; color: #7e22ce; }
+.badge-methodological { background: #fef3c7; color: #b45309; }
+
+/* ── Media Gallery Grid ── */
+.media-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.media-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.media-thumb-wrap {
+  height: 120px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+.media-thumb-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-card-body {
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.media-card-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 6px;
+  flex: 1;
+}
+
+/* ── Admin Tables ── */
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+.adm-table th {
+  background: var(--surface-subtle);
+  color: var(--ink-muted);
+  font-weight: 700;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--border);
+}
+.adm-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.adm-table tr:hover td {
+  background: rgba(30, 75, 136, 0.02);
+}
+
+/* ── Admin Diagnostic Question Cards ── */
+.adm-q-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 16px;
+  transition: border-color 0.2s ease;
+}
+.adm-q-card:hover {
+  border-color: var(--accent-blue);
+}
+.adm-q-option {
+  font-size: 12.5px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-muted);
+  background: var(--surface-subtle);
+}
+.adm-q-option.correct {
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 600;
+  border: 1px solid #a7f3d0;
+}
+

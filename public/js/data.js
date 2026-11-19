@@ -517,3 +517,15 @@ const NORMATIVE_DOCS = [
     ]
   }
 ];
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    COMPETENCIES,
+    SA_QUESTIONS,
+    TEST_QUESTIONS,
+    CASES_CATALOG,
+    SIMULATIONS_CATALOG,
+    NORMATIVE_DOCS
+  };
+}
+
